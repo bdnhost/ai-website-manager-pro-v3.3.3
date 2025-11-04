@@ -368,10 +368,31 @@ class Settings_Migration
             KEY created_by (created_by)
         ) $charset_collate;";
 
+        // Automation tasks table
+        $automation_table = $wpdb->prefix . 'ai_manager_pro_automation_tasks';
+        $automation_sql = "CREATE TABLE IF NOT EXISTS {$automation_table} (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            name varchar(255) NOT NULL,
+            description text,
+            rules longtext NOT NULL,
+            schedule varchar(50) NOT NULL,
+            status varchar(20) DEFAULT 'active',
+            last_run datetime,
+            next_run datetime,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            created_by bigint(20),
+            PRIMARY KEY (id),
+            KEY status (status),
+            KEY next_run (next_run),
+            KEY created_by (created_by)
+        ) $charset_collate;";
+
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($settings_sql);
         dbDelta($log_sql);
         dbDelta($backups_sql);
+        dbDelta($automation_sql);
 
         $this->logger->info('Database tables created/updated');
     }
