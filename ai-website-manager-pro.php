@@ -91,6 +91,8 @@ class AI_Manager_Pro_Safe
         add_action('wp_ajax_ai_manager_pro_generate_deepseek_content', [$this, 'handle_generate_deepseek_content']);
         add_action('wp_ajax_ai_manager_pro_import_brand_json', [$this, 'handle_import_brand_json']);
         add_action('wp_ajax_ai_manager_pro_export_brand_json', [$this, 'handle_export_brand_json']);
+        add_action('wp_ajax_ai_manager_pro_publish_content', [$this, 'handle_publish_content']);
+        error_log('AI Manager Pro - Registered publish_content handler');
 
         // Cron jobs
         add_action('ai_manager_pro_automation_task', [$this, 'run_automation_task']);
@@ -3156,6 +3158,105 @@ class AI_Manager_Pro_Safe
             'edit_url' => admin_url('post.php?post=' . $post_id . '&action=edit'),
             'view_url' => get_permalink($post_id)
         ]);
+    }
+
+    /**
+     * Handle publish content AJAX request - for Content Generator
+     */
+    public function handle_publish_content()
+    {
+        try {
+            // Log the request
+            error_log('AI Manager Pro: Publish content AJAX called');
+            error_log('AI Manager Pro: POST data: ' . print_r($_POST, true));
+
+            // Verify nonce
+            if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'ai_manager_pro_nonce')) {
+                error_log('AI Manager Pro: Nonce verification failed');
+                wp_send_json_error('אימות נכשל - אנא רענן את הדף');
+                return;
+            }
+
+            // Check permissions
+            if (!current_user_can('edit_posts')) {
+                error_log('AI Manager Pro: Permission denied');
+                wp_send_json_error('אין לך הרשאות מספיקות');
+                return;
+            }
+
+            // Get POST data
+            $title = isset($_POST['title']) ? sanitize_text_field($_POST['title']) : '';
+            $content = isset($_POST['content']) ? wp_kses_post(wp_unslash($_POST['content'])) : '';
+            $status = isset($_POST['status']) ? sanitize_text_field($_POST['status']) : 'draft';
+            $category = isset($_POST['category']) ? absint($_POST['category']) : 0;
+            $content_type = isset($_POST['content_type']) ? sanitize_text_field($_POST['content_type']) : 'blog_post';
+
+            // Validate required fields
+            if (empty($title)) {
+                error_log('AI Manager Pro: Title is empty');
+                wp_send_json_error('חובה למלא כותרת');
+                return;
+            }
+
+            if (empty($content)) {
+                error_log('AI Manager Pro: Content is empty');
+                wp_send_json_error('חובה למלא תוכן');
+                return;
+            }
+
+            // Validate status
+            if (!in_array($status, ['draft', 'publish'])) {
+                $status = 'draft';
+            }
+
+            error_log("AI Manager Pro: Creating post with status: {$status}");
+
+            // Create post data
+            $post_data = [
+                'post_title'    => $title,
+                'post_content'  => $content,
+                'post_status'   => $status,
+                'post_type'     => 'post',
+                'post_author'   => get_current_user_id(),
+            ];
+
+            // Add category if provided
+            if ($category > 0) {
+                $post_data['post_category'] = [$category];
+                error_log("AI Manager Pro: Adding category: {$category}");
+            }
+
+            // Insert the post
+            $post_id = wp_insert_post($post_data, true);
+
+            if (is_wp_error($post_id)) {
+                error_log('AI Manager Pro: Post insert error: ' . $post_id->get_error_message());
+                wp_send_json_error('שגיאה ביצירת הפוסט: ' . $post_id->get_error_message());
+                return;
+            }
+
+            // Add post meta for content type
+            update_post_meta($post_id, '_ai_content_type', $content_type);
+            update_post_meta($post_id, '_ai_generated', true);
+            update_post_meta($post_id, '_ai_generated_date', current_time('mysql'));
+
+            error_log('AI Manager Pro: Post created successfully with ID: ' . $post_id);
+
+            // Log activity
+            $this->log_activity('info', "תוכן פורסם: {$title} (ID: {$post_id}, סטטוס: {$status})", 'content_generation');
+
+            // Return success with post URLs
+            wp_send_json_success([
+                'post_id'  => $post_id,
+                'edit_url' => get_edit_post_link($post_id, 'raw'),
+                'view_url' => get_permalink($post_id),
+                'status'   => $status
+            ]);
+
+        } catch (Exception $e) {
+            error_log('AI Manager Pro: Exception in publish content: ' . $e->getMessage());
+            wp_send_json_error('שגיאה: ' . $e->getMessage());
+        }
     }
 
     /**

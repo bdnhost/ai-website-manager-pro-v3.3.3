@@ -1454,19 +1454,27 @@ if (!defined('ABSPATH')) {
         $('#publish-draft-btn, #publish-now-btn').prop('disabled', true);
         $('#publish-status').show().find('#publish-message').html('⏳ מפרסם...');
 
+        // Prepare data
+        const postData = {
+            action: 'ai_manager_pro_publish_content',
+            nonce: '<?php echo wp_create_nonce('ai_manager_pro_nonce'); ?>',
+            title: topic,
+            content: content,
+            status: status,
+            category: category,
+            content_type: contentType
+        };
+
+        console.log('Publishing content with data:', postData);
+        console.log('AJAX URL:', ajaxurl);
+
         jQuery.ajax({
             url: ajaxurl,
             type: 'POST',
-            data: {
-                action: 'ai_manager_pro_publish_content',
-                nonce: '<?php echo wp_create_nonce('ai_manager_pro_nonce'); ?>',
-                title: topic,
-                content: content,
-                status: status,
-                category: category,
-                content_type: contentType
-            },
+            data: postData,
+            dataType: 'json',
             success: function(response) {
+                console.log('Success response:', response);
                 if (response.success) {
                     const statusText = status === 'draft' ? 'נשמר כטיוטה' : 'פורסם בהצלחה';
                     const icon = status === 'draft' ? '💾' : '🚀';
@@ -1498,10 +1506,24 @@ if (!defined('ABSPATH')) {
                 }
             },
             error: function(xhr, status, error) {
+                console.error('AJAX Error:', {xhr, status, error});
+                console.error('Response Text:', xhr.responseText);
+                console.error('Status Code:', xhr.status);
+
+                let errorMessage = error;
+                if (xhr.responseText) {
+                    try {
+                        const errorData = JSON.parse(xhr.responseText);
+                        errorMessage = errorData.message || errorData.data || error;
+                    } catch(e) {
+                        errorMessage = xhr.responseText.substring(0, 200);
+                    }
+                }
+
                 $('#publish-status').find('#publish-message').html(
-                    `❌ <strong>שגיאת רשת:</strong> ${error}`
+                    `❌ <strong>שגיאה (${xhr.status}):</strong> ${errorMessage}`
                 );
-                showNotification('❌ שגיאת רשת בפרסום', 'error');
+                showNotification('❌ שגיאה בפרסום: ' + errorMessage, 'error');
             },
             complete: function() {
                 $('#publish-draft-btn, #publish-now-btn').prop('disabled', false);
