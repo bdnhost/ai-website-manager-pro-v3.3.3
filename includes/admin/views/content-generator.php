@@ -846,35 +846,78 @@ if (!defined('ABSPATH')) {
         }
     });
 
-    // Check if a template was selected from dashboard
-    const selectedTemplate = sessionStorage.getItem('ai_selected_template');
-    if (selectedTemplate) {
-        // Set the content type to the selected template
-        $('#content-type').val(selectedTemplate);
+    // Function to load template from sessionStorage
+    function loadTemplateFromDashboard() {
+        console.log('🔍 Checking for selected template...');
+        const selectedTemplate = sessionStorage.getItem('ai_selected_template');
+        console.log('📦 SessionStorage value:', selectedTemplate);
 
-        // Clear the sessionStorage so it doesn't keep loading on refresh
-        sessionStorage.removeItem('ai_selected_template');
+        if (selectedTemplate) {
+            console.log('✅ Template found:', selectedTemplate);
 
-        // Show a notification
-        const templateNames = {
-            'article': 'מאמר מקיף',
-            'guide': 'מדריך הדרכה',
-            'review': 'ביקורת מוצר',
-            'product': 'תיאור מוצר',
-            'blog_post': 'פוסט בלוג'
-        };
+            // Set the content type to the selected template
+            $('#content-type').val(selectedTemplate);
+            console.log('✅ Content type dropdown set to:', selectedTemplate);
 
-        const templateName = templateNames[selectedTemplate] || selectedTemplate;
-        showNotification(`✨ תבנית "${templateName}" נבחרה! מוכן ליצור תוכן מקצועי עם SEO מושלם.`, 'success');
+            // Trigger change event to update UI if needed
+            $('#content-type').trigger('change');
 
-        // Scroll to the topic input to encourage user to start
-        $('html, body').animate({
-            scrollTop: $('#content-topic').offset().top - 100
-        }, 500);
+            // Highlight the dropdown to show it changed
+            $('#content-type').css({
+                'border': '3px solid #667eea',
+                'box-shadow': '0 0 10px rgba(102, 126, 234, 0.5)',
+                'background': 'linear-gradient(135deg, #f0f4ff 0%, #e8efff 100%)'
+            });
 
-        // Focus on the topic input
-        $('#content-topic').focus();
+            // Remove highlight after 3 seconds
+            setTimeout(function() {
+                $('#content-type').css({
+                    'border': '',
+                    'box-shadow': '',
+                    'background': ''
+                });
+            }, 3000);
+
+            // Clear the sessionStorage so it doesn't keep loading on refresh
+            sessionStorage.removeItem('ai_selected_template');
+
+            // Show a notification
+            const templateNames = {
+                'article': 'מאמר מקיף',
+                'guide': 'מדריך הדרכה',
+                'review': 'ביקורת מוצר',
+                'product': 'תיאור מוצר',
+                'blog_post': 'פוסט בלוג'
+            };
+
+            const templateName = templateNames[selectedTemplate] || selectedTemplate;
+            showNotification(`✨ תבנית "${templateName}" נבחרה! מוכן ליצור תוכן מקצועי עם SEO מושלם.`, 'success');
+
+            // Scroll to the topic input to encourage user to start
+            setTimeout(function() {
+                const topicInput = $('#content-topic');
+                if (topicInput.length) {
+                    $('html, body').animate({
+                        scrollTop: topicInput.offset().top - 100
+                    }, 500);
+
+                    // Focus on the topic input
+                    topicInput.focus();
+                }
+            }, 100);
+        } else {
+            console.log('ℹ️ No template selected from dashboard');
+        }
     }
+
+    // Load template immediately
+    loadTemplateFromDashboard();
+
+    // Also load template if page loaded via SPA
+    $(document).on('ai-page-loaded', function() {
+        console.log('🔄 Page loaded via SPA, checking template again...');
+        loadTemplateFromDashboard();
+    });
     });
 </script>
 

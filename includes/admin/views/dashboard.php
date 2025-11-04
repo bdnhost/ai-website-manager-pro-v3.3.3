@@ -1764,13 +1764,21 @@ $current_model_name = isset($popular_models[$current_model]) ? $popular_models[$
 <script>
     // Function to create content with specific template
     function createWithTemplate(templateType) {
+        console.log('📝 Selected template:', templateType);
+
         // Store the selected template in sessionStorage
         sessionStorage.setItem('ai_selected_template', templateType);
 
+        // Verify it was stored
+        const stored = sessionStorage.getItem('ai_selected_template');
+        console.log('✅ Template stored in sessionStorage:', stored);
+
         // Navigate to content generator
         if (window.aiSpaRouter) {
+            console.log('🔀 Using SPA router');
             window.aiSpaRouter.navigateTo('content-generator');
         } else {
+            console.log('🔀 Using normal navigation');
             window.location.href = 'admin.php?page=ai-manager-pro-content-generator';
         }
     }
