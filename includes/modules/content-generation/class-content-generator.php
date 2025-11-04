@@ -1292,20 +1292,26 @@ Create newsletter content that provides value.',
             return false;
         }
 
-        // Build user prompt
+        // Build base user prompt from template
+        $user_prompt = $this->replace_placeholders(
+            $template['user_prompt_template'],
+            $options,
+            $brand_context
+        );
+
+        // ADD additional instructions if provided (don't replace!)
         if (!empty($options['custom_prompt'])) {
-            $user_prompt = $this->replace_placeholders($options['custom_prompt'], $options, $brand_context);
-        } else {
-            $user_prompt = $this->replace_placeholders(
-                $template['user_prompt_template'],
-                $options,
-                $brand_context
-            );
+            $user_prompt .= "\n\n=== הוראות נוספות ===\n";
+            $user_prompt .= $this->replace_placeholders($options['custom_prompt'], $options, $brand_context);
+            error_log('AI Manager Pro: Added custom instructions to prompt');
         }
 
         // Add SEO instructions based on content type
         $seo_instructions = $this->seo_templates[$options['content_type']] ?? $this->seo_templates['blog_post'];
-        $user_prompt .= $seo_instructions;
+        $user_prompt .= "\n\n" . $seo_instructions;
+
+        error_log('AI Manager Pro: Built prompt with brand: ' . ($brand_context['brand_name'] ?? 'default'));
+        error_log('AI Manager Pro: Prompt length: ' . strlen($user_prompt) . ' characters');
 
         return [
             'system_prompt' => $template['system_prompt'],
@@ -1330,11 +1336,18 @@ Create newsletter content that provides value.',
         $placeholders['product_name'] = $options['topic'];
         $placeholders['product_details'] = $options['product_details'] ?? 'Standard product features';
 
+        // Ensure seo_keywords is available
+        if (!isset($placeholders['seo_keywords']) || empty($placeholders['seo_keywords'])) {
+            $placeholders['seo_keywords'] = $options['topic'] ?? 'relevant keywords';
+        }
+
         foreach ($placeholders as $key => $value) {
             if (is_string($value) || is_numeric($value)) {
                 $template = str_replace('{' . $key . '}', $value, $template);
             }
         }
+
+        error_log('AI Manager Pro: Placeholders used: ' . print_r($placeholders, true));
 
         return $template;
     }
@@ -1655,17 +1668,26 @@ Create newsletter content that provides value.',
         }
 
         try {
+            // Get additional_instructions OR custom_prompt
+            $custom_instructions = sanitize_textarea_field($_POST['additional_instructions'] ?? $_POST['custom_prompt'] ?? '');
+
+            // Get keywords
+            $keywords = sanitize_text_field($_POST['keywords'] ?? '');
+
             $options = [
                 'topic' => sanitize_text_field($_POST['topic'] ?? ''),
                 'content_type' => sanitize_text_field($_POST['content_type'] ?? 'blog_post'),
                 'brand_id' => intval($_POST['brand_id'] ?? 0) ?: null,
-                'custom_prompt' => sanitize_textarea_field($_POST['custom_prompt'] ?? ''),
+                'custom_prompt' => $custom_instructions,
+                'seo_keywords' => $keywords,
                 'ai_model' => sanitize_text_field($_POST['ai_model'] ?? ''),
                 'auto_publish' => (bool) ($_POST['auto_publish'] ?? false),
                 'post_status' => sanitize_text_field($_POST['post_status'] ?? 'draft'),
                 'post_category' => sanitize_text_field($_POST['post_category'] ?? ''),
                 'post_tags' => array_map('sanitize_text_field', $_POST['post_tags'] ?? [])
             ];
+
+            error_log('AI Manager Pro: Generate content with options: ' . print_r($options, true));
 
             $result = $this->generate_content($options);
 
