@@ -2,8 +2,8 @@
 /**
  * Plugin Name: AI Website Manager Pro
  * Plugin URI: https://bdnhost.net/ai-website-manager-pro
- * Description: מערכת ניהול תוכן מתקדמת עם בינה מלאכותית - כולל דשבורד מקצועי, ייבוא/ייצוא מותגים JSON, 25+ פרומפטים מתקדמים ותמיכה ב-DeepSeek LLM. פותח על ידי BDNHOST.
- * Version: 3.3.0
+ * Description: מערכת ניהול תוכן מתקדמת עם בינה מלאכותית - כולל דשבורד מקצועי, ייבוא/ייצוא מותגים JSON, 25+ פרומפטים מתקדמים, תבניות SEO אוטומטיות ותמיכה ב-DeepSeek LLM. פותח על ידי BDNHOST.
+ * Version: 3.3.1
  * Author: יעקב בידני - BDNHOST
  * Author URI: https://bdnhost.net
  * License: GPL v2 or later
@@ -27,7 +27,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('AI_MANAGER_PRO_VERSION', '3.3.0');
+define('AI_MANAGER_PRO_VERSION', '3.3.1');
 define('AI_MANAGER_PRO_PLUGIN_FILE', __FILE__);
 define('AI_MANAGER_PRO_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('AI_MANAGER_PRO_PLUGIN_URL', plugin_dir_url(__FILE__));
