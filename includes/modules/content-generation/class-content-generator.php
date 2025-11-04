@@ -81,61 +81,83 @@ class Content_Generator {
      * Handle publish content AJAX request
      */
     public function handle_publish_content_ajax() {
-        // Verify nonce
-        check_ajax_referer('ai_manager_pro_nonce', 'nonce');
+        try {
+            // Log the request
+            error_log('AI Manager Pro: Publish content AJAX called');
+            error_log('AI Manager Pro: POST data: ' . print_r($_POST, true));
 
-        // Get POST data
-        $title = sanitize_text_field($_POST['title'] ?? '');
-        $content = wp_kses_post($_POST['content'] ?? '');
-        $status = sanitize_text_field($_POST['status'] ?? 'draft');
-        $category = absint($_POST['category'] ?? 0);
-        $content_type = sanitize_text_field($_POST['content_type'] ?? 'blog_post');
+            // Verify nonce
+            if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'ai_manager_pro_nonce')) {
+                error_log('AI Manager Pro: Nonce verification failed');
+                wp_send_json_error('אימות נכשל - אנא רענן את הדף');
+                return;
+            }
 
-        // Validate required fields
-        if (empty($title) || empty($content)) {
-            wp_send_json_error('חובה למלא כותרת ותוכן');
-            return;
+            // Get POST data
+            $title = isset($_POST['title']) ? sanitize_text_field($_POST['title']) : '';
+            $content = isset($_POST['content']) ? wp_kses_post(wp_unslash($_POST['content'])) : '';
+            $status = isset($_POST['status']) ? sanitize_text_field($_POST['status']) : 'draft';
+            $category = isset($_POST['category']) ? absint($_POST['category']) : 0;
+            $content_type = isset($_POST['content_type']) ? sanitize_text_field($_POST['content_type']) : 'blog_post';
+
+            // Validate required fields
+            if (empty($title)) {
+                wp_send_json_error('חובה למלא כותרת');
+                return;
+            }
+
+            if (empty($content)) {
+                wp_send_json_error('חובה למלא תוכן');
+                return;
+            }
+
+            // Validate status
+            if (!in_array($status, ['draft', 'publish'])) {
+                $status = 'draft';
+            }
+
+            // Create post data
+            $post_data = [
+                'post_title'    => $title,
+                'post_content'  => $content,
+                'post_status'   => $status,
+                'post_type'     => 'post',
+                'post_author'   => get_current_user_id(),
+            ];
+
+            // Add category if provided
+            if ($category > 0) {
+                $post_data['post_category'] = [$category];
+            }
+
+            // Insert the post
+            $post_id = wp_insert_post($post_data, true);
+
+            if (is_wp_error($post_id)) {
+                error_log('AI Manager Pro: Post insert error: ' . $post_id->get_error_message());
+                wp_send_json_error('שגיאה ביצירת הפוסט: ' . $post_id->get_error_message());
+                return;
+            }
+
+            // Add post meta for content type
+            update_post_meta($post_id, '_ai_content_type', $content_type);
+            update_post_meta($post_id, '_ai_generated', true);
+            update_post_meta($post_id, '_ai_generated_date', current_time('mysql'));
+
+            error_log('AI Manager Pro: Post created successfully with ID: ' . $post_id);
+
+            // Return success with post URLs
+            wp_send_json_success([
+                'post_id'  => $post_id,
+                'edit_url' => get_edit_post_link($post_id, 'raw'),
+                'view_url' => get_permalink($post_id),
+                'status'   => $status
+            ]);
+
+        } catch (Exception $e) {
+            error_log('AI Manager Pro: Exception in publish content: ' . $e->getMessage());
+            wp_send_json_error('שגיאה: ' . $e->getMessage());
         }
-
-        // Validate status
-        if (!in_array($status, ['draft', 'publish'])) {
-            $status = 'draft';
-        }
-
-        // Create post data
-        $post_data = [
-            'post_title'    => $title,
-            'post_content'  => $content,
-            'post_status'   => $status,
-            'post_type'     => 'post',
-            'post_author'   => get_current_user_id(),
-        ];
-
-        // Add category if provided
-        if ($category > 0) {
-            $post_data['post_category'] = [$category];
-        }
-
-        // Insert the post
-        $post_id = wp_insert_post($post_data, true);
-
-        if (is_wp_error($post_id)) {
-            wp_send_json_error($post_id->get_error_message());
-            return;
-        }
-
-        // Add post meta for content type
-        update_post_meta($post_id, '_ai_content_type', $content_type);
-        update_post_meta($post_id, '_ai_generated', true);
-        update_post_meta($post_id, '_ai_generated_date', current_time('mysql'));
-
-        // Return success with post URLs
-        wp_send_json_success([
-            'post_id'  => $post_id,
-            'edit_url' => get_edit_post_link($post_id, 'raw'),
-            'view_url' => get_permalink($post_id),
-            'status'   => $status
-        ]);
     }
 
     /**

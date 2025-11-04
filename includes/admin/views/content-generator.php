@@ -328,29 +328,54 @@ if (!defined('ABSPATH')) {
 
     <div class="generator-sidebar">
         <div class="sidebar-section">
-            <h3>🕒 יצירות אחרונות</h3>
-            <div class="recent-list">
-                <div class="recent-item">
-                    <div class="recent-title">
-                        📰 פוסט בלוג: AI בשיווק
+            <h3>🕒 פוסטים אחרונים שנוצרו</h3>
+            <div class="recent-list" id="recent-posts-list">
+                <?php
+                // Get recent AI-generated posts
+                $recent_posts = get_posts([
+                    'posts_per_page' => 5,
+                    'post_status' => ['publish', 'draft'],
+                    'meta_key' => '_ai_generated',
+                    'meta_value' => true,
+                    'orderby' => 'date',
+                    'order' => 'DESC'
+                ]);
+
+                if (!empty($recent_posts)):
+                    foreach ($recent_posts as $post):
+                        $content_type = get_post_meta($post->ID, '_ai_content_type', true);
+                        $icons = [
+                            'article' => '📄',
+                            'guide' => '📖',
+                            'review' => '⭐',
+                            'product' => '🛍️',
+                            'blog_post' => '📰',
+                        ];
+                        $icon = $icons[$content_type] ?? '📝';
+                        $time_diff = human_time_diff(get_the_time('U', $post), current_time('timestamp'));
+                        ?>
+                        <div class="recent-item">
+                            <div class="recent-title">
+                                <?php echo $icon; ?> <?php echo esc_html(wp_trim_words($post->post_title, 6)); ?>
+                            </div>
+                            <div class="recent-meta">
+                                לפני <?php echo $time_diff; ?>
+                                <?php if ($post->post_status === 'draft'): ?>
+                                    <span style="color: #d63638;">• טיוטה</span>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    <?php endforeach;
+                else: ?>
+                    <div class="recent-item">
+                        <div class="recent-title" style="color: #646970;">
+                            עדיין לא יצרת תוכן
+                        </div>
+                        <div class="recent-meta">
+                            התחל ליצור תוכן עכשיו!
+                        </div>
                     </div>
-                        <div class="recent-meta">לפני שעתיים
-                </div>
-            </div>
-            <div class="recent-item">
-                <div class="recent-title">🛍️ תיאור מוצר: שעון חכם
-                </div>
-                <div class="recent-meta">
-                    אתמול
-                </div>
-            </div>
-            <div class="recent-item">
-                <div class="recent-title">
-                    📱 רשתות חברתיות: הודעת השקה
-                </div>
-                <div class="recent-meta">
-                    לפני יומיים
-                </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -403,6 +428,34 @@ if (!defined('ABSPATH')) {
         </div>
     </div>
 </div>
+</div>
+
+<!-- Prompt Library Modal -->
+<div id="prompt-library-modal" class="prompt-library-modal" style="display: none;">
+    <div class="prompt-library-overlay" onclick="closePromptLibrary()"></div>
+    <div class="prompt-library-content">
+        <div class="prompt-library-header">
+            <h2>📚 ספריית הפרומפטים</h2>
+            <button class="prompt-library-close" onclick="closePromptLibrary()">×</button>
+        </div>
+
+        <div class="prompt-library-body">
+            <!-- Search -->
+            <div class="prompt-search-bar">
+                <input type="text" id="prompt-search" class="form-control" placeholder="🔍 חפש פרומפט...">
+            </div>
+
+            <!-- Categories -->
+            <div class="prompt-categories" id="prompt-categories">
+                <!-- Will be populated by JavaScript -->
+            </div>
+
+            <!-- Prompts List -->
+            <div class="prompt-list" id="prompt-list">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
 </div>
 
 <style>
@@ -737,6 +790,257 @@ if (!defined('ABSPATH')) {
         color: #0073aa;
         margin-top: 2px;
         flex-shrink: 0;
+    }
+
+    /* Prompt Library Modal Styles */
+    .prompt-library-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 100000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .prompt-library-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(4px);
+    }
+
+    .prompt-library-content {
+        position: relative;
+        background: white;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 900px;
+        max-height: 85vh;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        animation: slideUp 0.3s ease-out;
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .prompt-library-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 30px;
+        border-bottom: 2px solid #f0f0f1;
+    }
+
+    .prompt-library-header h2 {
+        margin: 0;
+        font-size: 22px;
+        color: #1d2327;
+    }
+
+    .prompt-library-close {
+        background: none;
+        border: none;
+        font-size: 32px;
+        color: #646970;
+        cursor: pointer;
+        line-height: 1;
+        padding: 0;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        transition: all 0.2s;
+    }
+
+    .prompt-library-close:hover {
+        background: #f0f0f1;
+        color: #d63638;
+    }
+
+    .prompt-library-body {
+        padding: 20px 30px;
+        overflow-y: auto;
+        flex: 1;
+    }
+
+    .prompt-search-bar {
+        margin-bottom: 20px;
+    }
+
+    .prompt-search-bar input {
+        width: 100%;
+        padding: 12px 16px;
+        font-size: 15px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+    }
+
+    .prompt-search-bar input:focus {
+        border-color: #667eea;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .prompt-categories {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 25px;
+    }
+
+    .prompt-category-btn {
+        padding: 8px 16px;
+        background: #f0f0f1;
+        border: 2px solid transparent;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        color: #1d2327;
+    }
+
+    .prompt-category-btn:hover {
+        background: #e8e8e9;
+    }
+
+    .prompt-category-btn.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-color: #667eea;
+    }
+
+    .prompt-list {
+        display: grid;
+        gap: 15px;
+    }
+
+    .prompt-item {
+        background: #f9f9f9;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 18px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .prompt-item:hover {
+        border-color: #667eea;
+        background: white;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+        transform: translateY(-2px);
+    }
+
+    .prompt-item-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 10px;
+    }
+
+    .prompt-item-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1d2327;
+        margin: 0;
+    }
+
+    .prompt-item-category {
+        font-size: 12px;
+        padding: 4px 10px;
+        background: #667eea;
+        color: white;
+        border-radius: 12px;
+        white-space: nowrap;
+    }
+
+    .prompt-item-description {
+        font-size: 14px;
+        color: #646970;
+        margin: 8px 0;
+        line-height: 1.5;
+    }
+
+    .prompt-item-preview {
+        font-size: 13px;
+        color: #1d2327;
+        background: white;
+        padding: 12px;
+        border-radius: 6px;
+        border-right: 3px solid #667eea;
+        margin-top: 12px;
+        line-height: 1.6;
+        max-height: 100px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .prompt-item-preview::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 30px;
+        background: linear-gradient(transparent, white);
+    }
+
+    .prompt-item-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid #e0e0e0;
+    }
+
+    .prompt-item-tags {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+
+    .prompt-tag {
+        font-size: 11px;
+        padding: 3px 8px;
+        background: #e8e8e9;
+        color: #646970;
+        border-radius: 8px;
+    }
+
+    .prompt-use-btn {
+        padding: 6px 14px;
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .prompt-use-btn:hover {
+        background: #5568d3;
+        transform: scale(1.05);
     }
 
     @media (max-width: 1024px) {
@@ -1213,6 +1517,165 @@ if (!defined('ABSPATH')) {
         console.log('🔄 Page loaded via SPA, checking template again...');
         loadTemplateFromDashboard();
     });
+
+    // ============= Prompt Library Functions =============
+
+    const promptsData = <?php
+        $prompts_file = AI_MANAGER_PRO_PLUGIN_DIR . 'includes/prompts/data/default-prompts.json';
+        if (file_exists($prompts_file)) {
+            echo file_get_contents($prompts_file);
+        } else {
+            echo '{"categories": {}}';
+        }
+    ?>;
+
+    let selectedCategory = null;
+
+    // Open prompt library
+    $('#use-prompt-library-btn').on('click', function() {
+        openPromptLibrary();
+    });
+
+    function openPromptLibrary() {
+        $('#prompt-library-modal').fadeIn(200);
+        loadCategories();
+        loadPrompts();
+    }
+
+    window.closePromptLibrary = function() {
+        $('#prompt-library-modal').fadeOut(200);
+    }
+
+    function loadCategories() {
+        const categories = promptsData.categories;
+        const $container = $('#prompt-categories');
+        $container.empty();
+
+        // Add "All" button
+        $container.append(`
+            <button class="prompt-category-btn active" onclick="filterByCategory(null)">
+                🔥 הכל (${getTotalPromptsCount()})
+            </button>
+        `);
+
+        // Add category buttons
+        Object.keys(categories).forEach(catKey => {
+            const cat = categories[catKey];
+            const count = cat.prompts.length;
+            $container.append(`
+                <button class="prompt-category-btn" onclick="filterByCategory('${catKey}')">
+                    ${cat.icon} ${cat.name} (${count})
+                </button>
+            `);
+        });
+    }
+
+    function getTotalPromptsCount() {
+        let total = 0;
+        Object.keys(promptsData.categories).forEach(catKey => {
+            total += promptsData.categories[catKey].prompts.length;
+        });
+        return total;
+    }
+
+    window.filterByCategory = function(category) {
+        selectedCategory = category;
+
+        // Update active button
+        $('.prompt-category-btn').removeClass('active');
+        if (category === null) {
+            $('.prompt-category-btn').first().addClass('active');
+        } else {
+            $(`.prompt-category-btn:contains("${promptsData.categories[category].name}")`).addClass('active');
+        }
+
+        loadPrompts();
+    }
+
+    function loadPrompts() {
+        const $container = $('#prompt-list');
+        $container.empty();
+
+        const categories = promptsData.categories;
+        let allPrompts = [];
+
+        // Collect prompts
+        Object.keys(categories).forEach(catKey => {
+            if (selectedCategory === null || selectedCategory === catKey) {
+                categories[catKey].prompts.forEach(prompt => {
+                    allPrompts.push({
+                        ...prompt,
+                        categoryKey: catKey,
+                        categoryName: categories[catKey].name,
+                        categoryIcon: categories[catKey].icon
+                    });
+                });
+            }
+        });
+
+        // Display prompts
+        allPrompts.forEach(prompt => {
+            const tagsHtml = prompt.tags.map(tag => `<span class="prompt-tag">#${tag}</span>`).join('');
+
+            $container.append(`
+                <div class="prompt-item" onclick='usePrompt(${JSON.stringify(prompt).replace(/'/g, "\\'")})'>
+                    <div class="prompt-item-header">
+                        <h4 class="prompt-item-title">${prompt.title}</h4>
+                        <span class="prompt-item-category">${prompt.categoryIcon} ${prompt.categoryName}</span>
+                    </div>
+                    <div class="prompt-item-description">${prompt.description}</div>
+                    <div class="prompt-item-preview">${prompt.prompt}</div>
+                    <div class="prompt-item-footer">
+                        <div class="prompt-item-tags">${tagsHtml}</div>
+                        <button class="prompt-use-btn" onclick="event.stopPropagation(); usePrompt(${JSON.stringify(prompt).replace(/'/g, "\\'")}); return false;">
+                            ✨ השתמש בפרומפט
+                        </button>
+                    </div>
+                </div>
+            `);
+        });
+
+        if (allPrompts.length === 0) {
+            $container.append('<p style="text-align: center; color: #646970; padding: 40px;">לא נמצאו פרומפטים</p>');
+        }
+    }
+
+    window.usePrompt = function(prompt) {
+        // Fill in the additional instructions with the prompt
+        $('#additional-instructions').val(prompt.prompt);
+
+        // Close the modal
+        closePromptLibrary();
+
+        // Show notification
+        showNotification(`✅ הפרומפט "${prompt.title}" נוסף להוראות נוספות`, 'success');
+
+        // Focus on the instructions field
+        $('#additional-instructions').focus();
+
+        // Scroll to it
+        $('html, body').animate({
+            scrollTop: $('#additional-instructions').offset().top - 100
+        }, 500);
+    }
+
+    // Search prompts
+    $('#prompt-search').on('input', function() {
+        const query = $(this).val().toLowerCase();
+
+        $('.prompt-item').each(function() {
+            const title = $(this).find('.prompt-item-title').text().toLowerCase();
+            const description = $(this).find('.prompt-item-description').text().toLowerCase();
+            const preview = $(this).find('.prompt-item-preview').text().toLowerCase();
+
+            if (title.includes(query) || description.includes(query) || preview.includes(query)) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+    });
+
     });
 </script>
 
