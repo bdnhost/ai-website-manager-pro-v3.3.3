@@ -845,6 +845,36 @@ if (!defined('ABSPATH')) {
             $('#content-stats').text('<?php _e('Ready to generate', 'ai-website-manager-pro'); ?>');
         }
     });
+
+    // Check if a template was selected from dashboard
+    const selectedTemplate = sessionStorage.getItem('ai_selected_template');
+    if (selectedTemplate) {
+        // Set the content type to the selected template
+        $('#content-type').val(selectedTemplate);
+
+        // Clear the sessionStorage so it doesn't keep loading on refresh
+        sessionStorage.removeItem('ai_selected_template');
+
+        // Show a notification
+        const templateNames = {
+            'article': 'מאמר מקיף',
+            'guide': 'מדריך הדרכה',
+            'review': 'ביקורת מוצר',
+            'product': 'תיאור מוצר',
+            'blog_post': 'פוסט בלוג'
+        };
+
+        const templateName = templateNames[selectedTemplate] || selectedTemplate;
+        showNotification(`✨ תבנית "${templateName}" נבחרה! מוכן ליצור תוכן מקצועי עם SEO מושלם.`, 'success');
+
+        // Scroll to the topic input to encourage user to start
+        $('html, body').animate({
+            scrollTop: $('#content-topic').offset().top - 100
+        }, 500);
+
+        // Focus on the topic input
+        $('#content-topic').focus();
+    }
     });
 </script>
 

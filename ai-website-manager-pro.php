@@ -2,8 +2,8 @@
 /**
  * Plugin Name: AI Website Manager Pro
  * Plugin URI: https://bdnhost.net/ai-website-manager-pro
- * Description: מערכת ניהול תוכן מתקדמת עם בינה מלאכותית - כולל דשבורד מקצועי, ייבוא/ייצוא מותגים JSON, 25+ פרומפטים מתקדמים, תבניות SEO אוטומטיות (5 סוגים!) ותמיכה ב-DeepSeek LLM. גרסה 3.3.2 כוללת ממשק UI מחודש לתבניות SEO + בחירת קטגוריות.
- * Version: 3.3.2
+ * Description: מערכת ניהול תוכן מתקדמת עם בינה מלאכותית - כולל דשבורד מקצועי עם טיזרים, ייבוא/ייצוא מותגים JSON, 25+ פרומפטים מתקדמים, תבניות SEO אוטומטיות (5 סוגים!) ותמיכה ב-DeepSeek LLM. גרסה 3.3.3 כוללת דשבורד משודרג עם טיזרים לתבניות SEO, תפריטי פעולה מהירים ו-What's New.
+ * Version: 3.3.3
  * Author: יעקב בידני - BDNHOST
  * Author URI: https://bdnhost.net
  * License: GPL v2 or later
@@ -14,7 +14,7 @@
  * Tested up to: 6.4
  * Requires PHP: 7.4
  * Network: false
- * 
+ *
  * Developed by: יעקב בידני
  * Company: BDNHOST - פתרונות אינטרנט וקוד פתוח
  * Website: https://bdnhost.net
@@ -27,7 +27,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('AI_MANAGER_PRO_VERSION', '3.3.2');
+define('AI_MANAGER_PRO_VERSION', '3.3.3');
 define('AI_MANAGER_PRO_PLUGIN_FILE', __FILE__);
 define('AI_MANAGER_PRO_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('AI_MANAGER_PRO_PLUGIN_URL', plugin_dir_url(__FILE__));
@@ -54,7 +54,7 @@ class AI_Manager_Pro_Safe
         error_log('AI Manager Pro - Plugin constructor called at ' . current_time('mysql'));
         error_log('AI Manager Pro - WordPress version: ' . get_bloginfo('version'));
         error_log('AI Manager Pro - PHP version: ' . PHP_VERSION);
-        error_log('AI Manager Pro - Plugin version: 3.3.2');
+        error_log('AI Manager Pro - Plugin version: 3.3.3');
 
         // Check if version was updated and show notice
         $this->check_version_update();
@@ -351,15 +351,18 @@ class AI_Manager_Pro_Safe
             ?>
             <div class="notice notice-info is-dismissible">
                 <h3 style="margin-top: 10px;">🎉 AI Manager Pro עודכן לגרסה <?php echo esc_html($updated_version); ?>!</h3>
-                <p><strong>תכונות חדשות:</strong></p>
+                <p><strong>תכונות חדשות בגרסה 3.3.3:</strong></p>
                 <ul style="list-style: disc; margin-right: 20px;">
-                    <li>✨ <strong>תבניות SEO אוטומטיות</strong> - 5 סוגי תוכן עם מבנה מושלם</li>
-                    <li>📁 <strong>בחירת קטגוריות</strong> - קישור אוטומטי של פוסטים לקטגוריות</li>
-                    <li>📊 <strong>ציון SEO</strong> - הערכה אוטומטית (0-100) לכל תוכן</li>
-                    <li>📄 מאמר מקיף עם תוכן עניינים וטבלאות</li>
-                    <li>📖 מדריך הדרכה עם צעדים והערכות זמן</li>
-                    <li>⭐ ביקורות עם דירוגים וטבלאות השוואה</li>
+                    <li>🎯 <strong>דשבורד משודרג</strong> - ממשק חדש עם טיזרים אינטראקטיביים</li>
+                    <li>📝 <strong>טיזרים לתבניות SEO</strong> - גישה מהירה ל-5 סוגי תוכן (מאמר, מדריך, ביקורת, מוצר, בלוג)</li>
+                    <li>⚡ <strong>תפריטי פעולה מהירים</strong> - כפתורי יצירה מהדשבורד ישירות למחולל התוכן</li>
+                    <li>🆕 <strong>סעיף "What's New"</strong> - טיזר מודגש לשיפורים האחרונים בגרסה</li>
+                    <li>🎨 <strong>עיצוב מושלם</strong> - כרטיסים צבעוניים עם אנימציות וסמלים</li>
+                    <li>🔗 <strong>אינטגרציה חכמה</strong> - טעינה אוטומטית של תבנית בעת לחיצה על טיזר</li>
                 </ul>
+                <p style="background: #e0f2fe; padding: 10px; border-right: 4px solid #0284c7;">
+                    <strong>💡 טיפ:</strong> לחץ על כרטיס התבנית בדשבורד והמערכת תעביר אותך אוטומטית למחולל התוכן עם התבנית שנבחרה!
+                </p>
                 <p style="background: #fff3cd; padding: 10px; border-right: 4px solid #ffc107;">
                     <strong>⚠️ חשוב!</strong> אם אינך רואה את השיפורים החדשים:
                     <br>1. רענן את הדף (Ctrl+F5 או Cmd+Shift+R)
@@ -367,8 +370,11 @@ class AI_Manager_Pro_Safe
                     <br>3. אם משתמש בפלאגין קאש - נקה את הקאש
                 </p>
                 <p>
-                    <a href="<?php echo admin_url('admin.php?page=ai-manager-pro-content-generator'); ?>" class="button button-primary">
-                        ראה תבניות SEO חדשות →
+                    <a href="<?php echo admin_url('admin.php?page=ai-manager-pro-general'); ?>" class="button button-primary" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;">
+                        🚀 ראה דשבורד חדש →
+                    </a>
+                    <a href="<?php echo admin_url('admin.php?page=ai-manager-pro-content-generator'); ?>" class="button">
+                        ✨ נסה תבניות SEO
                     </a>
                     <button type="button" class="button" onclick="location.reload(true);">רענן דף זה</button>
                 </p>
