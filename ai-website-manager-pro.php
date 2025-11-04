@@ -403,8 +403,8 @@ class AI_Manager_Pro_Safe
 
     public function render_dashboard_page()
     {
-        // Load the new main dashboard
-        $dashboard_file = AI_MANAGER_PRO_PLUGIN_DIR . 'includes/admin/views/dashboard-main.php';
+        // Load the enhanced dashboard with SEO teasers (v3.3.3)
+        $dashboard_file = AI_MANAGER_PRO_PLUGIN_DIR . 'includes/admin/views/dashboard.php';
 
         if (file_exists($dashboard_file)) {
             include $dashboard_file;
