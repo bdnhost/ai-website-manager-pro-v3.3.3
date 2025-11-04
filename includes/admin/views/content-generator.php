@@ -24,6 +24,18 @@ if (!defined('ABSPATH')) {
         <div class="form-section">
             <h2>⚙️ הגדרות יצירת תוכן</h2>
 
+            <!-- Template Indicator -->
+            <div id="template-indicator" class="template-indicator" style="display: none;">
+                <div class="template-indicator-content">
+                    <span class="template-icon">📄</span>
+                    <div class="template-info">
+                        <strong>תבנית נבחרה:</strong>
+                        <span id="template-name"></span>
+                    </div>
+                    <button type="button" class="template-clear" onclick="clearTemplate()">×</button>
+                </div>
+            </div>
+
             <div class="form-row">
                 <div class="form-group">
                     <label for="content-type">📝 סוג התוכן (עם תבניות SEO אוטומטיות)</label>
@@ -273,6 +285,30 @@ if (!defined('ABSPATH')) {
                         </div>
                     </div>
 
+                    <!-- Publish Buttons Section -->
+                    <div class="publish-actions" id="publish-actions" style="display: none; margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 2px solid #667eea;">
+                        <div style="display: flex; gap: 10px; align-items: center; justify-content: space-between;">
+                            <div style="flex: 1;">
+                                <p style="margin: 0 0 10px 0; font-weight: 600; color: #1d2327;">
+                                    ✅ התוכן מוכן! בחר פעולה:
+                                </p>
+                            </div>
+                            <div style="display: flex; gap: 10px;">
+                                <button type="button" id="publish-draft-btn" class="button button-secondary">
+                                    <span class="dashicons dashicons-edit"></span>
+                                    💾 שמור כטיוטה
+                                </button>
+                                <button type="button" id="publish-now-btn" class="button button-primary">
+                                    <span class="dashicons dashicons-admin-post"></span>
+                                    🚀 פרסם כעת
+                                </button>
+                            </div>
+                        </div>
+                        <div id="publish-status" style="margin-top: 10px; padding: 8px; background: white; border-radius: 4px; display: none;">
+                            <span id="publish-message"></span>
+                        </div>
+                    </div>
+
                     <div class="content-editor-wrapper">
                         <textarea id="generated-content" class="content-editor"
                             placeholder="התוכן שנוצר יופיע כאן... לחץ על 'צור תוכן' כדי להתחיל"></textarea>
@@ -458,6 +494,74 @@ if (!defined('ABSPATH')) {
         margin-top: 5px;
         font-size: 12px;
         color: #646970;
+    }
+
+    /* Template Indicator Styles */
+    .template-indicator {
+        margin-bottom: 20px;
+        padding: 15px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .template-indicator-content {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        color: white;
+    }
+
+    .template-icon {
+        font-size: 32px;
+        line-height: 1;
+    }
+
+    .template-info {
+        flex: 1;
+        font-size: 14px;
+    }
+
+    .template-info strong {
+        display: block;
+        font-size: 12px;
+        opacity: 0.9;
+        margin-bottom: 4px;
+    }
+
+    .template-info span {
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    .template-clear {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 20px;
+        line-height: 1;
+        transition: all 0.2s ease;
+    }
+
+    .template-clear:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: scale(1.1);
     }
 
     .form-actions {
@@ -809,6 +913,9 @@ if (!defined('ABSPATH')) {
                     $('#copy-content-btn').prop('disabled', false);
                     $('#export-content-btn').prop('disabled', false);
                     $('#save-as-template-btn').prop('disabled', false);
+
+                    // Show publish buttons
+                    $('#publish-actions').slideDown(300);
                 } else {
                     showNotification('<?php _e('Content generation failed: ', 'ai-website-manager-pro'); ?>' + response.data, 'error');
                 }
@@ -973,6 +1080,10 @@ if (!defined('ABSPATH')) {
             };
 
             const templateName = templateNames[selectedTemplate] || selectedTemplate;
+
+            // Show template indicator
+            showTemplateIndicator(selectedTemplate, templateName);
+
             showNotification(`✨ תבנית "${templateName}" נבחרה! מוכן ליצור תוכן מקצועי עם SEO מושלם.`, 'success');
 
             // Scroll to the topic input to encourage user to start
@@ -990,6 +1101,108 @@ if (!defined('ABSPATH')) {
         } else {
             console.log('ℹ️ No template selected from dashboard');
         }
+    }
+
+    // Show template indicator
+    function showTemplateIndicator(templateKey, templateName) {
+        const icons = {
+            'article': '📄',
+            'guide': '📖',
+            'review': '⭐',
+            'product': '🛍️',
+            'blog_post': '📰'
+        };
+
+        $('#template-indicator .template-icon').text(icons[templateKey] || '📝');
+        $('#template-name').text(templateName);
+        $('#template-indicator').slideDown(300);
+    }
+
+    // Clear template
+    window.clearTemplate = function() {
+        $('#template-indicator').slideUp(300);
+        $('#content-type').val('blog_post').trigger('change');
+    }
+
+    // Publish content as draft
+    $('#publish-draft-btn').on('click', function() {
+        publishContent('draft');
+    });
+
+    // Publish content now
+    $('#publish-now-btn').on('click', function() {
+        publishContent('publish');
+    });
+
+    // Publish content function
+    function publishContent(status) {
+        const content = $('#generated-content').val();
+        const topic = $('#content-topic').val();
+        const category = $('#post-category').val();
+        const contentType = $('#content-type').val();
+
+        if (!content || !topic) {
+            showNotification('⚠️ נא למלא נושא ולייצר תוכן לפני פרסום', 'error');
+            return;
+        }
+
+        // Disable buttons
+        $('#publish-draft-btn, #publish-now-btn').prop('disabled', true);
+        $('#publish-status').show().find('#publish-message').html('⏳ מפרסם...');
+
+        jQuery.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'ai_manager_pro_publish_content',
+                nonce: '<?php echo wp_create_nonce('ai_manager_pro_nonce'); ?>',
+                title: topic,
+                content: content,
+                status: status,
+                category: category,
+                content_type: contentType
+            },
+            success: function(response) {
+                if (response.success) {
+                    const statusText = status === 'draft' ? 'נשמר כטיוטה' : 'פורסם בהצלחה';
+                    const icon = status === 'draft' ? '💾' : '🚀';
+                    $('#publish-status').find('#publish-message').html(
+                        `${icon} <strong>${statusText}!</strong> ` +
+                        `<a href="${response.data.edit_url}" target="_blank">ערוך</a> | ` +
+                        `<a href="${response.data.view_url}" target="_blank">צפה</a>`
+                    );
+
+                    showNotification(`${icon} ${statusText}!`, 'success');
+
+                    // Clear the form after successful publish
+                    setTimeout(function() {
+                        if (confirm('האם לנקות את הטופס ולהתחיל תוכן חדש?')) {
+                            $('#content-topic').val('');
+                            $('#generated-content').val('');
+                            $('#content-keywords').val('');
+                            $('#additional-instructions').val('');
+                            $('#publish-actions').slideUp(300);
+                            $('#content-stats').text('⚡ מוכן ליצירת תוכן');
+                            clearTemplate();
+                        }
+                    }, 2000);
+                } else {
+                    $('#publish-status').find('#publish-message').html(
+                        `❌ <strong>שגיאה:</strong> ${response.data}`
+                    );
+                    showNotification('❌ שגיאה בפרסום: ' + response.data, 'error');
+                }
+            },
+            error: function(xhr, status, error) {
+                $('#publish-status').find('#publish-message').html(
+                    `❌ <strong>שגיאת רשת:</strong> ${error}`
+                );
+                showNotification('❌ שגיאת רשת בפרסום', 'error');
+            },
+            complete: function() {
+                $('#publish-draft-btn, #publish-now-btn').prop('disabled', false);
+            }
+        });
     }
 
     // Load template immediately

@@ -74,6 +74,68 @@ class Content_Generator {
      */
     private function init_hooks() {
         add_action('wp_ajax_ai_manager_pro_generate_content', [$this, 'handle_generate_content_ajax']);
+        add_action('wp_ajax_ai_manager_pro_publish_content', [$this, 'handle_publish_content_ajax']);
+    }
+
+    /**
+     * Handle publish content AJAX request
+     */
+    public function handle_publish_content_ajax() {
+        // Verify nonce
+        check_ajax_referer('ai_manager_pro_nonce', 'nonce');
+
+        // Get POST data
+        $title = sanitize_text_field($_POST['title'] ?? '');
+        $content = wp_kses_post($_POST['content'] ?? '');
+        $status = sanitize_text_field($_POST['status'] ?? 'draft');
+        $category = absint($_POST['category'] ?? 0);
+        $content_type = sanitize_text_field($_POST['content_type'] ?? 'blog_post');
+
+        // Validate required fields
+        if (empty($title) || empty($content)) {
+            wp_send_json_error('חובה למלא כותרת ותוכן');
+            return;
+        }
+
+        // Validate status
+        if (!in_array($status, ['draft', 'publish'])) {
+            $status = 'draft';
+        }
+
+        // Create post data
+        $post_data = [
+            'post_title'    => $title,
+            'post_content'  => $content,
+            'post_status'   => $status,
+            'post_type'     => 'post',
+            'post_author'   => get_current_user_id(),
+        ];
+
+        // Add category if provided
+        if ($category > 0) {
+            $post_data['post_category'] = [$category];
+        }
+
+        // Insert the post
+        $post_id = wp_insert_post($post_data, true);
+
+        if (is_wp_error($post_id)) {
+            wp_send_json_error($post_id->get_error_message());
+            return;
+        }
+
+        // Add post meta for content type
+        update_post_meta($post_id, '_ai_content_type', $content_type);
+        update_post_meta($post_id, '_ai_generated', true);
+        update_post_meta($post_id, '_ai_generated_date', current_time('mysql'));
+
+        // Return success with post URLs
+        wp_send_json_success([
+            'post_id'  => $post_id,
+            'edit_url' => get_edit_post_link($post_id, 'raw'),
+            'view_url' => get_permalink($post_id),
+            'status'   => $status
+        ]);
     }
 
     /**
