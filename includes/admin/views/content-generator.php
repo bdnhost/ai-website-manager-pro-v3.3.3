@@ -14,9 +14,9 @@ if (!defined('ABSPATH')) {
 
 <div class="content-generator-container">
     <div class="generator-header">
-        <h1><?php _e('AI Content Generator', 'ai-website-manager-pro'); ?></h1>
+        <h1>🤖 מחולל תוכן AI</h1>
         <p class="generator-subtitle">
-            <?php _e('Create high-quality content using AI with your brand voice', 'ai-website-manager-pro'); ?>
+            צור תוכן איכותי באמצעות AI עם קול המותג שלך
         </p>
     </div>
 
@@ -42,68 +42,153 @@ if (!defined('ABSPATH')) {
                 </div>
 
                 <div class="form-group">
-                    <label for="content-length">
-                        <?php _e('Content Length', 'ai-website-manager-pro'); ?>
-                    </label>
+                    <label for="content-length">📏 אורך התוכן</label>
                     <select id="content-length" class="form-control">
-                        <option value="short">
-                            <?php _e('Short (100-300 words)', 'ai-website-manager-pro'); ?>
-                        </option>
-                        <option value="medium" selected>
-                            <?php _e('Medium (300-800 words)', 'ai-website-manager-pro'); ?>
-                        </option>
-                        <option value="long">
-                            <?php _e('Long (800-1500 words)', 'ai-website-manager-pro'); ?>
-                        </option>
-                        <option value="very-long"><?php _e('Very Long (1500+ words)', 'ai-website-manager-pro'); ?>
-                        </option>
+                        <option value="short">קצר (100-300 מילים)</option>
+                        <option value="medium" selected>בינוני (300-800 מילים)</option>
+                        <option value="long">ארוך (800-1500 מילים)</option>
+                        <option value="very-long">ארוך מאוד (1500+ מילים)</option>
                     </select>
+                    <small class="form-help">
+                        בחר את אורך התוכן בהתאם לסוג והמטרה
+                    </small>
                 </div>
             </div>
 
             <div class="form-row">
                             <div class="form-group">
-                                <label for="brand-select">
-                                    <?php _e('Brand Voice', 'ai-website-manager-pro'); ?>
-                                </label>
+                                <label for="brand-select">🎤 קול המותג</label>
                                 <select id="brand-select" class="form-control">
-                                    <option value="">
-                                        <?php _e('Select Brand...', 'ai-website-manager-pro'); ?>
-                                    </option>
-                                    <option value="tech-startup">
-                                        <?php _e('Tech Startup', 'ai-website-manager-pro'); ?>
-                                    </option>
-                                    <option value="professional-services">
-                            <?php _e('Professional Services', 'ai-website-manager-pro'); ?>
-                        </option>
-                        <option value="e-commerce"><?php _e('E-commerce', 'ai-website-manager-pro'); ?></option>
+                                    <option value="">בחר מותג...</option>
+                                    <option value="tech-startup">סטארטאפ טכנולוגי</option>
+                                    <option value="professional-services">שירותים מקצועיים</option>
+                                    <option value="e-commerce">מסחר אלקטרוני</option>
                     </select>
+                    <small class="form-help">
+                        המותג יקבע את הטון והסגנון של התוכן
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label for="ai-provider">🔌 ספק AI</label>
+                    <select id="ai-provider" class="form-control">
+                        <?php
+                        $default_provider = get_option('ai_manager_pro_default_provider', 'openai');
+
+                        // Check which providers have API keys configured
+                        $providers = [
+                            'openai' => [
+                                'name' => 'OpenAI',
+                                'icon' => '🤖',
+                                'has_key' => !empty(get_option('ai_manager_pro_openai_api_key'))
+                            ],
+                            'anthropic' => [
+                                'name' => 'Anthropic (Claude)',
+                                'icon' => '🧠',
+                                'has_key' => !empty(get_option('ai_manager_pro_anthropic_api_key'))
+                            ],
+                            'openrouter' => [
+                                'name' => 'OpenRouter',
+                                'icon' => '🌐',
+                                'has_key' => !empty(get_option('ai_manager_pro_openrouter_api_key'))
+                            ],
+                            'deepseek' => [
+                                'name' => 'DeepSeek',
+                                'icon' => '🔬',
+                                'has_key' => !empty(get_option('ai_manager_pro_deepseek_key'))
+                            ]
+                        ];
+
+                        foreach ($providers as $provider_id => $provider_info):
+                            if ($provider_info['has_key']):
+                        ?>
+                            <option value="<?php echo esc_attr($provider_id); ?>"
+                                    <?php selected($default_provider, $provider_id); ?>>
+                                <?php echo $provider_info['icon'] . ' ' . esc_html($provider_info['name']); ?>
+                            </option>
+                        <?php
+                            endif;
+                        endforeach;
+
+                        // If no providers configured, show message
+                        if (!array_filter($providers, function($p) { return $p['has_key']; })):
+                        ?>
+                            <option value="">אין ספקי AI מוגדרים - נא להגדיר מפתח API</option>
+                        <?php endif; ?>
+                    </select>
+                    <small class="form-help">
+                        ספק ה-AI שישמש ליצירת התוכן
+                    </small>
                 </div>
 
                 <div class="form-group">
                     <label for="ai-model">🤖 מודל AI</label>
                     <select id="ai-model" class="form-control">
                         <?php
-                        require_once AI_MANAGER_PRO_PLUGIN_DIR . 'includes/ai/class-openrouter-service.php';
-                        $openrouter_service = new AI_Manager_Pro_OpenRouter_Service();
-                        $popular_models = $openrouter_service->get_popular_models();
-                        $current_model = get_option('ai_manager_pro_default_model', 'openai/gpt-3.5-turbo');
+                        $current_model = get_option('ai_manager_pro_default_model', '');
 
-                        foreach ($popular_models as $model_id => $model_info):
-                            ?>
-                                <option value="<?php echo esc_attr($model_id); ?>" <?php selected($current_model, $model_id); ?>>
-                                    <?php echo $model_info['icon'] . ' ' . esc_html($model_info['name']); ?>
-                                    - <?php echo esc_html($model_info['description']); ?>
-                                </option>
-                        <?php endforeach; ?>
+                        // OpenAI models
+                        if (!empty(get_option('ai_manager_pro_openai_api_key'))):
+                        ?>
+                            <optgroup label="🤖 OpenAI">
+                                <option value="gpt-4" <?php selected($current_model, 'gpt-4'); ?>>GPT-4 - חכם ומדויק ביותר</option>
+                                <option value="gpt-4-turbo" <?php selected($current_model, 'gpt-4-turbo'); ?>>GPT-4 Turbo - מהיר ועדכני</option>
+                                <option value="gpt-3.5-turbo" <?php selected($current_model, 'gpt-3.5-turbo'); ?>>GPT-3.5 Turbo - מהיר וחסכוני</option>
+                            </optgroup>
+                        <?php endif; ?>
+
+                        <?php
+                        // Anthropic models
+                        if (!empty(get_option('ai_manager_pro_anthropic_api_key'))):
+                        ?>
+                            <optgroup label="🧠 Anthropic Claude">
+                                <option value="claude-3-opus" <?php selected($current_model, 'claude-3-opus'); ?>>Claude 3 Opus - הכי מתקדם</option>
+                                <option value="claude-3-sonnet" <?php selected($current_model, 'claude-3-sonnet'); ?>>Claude 3 Sonnet - איזון מושלם</option>
+                                <option value="claude-3-haiku" <?php selected($current_model, 'claude-3-haiku'); ?>>Claude 3 Haiku - מהיר וזול</option>
+                            </optgroup>
+                        <?php endif; ?>
+
+                        <?php
+                        // DeepSeek models
+                        if (!empty(get_option('ai_manager_pro_deepseek_key'))):
+                        ?>
+                            <optgroup label="🔬 DeepSeek">
+                                <option value="deepseek-chat" <?php selected($current_model, 'deepseek-chat'); ?>>DeepSeek Chat - שיחה כללית</option>
+                                <option value="deepseek-coder" <?php selected($current_model, 'deepseek-coder'); ?>>DeepSeek Coder - כתיבת קוד</option>
+                            </optgroup>
+                        <?php endif; ?>
+
+                        <?php
+                        // OpenRouter models
+                        if (!empty(get_option('ai_manager_pro_openrouter_api_key'))):
+                            require_once AI_MANAGER_PRO_PLUGIN_DIR . 'includes/ai/class-openrouter-service.php';
+                            $openrouter_service = new AI_Manager_Pro_OpenRouter_Service();
+                            $popular_models = $openrouter_service->get_popular_models();
+                        ?>
+                            <optgroup label="🌐 OpenRouter">
+                                <?php foreach ($popular_models as $model_id => $model_info): ?>
+                                    <option value="<?php echo esc_attr($model_id); ?>"
+                                            <?php selected($current_model, $model_id); ?>>
+                                        <?php echo $model_info['icon'] . ' ' . esc_html($model_info['name']); ?>
+                                        - <?php echo esc_html($model_info['description']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </optgroup>
+                        <?php endif; ?>
                     </select>
+                    <small class="form-help">
+                        בחר מודל לפי הצורך: GPT-4 לאיכות, GPT-3.5 למהירות, Claude ליצירתיות
+                    </small>
                 </div>
             </div>
 
             <div class="form-group">
-                <label for="content-topic"><?php _e('Topic / Subject', 'ai-website-manager-pro'); ?></label>
+                <label for="content-topic">📝 נושא / כותרת התוכן</label>
                                         <input type="text" id="content-topic" class="form-control"
-                                            placeholder="<?php _e('Enter the main topic or subject for your content...', 'ai-website-manager-pro'); ?>">
+                                            placeholder="הזן את הנושא או הכותרת הראשית לתוכן שלך... (למשל: 'כיצד לבחור מחשב נייד')">
+                                        <small class="form-help">
+                        הנושא הראשי שעליו ייכתב התוכן - היה ספציפי וברור
+                    </small>
                             </div>
 
                             <div class="form-row">
@@ -125,80 +210,79 @@ if (!defined('ABSPATH')) {
                                 </div>
 
                             <div class="form-group">
-                                <label for="content-keywords"><?php _e('Keywords (Optional)', 'ai-website-manager-pro'); ?></label>
+                                <label for="content-keywords">🔑 מילות מפתח (אופציונלי)</label>
                 <input type="text" id="content-keywords" class="form-control"
-                                    placeholder="<?php _e('keyword1, keyword2, keyword3...', 'ai-website-manager-pro'); ?>">
+                                    placeholder="מילה1, מילה2, מילה3... (למשל: 'שיווק דיגיטלי, קידום אתרים, SEO')">
                                     <small class="form-help">
-                                        <?php _e('Separate keywords with commas', 'ai-website-manager-pro'); ?>
+                                        הפרד מילות מפתח בפסיקים - ישפרו את ה-SEO של התוכן
                                     </small>
                             </div>
                             </div>
 
                             <div class="form-group">
-                <label
-                    for=" additional-instructions">
-                                <?php _e('Additional Instructions', 'ai-website-manager-pro'); ?></label>
+                <label for="additional-instructions">📋 הוראות נוספות (אופציונלי)</label>
                                 <textarea id="additional-instructions" class="form-control" rows="4"
-                                    placeholder="<?php _e('Any specific requirements, tone adjustments, or special instructions...', 'ai-website-manager-pro'); ?>"></textarea>
+                                    placeholder="דרישות ספציפיות, התאמות טון, או הוראות מיוחדות... (למשל: 'השתמש בסגנון פשוט ונגיש', 'הוסף דוגמאות מעשיות')"></textarea>
+                                <small class="form-help">
+                        הוסף הנחיות מיוחדות שיעזרו ל-AI ליצור את התוכן המדויק שאתה צריך
+                    </small>
                             </div>
 
                             <div class="form-actions">
                                 <button type="button" id="generate-content-btn" class="button button-primary button-large">
-                    <span class=" dashicons dashicons-edit"></span>
-                                    <?php _e('Generate Content', 'ai-website-manager-pro'); ?>
+                    <span class="dashicons dashicons-edit"></span>
+                                    ✨ צור תוכן
                                 </button>
 
                                 <button type="button" id="use-prompt-library-btn" class="button button-secondary">
                                     <span class="dashicons dashicons-book"></span>
-                                    <?php _e('Use Prompt Library', 'ai-website-manager-pro'); ?>
+                                    📚 השתמש בספריית פרומפטים
                                 </button>
 
                                 <button type="button" id="save-as-template-btn" class="button button-secondary"
                                     disabled>
                                     <span class="dashicons dashicons-saved"></span>
-                                    <?php _e('Save as Template', 'ai-website-manager-pro'); ?>
+                                    💾 שמור כתבנית
                                 </button>
                             </div>
                 </div>
 
                 <div class="form-section">
-                    <h2>
-                        <?php _e('Generated Content', 'ai-website-manager-pro'); ?>
-                    </h2>
+                    <h2>📄 התוכן שנוצר</h2>
 
                     <div class="content-output">
                         <div class="output-toolbar">
                                 <div class="toolbar-left">
                             <span class="content-stats" id="content-stats">
-                                <?php _e('Ready to generate', 'ai-website-manager-pro'); ?>
+                                ⚡ מוכן ליצירת תוכן
                             </span>
                         </div>
                         <div class="toolbar-right">
                             <button type="button" id="copy-content-btn" class="button button-small" disabled>
                                 <span class="dashicons dashicons-admin-page"></span>
-                            <?php _e('Copy', 'ai-website-manager-pro'); ?>
+                            📋 העתק
                         </button>
-                        <button type=" button" id="export-content-btn" class="button button-small" disabled>
+                        <button type="button" id="export-content-btn" class="button button-small" disabled>
                                     <span class="dashicons dashicons-download"></span>
-                                    <?php _e('Export', 'ai-website-manager-pro'); ?>
+                                    💾 ייצא
                             </button>
                             <button type="button" id="regenerate-btn" class="button button-small" disabled>
                                 <span class="dashicons dashicons-update"></span>
-                                <?php _e('Regenerate', 'ai-website-manager-pro'); ?>
+                                🔄 צור מחדש
                             </button>
                         </div>
                     </div>
 
                     <div class="content-editor-wrapper">
                         <textarea id="generated-content" class="content-editor"
-                            placeholder="<?php _e('Generated content will appear here...', 'ai-website-manager-pro'); ?>"></textarea>
+                            placeholder="התוכן שנוצר יופיע כאן... לחץ על 'צור תוכן' כדי להתחיל"></textarea>
                     </div>
 
                     <div class="generation-status" id="generation-status" style="display: none;">
                         <div class="status-indicator">
-                        <div class=" loading-spinner"></div>
+                        <div class="loading-spinner"></div>
                         <span class="status-text">
-                            <?php _e('Generating content...', 'ai-website-manager-pro'); ?>
+                            ⏳ יוצר תוכן מושלם... אנא המתן
                         </span>
                     </div>
                 </div>
@@ -208,30 +292,28 @@ if (!defined('ABSPATH')) {
 
     <div class="generator-sidebar">
         <div class="sidebar-section">
-            <h3>
-                <?php _e('Recent Generations', 'ai-website-manager-pro'); ?>
-            </h3>
+            <h3>🕒 יצירות אחרונות</h3>
             <div class="recent-list">
                 <div class="recent-item">
                     <div class="recent-title">
-                        <?php _e('Blog Post: AI in Marketing', 'ai-website-manager-pro'); ?>
+                        📰 פוסט בלוג: AI בשיווק
                     </div>
-                        <div class="recent-meta"><?php _e('2 hours ago', 'ai-website-manager-pro'); ?>
+                        <div class="recent-meta">לפני שעתיים
                 </div>
             </div>
             <div class="recent-item">
-                <div class="recent-title"><?php _e('Product Description: Smart Watch', 'ai-website-manager-pro'); ?>
+                <div class="recent-title">🛍️ תיאור מוצר: שעון חכם
                 </div>
                 <div class="recent-meta">
-                    <?php _e('Yesterday', 'ai-website-manager-pro'); ?>
+                    אתמול
                 </div>
             </div>
             <div class="recent-item">
                 <div class="recent-title">
-                    <?php _e('Social Media: Launch Announcement', 'ai-website-manager-pro'); ?>
+                    📱 רשתות חברתיות: הודעת השקה
                 </div>
                 <div class="recent-meta">
-                    <?php _e('2 days ago', 'ai-website-manager-pro'); ?>
+                    לפני יומיים
                 </div>
             </div>
         </div>
