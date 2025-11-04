@@ -626,6 +626,39 @@ class Settings_Manager
             'user_id' => get_current_user_id(),
             'ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown'
         ]);
+
+        // Log to Settings Change Log
+        try {
+            if (class_exists('AI_Manager_Pro\\Core\\Plugin')) {
+                $plugin = \AI_Manager_Pro\Core\Plugin::get_instance();
+                $container = $plugin->get_container();
+                $change_log = $container->get('settings_change_log');
+
+                if ($change_log) {
+                    // Get old settings for comparison
+                    $old_settings = $this->get_category($category);
+
+                    // Log each setting change individually for better tracking
+                    foreach ($settings as $key => $new_value) {
+                        $old_value = $old_settings[$key] ?? null;
+
+                        // Only log if value actually changed
+                        if ($old_value !== $new_value) {
+                            $change_log->log_change(
+                                "settings.{$category}.{$key}",
+                                $old_value,
+                                $new_value,
+                                'update'
+                            );
+                        }
+                    }
+                }
+            }
+        } catch (Exception $e) {
+            if ($this->logger) {
+                $this->logger->error('Failed to log settings change: ' . $e->getMessage());
+            }
+        }
     }
 
     private function get_previous_value($key)

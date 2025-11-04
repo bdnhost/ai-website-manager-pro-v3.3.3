@@ -94,6 +94,11 @@ class AI_Manager_Pro_Safe
         add_action('wp_ajax_ai_manager_pro_publish_content', [$this, 'handle_publish_content']);
         error_log('AI Manager Pro - Registered publish_content handler');
 
+        // Logs & History AJAX handlers
+        add_action('wp_ajax_ai_manager_pro_export_logs', [$this, 'handle_export_logs']);
+        add_action('wp_ajax_ai_manager_pro_cleanup_logs', [$this, 'handle_cleanup_logs']);
+        add_action('wp_ajax_ai_manager_pro_get_log_details', [$this, 'handle_get_log_details']);
+
         // Cron jobs
         add_action('ai_manager_pro_automation_task', [$this, 'run_automation_task']);
 
@@ -3263,8 +3268,36 @@ class AI_Manager_Pro_Safe
 
             error_log('AI Manager Pro: Post created successfully with ID: ' . $post_id);
 
-            // Log activity
+            // Log activity (old method)
             $this->log_activity('info', "תוכן פורסם: {$title} (ID: {$post_id}, סטטוס: {$status})", 'content_generation');
+
+            // Log to Settings Change Log (new comprehensive logging)
+            try {
+                if (class_exists('AI_Manager_Pro\\Core\\Plugin')) {
+                    $plugin = \AI_Manager_Pro\Core\Plugin::get_instance();
+                    $container = $plugin->get_container();
+                    $change_log = $container->get('settings_change_log');
+
+                    if ($change_log) {
+                        $change_log->log_change(
+                            'content_published',
+                            null,
+                            [
+                                'post_id' => $post_id,
+                                'title' => $title,
+                                'status' => $status,
+                                'content_type' => $content_type,
+                                'keywords' => $keywords,
+                                'tags_count' => count($auto_tags),
+                                'category' => $category
+                            ],
+                            'create'
+                        );
+                    }
+                }
+            } catch (Exception $e) {
+                error_log('AI Manager Pro: Failed to log content publication: ' . $e->getMessage());
+            }
 
             // Return success with post URLs and metadata
             wp_send_json_success([
@@ -3785,6 +3818,167 @@ class AI_Manager_Pro_Safe
                 ]
             ]
         ];
+    }
+
+    /**
+     * Handle export logs AJAX request
+     */
+    public function handle_export_logs()
+    {
+        error_log('AI Manager Pro: Export logs AJAX called');
+
+        // Verify nonce
+        if (!isset($_GET['nonce']) || !wp_verify_nonce($_GET['nonce'], 'ai_manager_pro_nonce')) {
+            wp_die('Security check failed');
+        }
+
+        // Check permissions
+        if (!current_user_can('ai_manager_view_logs') && !current_user_can('manage_options')) {
+            wp_die('Insufficient permissions');
+        }
+
+        try {
+            // Get change log service from container if available
+            if (class_exists('AI_Manager_Pro\\Core\\Plugin')) {
+                $plugin = \AI_Manager_Pro\Core\Plugin::get_instance();
+                $container = $plugin->get_container();
+                $change_log = $container->get('settings_change_log');
+            } else {
+                // Fallback: create instance directly
+                require_once AI_MANAGER_PRO_PLUGIN_DIR . 'includes/settings/class-settings-change-log.php';
+                require_once AI_MANAGER_PRO_PLUGIN_DIR . 'vendor/autoload.php';
+                $logger = new \Monolog\Logger('ai-manager-pro');
+                $change_log = new \AI_Manager_Pro\Settings\Settings_Change_Log($logger);
+            }
+
+            if (!$change_log) {
+                wp_die('Change log service not available');
+            }
+
+            // Export logs as CSV
+            $csv_content = $change_log->export([], 'csv');
+
+            // Set headers for download
+            header('Content-Type: text/csv; charset=utf-8');
+            header('Content-Disposition: attachment; filename="ai-manager-pro-logs-' . date('Y-m-d-His') . '.csv"');
+            header('Pragma: no-cache');
+            header('Expires: 0');
+
+            echo $csv_content;
+            exit;
+
+        } catch (Exception $e) {
+            error_log('AI Manager Pro: Export logs error: ' . $e->getMessage());
+            wp_die('Error exporting logs: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Handle cleanup logs AJAX request
+     */
+    public function handle_cleanup_logs()
+    {
+        error_log('AI Manager Pro: Cleanup logs AJAX called');
+
+        // Verify nonce
+        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'ai_manager_pro_nonce')) {
+            wp_send_json_error('Security check failed');
+        }
+
+        // Check permissions
+        if (!current_user_can('ai_manager_manage_settings') && !current_user_can('manage_options')) {
+            wp_send_json_error('Insufficient permissions');
+        }
+
+        try {
+            // Get change log service
+            if (class_exists('AI_Manager_Pro\\Core\\Plugin')) {
+                $plugin = \AI_Manager_Pro\Core\Plugin::get_instance();
+                $container = $plugin->get_container();
+                $change_log = $container->get('settings_change_log');
+            } else {
+                // Fallback: create instance directly
+                require_once AI_MANAGER_PRO_PLUGIN_DIR . 'includes/settings/class-settings-change-log.php';
+                require_once AI_MANAGER_PRO_PLUGIN_DIR . 'vendor/autoload.php';
+                $logger = new \Monolog\Logger('ai-manager-pro');
+                $change_log = new \AI_Manager_Pro\Settings\Settings_Change_Log($logger);
+            }
+
+            if (!$change_log) {
+                wp_send_json_error('Change log service not available');
+            }
+
+            // Cleanup old entries (older than 90 days)
+            $deleted_count = $change_log->cleanup_old_entries(90);
+
+            wp_send_json_success([
+                'message' => sprintf(__('Successfully deleted %d old log entries', 'ai-website-manager-pro'), $deleted_count),
+                'deleted_count' => $deleted_count
+            ]);
+
+        } catch (Exception $e) {
+            error_log('AI Manager Pro: Cleanup logs error: ' . $e->getMessage());
+            wp_send_json_error('Error cleaning logs: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Handle get log details AJAX request
+     */
+    public function handle_get_log_details()
+    {
+        error_log('AI Manager Pro: Get log details AJAX called');
+
+        // Verify nonce
+        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'ai_manager_pro_nonce')) {
+            wp_send_json_error('Security check failed');
+        }
+
+        // Check permissions
+        if (!current_user_can('ai_manager_view_logs') && !current_user_can('manage_options')) {
+            wp_send_json_error('Insufficient permissions');
+        }
+
+        $change_id = isset($_POST['change_id']) ? intval($_POST['change_id']) : 0;
+
+        if (!$change_id) {
+            wp_send_json_error('Change ID is required');
+        }
+
+        try {
+            global $wpdb;
+            $table_name = $wpdb->prefix . 'ai_manager_pro_settings_log';
+
+            // Get change details from database
+            $change = $wpdb->get_row($wpdb->prepare(
+                "SELECT * FROM {$table_name} WHERE id = %d",
+                $change_id
+            ), ARRAY_A);
+
+            if (!$change) {
+                wp_send_json_error('Change not found');
+            }
+
+            // Process the change data
+            $user = get_user_by('ID', $change['user_id']);
+            $change['user_name'] = $user ? $user->display_name : "User #{$change['user_id']}";
+
+            // Unserialize values
+            $change['old_value'] = json_decode($change['old_value'], true) ?? $change['old_value'];
+            $change['new_value'] = json_decode($change['new_value'], true) ?? $change['new_value'];
+
+            // Format timestamp
+            $change['formatted_timestamp'] = date_i18n(
+                get_option('date_format') . ' ' . get_option('time_format'),
+                strtotime($change['timestamp'])
+            );
+
+            wp_send_json_success($change);
+
+        } catch (Exception $e) {
+            error_log('AI Manager Pro: Get log details error: ' . $e->getMessage());
+            wp_send_json_error('Error fetching log details: ' . $e->getMessage());
+        }
     }
 }
 
