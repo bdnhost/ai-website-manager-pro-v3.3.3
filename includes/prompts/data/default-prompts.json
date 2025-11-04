@@ -1,0 +1,557 @@
+{
+  "version": "3.2.2",
+  "last_updated": "2024-12-27",
+  "total_prompts": 25,
+  "categories": {
+    "marketing": {
+      "name": "שיווק ופרסום",
+      "icon": "📢",
+      "description": "פרומפטים ליצירת תוכן שיווקי מקצועי",
+      "prompts": [
+        {
+          "id": "marketing_001",
+          "title": "פוסט שיווקי למוצר חדש",
+          "description": "יצירת פוסט מעורר עניין למוצר חדש",
+          "prompt": "צור פוסט שיווקי מעורר עניין עבור [שם המוצר] שמיועד ל[קהל יעד]. הדגש את [יתרון עיקרי] וכלול קריאה לפעולה חזקה. השתמש בטון [טון תקשורת] והוסף אמוג'י רלוונטיים.",
+          "variables": [
+            "שם המוצר",
+            "קהל יעד",
+            "יתרון עיקרי",
+            "טון תקשורת"
+          ],
+          "content_types": [
+            "social_media",
+            "blog_post"
+          ],
+          "tags": [
+            "מוצר",
+            "שיווק",
+            "קריאה לפעולה"
+          ],
+          "usage_count": 0
+        },
+        {
+          "id": "marketing_002",
+          "title": "קמפיין אימייל שיווקי",
+          "description": "יצירת אימייל שיווקי משכנע",
+          "prompt": "כתוב אימייל שיווקי עבור [שם החברה] שמקדם את [המוצר/השירות]. התחל בכותרת משכנעת, הסבר את הבעיה ש[המוצר/השירות] פותר, הדגש 3 יתרונות עיקריים, וסיים בקריאה לפעולה ברורה. השתמש בטון [טון תקשורת].",
+          "variables": [
+            "שם החברה",
+            "המוצר/השירות",
+            "טון תקשורת"
+          ],
+          "content_types": [
+            "email_marketing"
+          ],
+          "tags": [
+            "אימייל",
+            "קמפיין",
+            "שכנוע"
+          ],
+          "usage_count": 0
+        },
+        {
+          "id": "marketing_003",
+          "title": "תיאור מוצר לאתר מסחר",
+          "description": "תיאור מוצר משכנע לחנות אונליין",
+          "prompt": "כתוב תיאור מוצר מקצועי ומשכנע עבור [שם המוצר]. כלול: כותרת משכנעת, תיאור קצר של המוצר, 5 יתרונות עיקריים, מפרטים טכניים בסיסיים, ומחיר [מחיר]. השתמש בטון [טון תקשורת] והוסף אמוג'י לנקודות החשובות.",
+          "variables": [
+            "שם המוצר",
+            "מחיר",
+            "טון תקשורת"
+          ],
+          "content_types": [
+            "product_description"
+          ],
+          "tags": [
+            "מוצר",
+            "מסחר",
+            "תיאור"
+          ],
+          "usage_count": 0
+        }
+      ]
+    },
+    "content": {
+      "name": "יצירת תוכן",
+      "icon": "✍️",
+      "description": "פרומפטים ליצירת תוכן איכותי ומעניין",
+      "prompts": [
+        {
+          "id": "content_001",
+          "title": "מאמר בלוג מקצועי",
+          "description": "יצירת מאמר בלוג מפורט ומקצועי",
+          "prompt": "כתוב מאמר בלוג מקצועי בנושא [נושא המאמר] עבור [קהל יעד]. המאמר צריך לכלול: כותרת משכנעת, מבוא שמסביר את הבעיה, 5 נקודות עיקריות עם דוגמאות, טיפים מעשיים, וסיכום עם קריאה לפעולה. אורך: כ-[אורך מילים] מילים. טון: [טון כתיבה].",
+          "variables": [
+            "נושא המאמר",
+            "קהל יעד",
+            "אורך מילים",
+            "טון כתיבה"
+          ],
+          "content_types": [
+            "blog_post"
+          ],
+          "tags": [
+            "בלוג",
+            "מאמר",
+            "מקצועי"
+          ],
+          "usage_count": 0
+        },
+        {
+          "id": "content_002",
+          "title": "פוסט לרשתות חברתיות",
+          "description": "יצירת פוסט ויראלי לרשתות חברתיות",
+          "prompt": "צור פוסט מעניין ומעורר עניין עבור [פלטפורמה] בנושא [נושא הפוסט]. הפוסט צריך להיות קצר ומשכנע, לכלול שאלה שמעודדת אינטראקציה, 3-5 האשטגים רלוונטיים, ואמוג'י מתאימים. טון: [טון תקשורת]. אורך מקסימלי: [מספר תווים] תווים.",
+          "variables": [
+            "פלטפורמה",
+            "נושא הפוסט",
+            "טון תקשורת",
+            "מספר תווים"
+          ],
+          "content_types": [
+            "social_media"
+          ],
+          "tags": [
+            "רשתות חברתיות",
+            "ויראלי",
+            "אינטראקציה"
+          ],
+          "usage_count": 0
+        },
+        {
+          "id": "content_003",
+          "title": "תסריט לסרטון יוטיוב",
+          "description": "יצירת תסריט מלא לסרטון יוטיוב",
+          "prompt": "כתוב תסריט מלא לסרטון יוטיוב בנושא [נושא הסרטון] באורך של [אורך הסרטון] דקות. כלול: הוק פותח (15 שניות ראשונות), מבוא לנושא, 3-5 נקודות עיקריות עם דוגמאות, קריאה לפעולה (לייק, הרשמה, תגובה), וסיום מעודד. הוסף הערות לעריכה ולוויזואליה. טון: [טון תקשורת].",
+          "variables": [
+            "נושא הסרטון",
+            "אורך הסרטון",
+            "טון תקשורת"
+          ],
+          "content_types": [
+            "video_script"
+          ],
+          "tags": [
+            "יוטיוב",
+            "תסריט",
+            "וידאו"
+          ],
+          "usage_count": 0
+        }
+      ]
+    },
+    "business": {
+      "name": "עסקים ומקצועי",
+      "icon": "💼",
+      "description": "פרומפטים לתוכן עסקי ומקצועי",
+      "prompts": [
+        {
+          "id": "business_001",
+          "title": "הצעת מחיר מקצועית",
+          "description": "יצירת הצעת מחיר מפורטת ומקצועית",
+          "prompt": "כתוב הצעת מחיר מקצועית עבור [שם הלקוח] לפרויקט [תיאור הפרויקט]. כלול: מבוא אישי, הבנת הצרכים, פירוט השירותים, לוח זמנים, מחירים מפורטים, תנאי תשלום, וסיכום עם קריאה לפעולה. טון: מקצועי ואמין. הוסף ערך מוסף שמבדיל אותך מהמתחרים.",
+          "variables": [
+            "שם הלקוח",
+            "תיאור הפרויקט"
+          ],
+          "content_types": [
+            "business_proposal"
+          ],
+          "tags": [
+            "הצעת מחיר",
+            "עסקי",
+            "מקצועי"
+          ],
+          "usage_count": 0
+        },
+        {
+          "id": "business_002",
+          "title": "מכתב מעקב ללקוח",
+          "description": "מכתב מעקב מקצועי ללקוח פוטנציאלי",
+          "prompt": "כתוב מכתב מעקב מקצועי ללקוח [שם הלקוח] שלא הגיב להצעה הראשונית. המכתב צריך להיות קצר ולעניין, להזכיר את הפגישה/ההצעה הקודמת, להוסיף ערך חדש או הנחה מיוחדת, ולכלול קריאה לפעולה ברורה. טון: מקצועי אך חם ואישי.",
+          "variables": [
+            "שם הלקוח"
+          ],
+          "content_types": [
+            "business_email"
+          ],
+          "tags": [
+            "מעקב",
+            "לקוח",
+            "מכירות"
+          ],
+          "usage_count": 0
+        },
+        {
+          "id": "business_003",
+          "title": "תוכן לדף אודות",
+          "description": "יצירת תוכן מקצועי לדף אודות החברה",
+          "prompt": "כתוב תוכן מקצועי ומעורר אמון לדף 'אודותינו' עבור [שם החברה] שפועלת בתחום [תחום הפעילות]. כלול: סיפור החברה, החזון והמשימה, הערכים המנחים, הצוות המקצועי, הישגים עיקריים, ומה שמבדיל אותכם מהמתחרים. טון: מקצועי ומעורר אמון. אורך: כ-[אורך מילים] מילים.",
+          "variables": [
+            "שם החברה",
+            "תחום הפעילות",
+            "אורך מילים"
+          ],
+          "content_types": [
+            "website_content"
+          ],
+          "tags": [
+            "אודות",
+            "חברה",
+            "אמון"
+          ],
+          "usage_count": 0
+        }
+      ]
+    },
+    "creative": {
+      "name": "יצירתי ומעורר השראה",
+      "icon": "🎨",
+      "description": "פרומפטים ליצירת תוכן יצירתי ומעורר השראה",
+      "prompts": [
+        {
+          "id": "creative_001",
+          "title": "סיפור מעורר השראה",
+          "description": "יצירת סיפור אישי מעורר השראה",
+          "prompt": "כתוב סיפור מעורר השראה על [נושא הסיפור] שמתחבר לקהל [קהל יעד]. הסיפור צריך לכלול: דמות מרכזית מעניינת, אתגר או קושי שהתגבר עליו, תהליך הצמיחה והלמידה, והמסר המעורר השראה. השתמש בשפה רגשית ומעוררת השראה. אורך: כ-[אורך מילים] מילים.",
+          "variables": [
+            "נושא הסיפור",
+            "קהל יעד",
+            "אורך מילים"
+          ],
+          "content_types": [
+            "story",
+            "blog_post"
+          ],
+          "tags": [
+            "השראה",
+            "סיפור",
+            "רגש"
+          ],
+          "usage_count": 0
+        },
+        {
+          "id": "creative_002",
+          "title": "ציטוט מעורר השראה",
+          "description": "יצירת ציטוטים מעוררי השראה למדיה חברתית",
+          "prompt": "צור 5 ציטוטים מעוררי השראה בנושא [נושא הציטוט] שמתאימים ל[קהל יעד]. כל ציטוט צריך להיות קצר (עד 100 תווים), חזק ומעורר השראה, ומתאים לשיתוף ברשתות חברתיות. הוסף האשטגים רלוונטיים לכל ציטוט.",
+          "variables": [
+            "נושא הציטוט",
+            "קהל יעד"
+          ],
+          "content_types": [
+            "social_media",
+            "quotes"
+          ],
+          "tags": [
+            "ציטוטים",
+            "השראה",
+            "מוטיבציה"
+          ],
+          "usage_count": 0
+        },
+        {
+          "id": "creative_003",
+          "title": "תוכן יצירתי לקמפיין",
+          "description": "יצירת רעיון יצירתי לקמפיין שיווקי",
+          "prompt": "פתח רעיון יצירתי וחדשני לקמפיין שיווקי עבור [שם המותג] שמקדם את [המוצר/השירות] לקהל [קהל יעד]. כלול: קונספט מרכזי יצירתי, סלוגן קליט, רעיונות לוויזואליה, הצעות לערוצי הפצה, ואיך הקמפיין יוצר חיבור רגשי עם הקהל.",
+          "variables": [
+            "שם המותג",
+            "המוצר/השירות",
+            "קהל יעד"
+          ],
+          "content_types": [
+            "campaign_idea"
+          ],
+          "tags": [
+            "קמפיין",
+            "יצירתיות",
+            "חדשנות"
+          ],
+          "usage_count": 0
+        }
+      ]
+    },
+    "technical": {
+      "name": "טכני ומקצועי",
+      "icon": "⚙️",
+      "description": "פרומפטים לתוכן טכני ומקצועי",
+      "prompts": [
+        {
+          "id": "technical_001",
+          "title": "מדריך טכני מפורט",
+          "description": "יצירת מדריך טכני שלב אחר שלב",
+          "prompt": "כתוב מדריך טכני מפורט על [נושא טכני] עבור [רמת המשתמש]. המדריך צריך לכלול: מבוא עם הסבר על המטרה, דרישות מוקדמות, הוראות שלב אחר שלב עם צילומי מסך או דוגמאות קוד, טיפים לפתרון בעיות נפוצות, וסיכום. השתמש בשפה ברורה ומדויקת.",
+          "variables": [
+            "נושא טכני",
+            "רמת המשתמש"
+          ],
+          "content_types": [
+            "technical_guide"
+          ],
+          "tags": [
+            "מדריך",
+            "טכני",
+            "הוראות"
+          ],
+          "usage_count": 0
+        },
+        {
+          "id": "technical_002",
+          "title": "תיעוד API",
+          "description": "יצירת תיעוד מקצועי ל-API",
+          "prompt": "כתוב תיעוד מקצועי ל-API של [שם ה-API] שמספק [תיאור הפונקציונליות]. כלול: סקירה כללית, אימות נדרש, נקודות קצה (endpoints) עם פרמטרים, דוגמאות בקשות ותגובות, קודי שגיאה נפוצים, ודוגמאות קוד ב-[שפת תכנות]. השתמש בפורמט ברור ועקבי.",
+          "variables": [
+            "שם ה-API",
+            "תיאור הפונקציונליות",
+            "שפת תכנות"
+          ],
+          "content_types": [
+            "api_documentation"
+          ],
+          "tags": [
+            "API",
+            "תיעוד",
+            "פיתוח"
+          ],
+          "usage_count": 0
+        },
+        {
+          "id": "technical_003",
+          "title": "הסבר טכני פשוט",
+          "description": "הסבר מושג טכני מורכב בשפה פשוטה",
+          "prompt": "הסבר את המושג הטכני [מושג טכני] בשפה פשוטה וברורה עבור [קהל יעד]. השתמש באנלוגיות מהחיים, דוגמאות מעשיות, ותרשימים מילוליים. המטרה היא שאדם ללא רקע טכני יבין את המושג ואת החשיבות שלו. אורך: כ-[אורך מילים] מילים.",
+          "variables": [
+            "מושג טכני",
+            "קהל יעד",
+            "אורך מילים"
+          ],
+          "content_types": [
+            "educational_content"
+          ],
+          "tags": [
+            "הסבר",
+            "פשטות",
+            "חינוכי"
+          ],
+          "usage_count": 0
+        },
+        {
+          "id": "technical_004",
+          "title": "ביקורת קוד מקצועית",
+          "description": "ביקורת קוד מפורטת עם הצעות שיפור",
+          "prompt": "בצע ביקורת קוד מקצועית עבור הקוד הבא ב-[שפת תכנות]:\n\n[קוד לביקורת]\n\nכלול בביקורת: בדיקת איכות הקוד, ביצועים, אבטחה, קריאות, עמידה בסטנדרטים, הצעות שיפור קונקרטיות, ודירוג כללי (1-10). הסבר כל נקודה בפירוט.",
+          "variables": [
+            "שפת תכנות",
+            "קוד לביקורת"
+          ],
+          "content_types": [
+            "code_review"
+          ],
+          "tags": [
+            "ביקורת",
+            "קוד",
+            "איכות"
+          ],
+          "usage_count": 0
+        }
+      ]
+    },
+    "ai_specialized": {
+      "name": "מתמחה בבינה מלאכותית",
+      "icon": "🤖",
+      "description": "פרומפטים מתקדמים לעבודה עם AI ו-DeepSeek",
+      "prompts": [
+        {
+          "id": "ai_001",
+          "title": "פרומפט אופטימלי ל-DeepSeek",
+          "description": "יצירת פרומפט מותאם למודלי DeepSeek",
+          "prompt": "צור פרומפט מותאם למודל DeepSeek [Chat/Coder] עבור המשימה: [תיאור המשימה]. הפרומפט צריך להיות מובנה, ברור, וכולל הקשר מפורט, הוראות ספציפיות, דוגמאות אם נדרש, ופורמט פלט רצוי. התאם את הפרומפט לחוזקות של DeepSeek בהבנה עמיקה וחשיבה אנליטית.",
+          "variables": [
+            "Chat/Coder",
+            "תיאור המשימה"
+          ],
+          "content_types": [
+            "ai_prompt"
+          ],
+          "tags": [
+            "DeepSeek",
+            "אופטימיזציה",
+            "AI"
+          ],
+          "usage_count": 0
+        },
+        {
+          "id": "ai_002",
+          "title": "הנדסת פרומפטים מתקדמת",
+          "description": "יצירת פרומפט מורכב עם טכניקות מתקדמות",
+          "prompt": "בנה פרומפט מתקדם באמצעות טכניקת [Chain-of-Thought/Few-Shot/Zero-Shot] עבור [סוג המשימה]. כלול: הגדרת תפקיד מדויקת, הקשר מפורט, דוגמאות איכותיות (אם רלוונטי), הוראות שלב אחר שלב, אילוצים וכללים, ופורמט פלט מובנה. הוסף הסבר על הטכניקה הנבחרת.",
+          "variables": [
+            "Chain-of-Thought/Few-Shot/Zero-Shot",
+            "סוג המשימה"
+          ],
+          "content_types": [
+            "advanced_prompt"
+          ],
+          "tags": [
+            "הנדסה",
+            "מתקדם",
+            "טכניקות"
+          ],
+          "usage_count": 0
+        },
+        {
+          "id": "ai_003",
+          "title": "אנליזה והשוואת מודלי AI",
+          "description": "השוואה מקצועית בין מודלי AI שונים",
+          "prompt": "בצע השוואה מקצועית בין [מודל AI 1] ל-[מודל AI 2] עבור המשימה: [תיאור המשימה]. כלול: חוזקות וחולשות של כל מודל, ביצועים במשימות דומות, עלות ומהירות, התאמה לסוג התוכן, המלצה מנומקת עם דירוג (1-10), ודוגמאות פלט השוואתיות.",
+          "variables": [
+            "מודל AI 1",
+            "מודל AI 2",
+            "תיאור המשימה"
+          ],
+          "content_types": [
+            "ai_analysis"
+          ],
+          "tags": [
+            "השוואה",
+            "אנליזה",
+            "מודלים"
+          ],
+          "usage_count": 0
+        }
+      ]
+    },
+    "seo_advanced": {
+      "name": "SEO ואופטימיזציה מתקדמת",
+      "icon": "🔍",
+      "description": "פרומפטים מתקדמים לאופטימיזציה למנועי חיפוש",
+      "prompts": [
+        {
+          "id": "seo_001",
+          "title": "תוכן SEO מותאם לכוונת חיפוש",
+          "description": "יצירת תוכן מותאם לכוונת חיפוש ספציפית",
+          "prompt": "כתוב תוכן מותאם SEO עבור מילת המפתח '[מילת מפתח ראשית]' עם כוונת חיפוש [אינפורמטיבית/מסחרית/ניווטית]. כלול: כותרת H1 מותאמת, מבנה כותרות היררכי (H2-H4), שילוב טבעי של מילות מפתח נלוות, תוכן איכותי באורך [אורך מילים] מילים, קריאות לפעולה, ומטא תיאור משכנע (עד 160 תווים).",
+          "variables": [
+            "מילת מפתח ראשית",
+            "אינפורמטיבית/מסחרית/ניווטית",
+            "אורך מילים"
+          ],
+          "content_types": [
+            "seo_content"
+          ],
+          "tags": [
+            "SEO",
+            "מילות מפתח",
+            "אופטימיזציה"
+          ],
+          "usage_count": 0
+        },
+        {
+          "id": "seo_002",
+          "title": "אסטרטגיית תוכן לקלסטר נושאי",
+          "description": "בניית אסטרטגיית תוכן לקלסטר נושאי מלא",
+          "prompt": "בנה אסטרטגיית תוכן מקיפה לקלסטר הנושא '[נושא מרכזי]' עבור [סוג העסק]. כלול: מילת מפתח ראשית (Pillar), 8-12 מילות מפתח נלוות (Cluster), מבנה היררכי של התוכן, הצעות לכותרות מאמרים, קישורים פנימיים מתוכננים, ולוח זמנים לפרסום. התמקד ב-[קהל יעד ספציפי].",
+          "variables": [
+            "נושא מרכזי",
+            "סוג העסק",
+            "קהל יעד ספציפי"
+          ],
+          "content_types": [
+            "content_strategy"
+          ],
+          "tags": [
+            "אסטרטגיה",
+            "קלסטר",
+            "תכנון"
+          ],
+          "usage_count": 0
+        },
+        {
+          "id": "seo_003",
+          "title": "אופטימיזציה לחיפוש קולי",
+          "description": "תוכן מותאם לחיפושים קוליים ו-Featured Snippets",
+          "prompt": "צור תוכן מותאם לחיפוש קולי עבור השאלה '[שאלה בחיפוש קולי]'. כלול: תשובה ישירה וקצרה (20-30 מילים), הרחבה מפורטת עם נקודות מרכזיות, שימוש בשפה טבעית ושאלות נפוצות, מבנה שמתאים ל-Featured Snippet, ורשימות או טבלאות אם רלוונטי. התמקד בכוונת החיפוש המקומית אם רלוונטי.",
+          "variables": [
+            "שאלה בחיפוש קולי"
+          ],
+          "content_types": [
+            "voice_search_content"
+          ],
+          "tags": [
+            "חיפוש קולי",
+            "Featured Snippet",
+            "שאלות"
+          ],
+          "usage_count": 0
+        }
+      ]
+    },
+    "conversion_optimization": {
+      "name": "אופטימיזציית המרות",
+      "icon": "📈",
+      "description": "פרומפטים לשיפור שיעורי המרה והמכירות",
+      "prompts": [
+        {
+          "id": "conversion_001",
+          "title": "דף נחיתה בעל המרה גבוהה",
+          "description": "יצירת תוכן לדף נחיתה מותאם להמרות",
+          "prompt": "כתוב תוכן לדף נחיתה עבור [המוצר/השירות] שמיועד ל[קהל יעד ספציפי]. כלול: כותרת ראשית חזקה (Value Proposition), תת-כותרת מסבירה, 3 יתרונות עיקריים עם אייקונים, הוכחה חברתית (ביקורות/לוגואים), התמודדות עם התנגדויות נפוצות, קריאה לפעולה ברורה ודחופה, וערבות או הבטחה. טון: [טון תקשורת].",
+          "variables": [
+            "המוצר/השירות",
+            "קהל יעד ספציפי",
+            "טון תקשורת"
+          ],
+          "content_types": [
+            "landing_page"
+          ],
+          "tags": [
+            "המרות",
+            "דף נחיתה",
+            "מכירות"
+          ],
+          "usage_count": 0
+        },
+        {
+          "id": "conversion_002",
+          "title": "אימייל נטישת עגלה",
+          "description": "סדרת אימיילים לחזרה על נטישת עגלת קניות",
+          "prompt": "כתוב סדרה של 3 אימיילים לחזרה על נטישת עגלת קניות עבור [סוג המוצרים]. אימייל 1 (אחרי שעה): תזכורת עדינה עם תמונת המוצר. אימייל 2 (אחרי 24 שעות): הוספת דחיפות והנחה של [אחוז הנחה]%. אימייל 3 (אחרי 72 שעות): הצעה אחרונה עם ערך מוסף. כל אימייל צריך כותרת משכנעת וקריאה לפעולה ברורה.",
+          "variables": [
+            "סוג המוצרים",
+            "אחוז הנחה"
+          ],
+          "content_types": [
+            "email_sequence"
+          ],
+          "tags": [
+            "נטישה",
+            "עגלה",
+            "חזרה"
+          ],
+          "usage_count": 0
+        },
+        {
+          "id": "conversion_003",
+          "title": "טקסט לכפתור קריאה לפעולה",
+          "description": "יצירת טקסטים משכנעים לכפתורי CTA",
+          "prompt": "צור 10 וריאציות שונות לטקסט כפתור קריאה לפעולה עבור [סוג הפעולה הרצויה] ב[סוג הדף/המוצר]. הטקסטים צריכים להיות: קצרים (2-5 מילים), דחופים, ממוקדי תועלת, ומעוררי פעולה. כלול וריאציות עם רגש שונה (דחיפות, סקרנות, תועלת, בטחון). דרג כל אחד לפי עוצמת ההשפעה הצפויה.",
+          "variables": [
+            "סוג הפעולה הרצויה",
+            "סוג הדף/המוצר"
+          ],
+          "content_types": [
+            "cta_text"
+          ],
+          "tags": [
+            "CTA",
+            "כפתורים",
+            "פעולה"
+          ],
+          "usage_count": 0
+        }
+      ]
+    }
+  }
+}

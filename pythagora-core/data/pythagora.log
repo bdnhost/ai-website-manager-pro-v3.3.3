@@ -1,0 +1,65 @@
+2025-11-03T22:16:33.909Z INFO SharedStateManager initialized
+2025-11-03T22:16:33.910Z INFO Is remote: false
+2025-11-03T22:16:33.911Z INFO Starting Local. Installation path: c:\Users\User\Desktop\ai-website-manager-pro-v3.3.0-enhanced-debugging
+2025-11-03T22:16:33.911Z INFO [MainProvider] Creating new MainProvider instance...
+2025-11-03T22:16:33.913Z INFO Installation path exists: c:\Users\User\Desktop\ai-website-manager-pro-v3.3.0-enhanced-debugging
+2025-11-03T22:16:33.913Z INFO Initializing database with URL: file:c:\Users\User\Desktop\ai-website-manager-pro-v3.3.0-enhanced-debugging\pythagora-core\data\database\pythagora.db
+2025-11-03T22:16:33.917Z INFO Database file exists, skipping prisma generate/push for faster startup
+2025-11-03T22:16:33.917Z INFO Database initialized successfully
+2025-11-03T22:16:33.918Z INFO [Migration] Checking for database migration...
+2025-11-03T22:16:34.310Z INFO [Migration] No migration needed
+2025-11-03T22:16:35.095Z INFO Starting right sidebar creation...
+2025-11-03T22:16:35.095Z INFO Initializing MainProvider...
+2025-11-03T22:16:35.096Z INFO Updating user profile...
+2025-11-03T22:16:35.097Z INFO No access token found when trying to fetch user profile
+2025-11-03T22:16:35.097Z INFO Creating right panel...
+2025-11-03T22:16:35.098Z INFO Creating right panel...
+2025-11-03T22:16:35.098Z INFO Closing all existing tabs...
+2025-11-03T22:16:35.099Z INFO Right panel webview created
+2025-11-03T22:16:35.101Z INFO Right panel HTML set successfully
+2025-11-03T22:16:35.101Z INFO Right panel setup completed
+2025-11-03T22:16:35.102Z INFO Setting up right panel dependencies...
+2025-11-03T22:16:35.111Z INFO Right panel dependencies setup complete, waiting for ready signal...
+2025-11-03T22:16:36.199Z INFO MainProvider handleMessage {"command":"rightPanelReady","data":{},"source":"right"}
+2025-11-03T22:16:36.200Z INFO Routing rightPanelReady through new unified router from right
+2025-11-03T22:16:36.200Z INFO [Message Router] Routing rightPanelReady through unified router
+2025-11-03T22:16:36.201Z INFO MainProvider handleMessage {"command":"rightBarRendered","data":"","source":"right"}
+2025-11-03T22:16:36.202Z INFO Right panel setup completed successfully
+2025-11-03T22:16:36.202Z INFO Right panel created via MainProvider
+2025-11-03T22:16:36.202Z INFO Storing initial prompt...
+2025-11-03T22:16:36.203Z INFO Tracing first panel open...
+2025-11-03T22:16:36.204Z INFO Right sidebar setup completed successfully
+2025-11-03T22:16:36.205Z INFO MainProvider handleMessage {"command":"updateUserProfile","data":"","source":"right"}
+2025-11-03T22:16:36.206Z INFO Routing updateUserProfile through new unified router from right
+2025-11-03T22:16:36.206Z INFO [Message Router] Routing updateUserProfile through unified router
+2025-11-03T22:16:36.206Z INFO No access token found when trying to fetch user profile
+2025-11-03T22:16:36.874Z INFO 🔍 ProcessManager: Waiting for port 3000 to be freed...
+2025-11-03T22:16:39.462Z INFO ✅ ProcessManager: Port 3000 is now free
+2025-11-03T22:16:43.239Z INFO Closing entire Pythagora extension...
+2025-11-03T22:16:43.240Z INFO Right panel disposed, triggering cleanup...
+2025-11-03T22:16:43.240Z INFO Right panel disposed, cleaning up...
+2025-11-03T22:16:43.705Z ERROR Error closing extension
+Error: Canceled
+Stack: Canceled: Canceled
+    at new MR (file:///c:/Users/User/AppData/Local/Programs/Microsoft%20VS%20Code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:29:116391)
+    at U4.U (file:///c:/Users/User/AppData/Local/Programs/Microsoft%20VS%20Code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:29:121001)
+    at Proxy.s.<computed>.n.charCodeAt.s.<computed> (file:///c:/Users/User/AppData/Local/Programs/Microsoft%20VS%20Code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:29:118495)
+    at iy.g (file:///c:/Users/User/AppData/Local/Programs/Microsoft%20VS%20Code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:114:41101)
+    at iy.executeCommand (file:///c:/Users/User/AppData/Local/Programs/Microsoft%20VS%20Code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:114:40605)
+    at Object.executeCommand (file:///c:/Users/User/AppData/Local/Programs/Microsoft%20VS%20Code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:201:105071)
+    at closeEntirePythagoraExtension (c:\Users\User\.vscode\extensions\pythagoratechnologies.pythagora-vs-code-2.5.26\out\extension.js:538:31)
+    at Object.deactivate (c:\Users\User\.vscode\extensions\pythagoratechnologies.pythagora-vs-code-2.5.26\out\extension.js:429:15)
+    at SZ.eb (file:///c:/Users/User/AppData/Local/Programs/Microsoft%20VS%20Code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:118:11797)
+    at file:///c:/Users/User/AppData/Local/Programs/Microsoft%20VS%20Code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:118:9947
+    at Array.map (<anonymous>)
+    at SZ.$ (file:///c:/Users/User/AppData/Local/Programs/Microsoft%20VS%20Code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:118:9935)
+    at SZ.terminate (file:///c:/Users/User/AppData/Local/Programs/Microsoft%20VS%20Code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:118:10178)
+    at H3.terminate (file:///c:/Users/User/AppData/Local/Programs/Microsoft%20VS%20Code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:120:914)
+    at Ss (file:///c:/Users/User/AppData/Local/Programs/Microsoft%20VS%20Code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:393:10409)
+    at MessagePortMain.<anonymous> (file:///c:/Users/User/AppData/Local/Programs/Microsoft%20VS%20Code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:393:6948)
+    at MessagePortMain.emit (node:events:519:28)
+    at MessagePortMain.emit (node:domain:489:12)
+    at Object.MessagePortMain._internalPort.emit (node:electron/js2c/utility_init:2:2949)
+Extra context: {
+  "message": "Canceled"
+}

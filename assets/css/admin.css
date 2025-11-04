@@ -1,0 +1,614 @@
+/**
+ * AI Website Manager Pro - Admin Styles
+ *
+ * @package AI_Manager_Pro
+ * @version 2.0.0
+ */
+
+/* General Styles */
+.ai-manager-pro-wrap {
+    max-width: 1200px;
+    margin: 20px 0;
+}
+
+.ai-manager-pro-header {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+}
+
+.ai-manager-pro-header h1 {
+    margin: 0 0 10px 0;
+    color: #23282d;
+    font-size: 24px;
+}
+
+.ai-manager-pro-header p {
+    margin: 0;
+    color: #666;
+    font-size: 14px;
+}
+
+/* Card Layout */
+.ai-manager-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.ai-manager-card {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+    padding: 20px;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+}
+
+.ai-manager-card h2 {
+    margin: 0 0 15px 0;
+    font-size: 18px;
+    color: #23282d;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.ai-manager-card h3 {
+    margin: 15px 0 10px 0;
+    font-size: 16px;
+    color: #23282d;
+}
+
+/* Form Styles */
+.ai-manager-form {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.ai-manager-form .form-table {
+    margin-top: 0;
+}
+
+.ai-manager-form .form-table th {
+    width: 200px;
+    padding: 15px 10px 15px 0;
+    vertical-align: top;
+}
+
+.ai-manager-form .form-table td {
+    padding: 15px 10px;
+}
+
+.ai-manager-form input[type="text"],
+.ai-manager-form input[type="email"],
+.ai-manager-form input[type="url"],
+.ai-manager-form input[type="password"],
+.ai-manager-form select,
+.ai-manager-form textarea {
+    width: 100%;
+    max-width: 400px;
+}
+
+.ai-manager-form textarea {
+    height: 100px;
+    resize: vertical;
+}
+
+.ai-manager-form textarea.large {
+    height: 200px;
+    max-width: 600px;
+}
+
+.ai-manager-form .description {
+    font-style: italic;
+    color: #666;
+    margin-top: 5px;
+}
+
+/* Button Styles */
+.ai-manager-btn {
+    display: inline-block;
+    padding: 8px 16px;
+    margin: 2px;
+    border: 1px solid #0073aa;
+    border-radius: 3px;
+    background: #0073aa;
+    color: #fff;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.ai-manager-btn:hover {
+    background: #005a87;
+    border-color: #005a87;
+    color: #fff;
+}
+
+.ai-manager-btn:disabled {
+    background: #ccc;
+    border-color: #ccc;
+    cursor: not-allowed;
+}
+
+.ai-manager-btn.secondary {
+    background: #f7f7f7;
+    border-color: #ccd0d4;
+    color: #555;
+}
+
+.ai-manager-btn.secondary:hover {
+    background: #e8e8e8;
+    border-color: #999;
+    color: #333;
+}
+
+.ai-manager-btn.danger {
+    background: #dc3232;
+    border-color: #dc3232;
+}
+
+.ai-manager-btn.danger:hover {
+    background: #a00;
+    border-color: #a00;
+}
+
+.ai-manager-btn.success {
+    background: #46b450;
+    border-color: #46b450;
+}
+
+.ai-manager-btn.success:hover {
+    background: #2e7d32;
+    border-color: #2e7d32;
+}
+
+/* Status Indicators */
+.ai-status {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.ai-status.active {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.ai-status.inactive {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.ai-status.pending {
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeaa7;
+}
+
+/* Content Generation */
+.content-generation-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.content-options {
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+.generated-content {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 20px;
+    margin-top: 20px;
+    display: none;
+}
+
+.generated-content h3 {
+    margin-top: 0;
+    color: #23282d;
+}
+
+.generated-content .content-preview {
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 4px;
+    border-left: 4px solid #0073aa;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* Brand Management */
+.brand-list {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+}
+
+.brand-item {
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.brand-item:last-child {
+    border-bottom: none;
+}
+
+.brand-info h4 {
+    margin: 0 0 5px 0;
+    color: #23282d;
+}
+
+.brand-info p {
+    margin: 0;
+    color: #666;
+    font-size: 13px;
+}
+
+.brand-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.brand-import-export {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.json-editor {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 13px;
+    line-height: 1.4;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    height: 300px;
+    resize: vertical;
+}
+
+/* Automation */
+.automation-list {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+}
+
+.automation-item {
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 20px;
+    align-items: center;
+}
+
+.automation-item:last-child {
+    border-bottom: none;
+}
+
+.automation-info h4 {
+    margin: 0 0 5px 0;
+    color: #23282d;
+}
+
+.automation-info p {
+    margin: 0 0 10px 0;
+    color: #666;
+    font-size: 13px;
+}
+
+.automation-meta {
+    font-size: 12px;
+    color: #999;
+}
+
+.automation-schedule {
+    text-align: center;
+}
+
+.automation-schedule .next-run {
+    font-weight: bold;
+    color: #0073aa;
+}
+
+.automation-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.schedule-options {
+    display: none;
+    margin-top: 15px;
+    padding: 15px;
+    background: #f9f9f9;
+    border-radius: 4px;
+}
+
+.schedule-options.active {
+    display: block;
+}
+
+/* Analytics Dashboard */
+.analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.analytics-card {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+    padding: 20px;
+    text-align: center;
+}
+
+.analytics-card .number {
+    font-size: 36px;
+    font-weight: bold;
+    color: #0073aa;
+    margin-bottom: 5px;
+}
+
+.analytics-card .label {
+    color: #666;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Settings */
+.settings-section {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+
+.settings-section h3 {
+    margin: 0;
+    padding: 15px 20px;
+    background: #f9f9f9;
+    border-bottom: 1px solid #eee;
+    font-size: 16px;
+    color: #23282d;
+}
+
+.settings-section .form-table {
+    margin: 0;
+}
+
+.settings-section .form-table th,
+.settings-section .form-table td {
+    padding: 15px 20px;
+}
+
+/* API Key Fields */
+.api-key-field {
+    position: relative;
+}
+
+.api-key-field input[type="password"] {
+    padding-right: 100px;
+}
+
+.api-key-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #0073aa;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.connection-status {
+    margin-left: 10px;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.connection-status.connected {
+    background: #d4edda;
+    color: #155724;
+}
+
+.connection-status.disconnected {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.connection-status.testing {
+    background: #fff3cd;
+    color: #856404;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .ai-manager-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .content-generation-form {
+        grid-template-columns: 1fr;
+    }
+    
+    .brand-import-export {
+        grid-template-columns: 1fr;
+    }
+    
+    .automation-item {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+    
+    .analytics-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+}
+
+/* Loading States */
+.loading {
+    position: relative;
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #0073aa;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Tooltips */
+.ai-tooltip {
+    position: relative;
+    display: inline-block;
+    cursor: help;
+}
+
+.ai-tooltip .tooltiptext {
+    visibility: hidden;
+    width: 200px;
+    background-color: #555;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 10px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -100px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-size: 12px;
+}
+
+.ai-tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Code Highlighting */
+.CodeMirror {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 13px;
+    height: auto;
+    min-height: 200px;
+}
+
+.CodeMirror-scroll {
+    min-height: 200px;
+}
+
+/* Notice Styles */
+.ai-manager-notice {
+    margin: 15px 0;
+    padding: 12px;
+    border-left: 4px solid #0073aa;
+    background: #fff;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+}
+
+.ai-manager-notice.error {
+    border-left-color: #dc3232;
+    background: #fef7f7;
+}
+
+.ai-manager-notice.success {
+    border-left-color: #46b450;
+    background: #f7fff7;
+}
+
+.ai-manager-notice.warning {
+    border-left-color: #ffb900;
+    background: #fffbf0;
+}
+
+/* Tab Navigation */
+.ai-manager-tabs {
+    border-bottom: 1px solid #ccd0d4;
+    margin-bottom: 20px;
+}
+
+.ai-manager-tabs ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+}
+
+.ai-manager-tabs li {
+    margin: 0;
+}
+
+.ai-manager-tabs a {
+    display: block;
+    padding: 12px 20px;
+    text-decoration: none;
+    color: #555;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.ai-manager-tabs a:hover {
+    color: #0073aa;
+    background: #f9f9f9;
+}
+
+.ai-manager-tabs a.active {
+    color: #0073aa;
+    border-bottom-color: #0073aa;
+    background: #f9f9f9;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+

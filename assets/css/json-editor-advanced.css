@@ -1,0 +1,290 @@
+/**
+ * AI Website Manager Pro - Advanced JSON Editor Styles
+ *
+ * @package AI_Manager_Pro
+ * @version 3.2.0
+ */
+
+/* JSON Editor Container */
+.json-editor-container {
+  position: relative;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #fff;
+  margin: 10px 0;
+}
+
+.json-editor-container.fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999999;
+  border: none;
+  border-radius: 0;
+  margin: 0;
+}
+
+/* Toolbar */
+.json-editor-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  background: #f9f9f9;
+  border-bottom: 1px solid #ddd;
+  border-radius: 4px 4px 0 0;
+}
+
+.json-editor-container.fullscreen .json-editor-toolbar {
+  border-radius: 0;
+}
+
+.json-editor-toolbar .button {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  font-size: 13px;
+  line-height: 1.4;
+  border-radius: 3px;
+}
+
+.json-editor-toolbar .button .dashicons {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+/* Status Indicator */
+.json-status {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+  font-size: 13px;
+}
+
+.status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ccc;
+  transition: background-color 0.3s ease;
+}
+
+.status-indicator.success {
+  background: #46b450;
+}
+
+.status-indicator.error {
+  background: #dc3232;
+}
+
+.status-indicator.neutral {
+  background: #0073aa;
+}
+
+.status-text {
+  font-weight: 500;
+  color: #555;
+}
+
+/* CodeMirror Customizations */
+.json-editor-container .CodeMirror {
+  border: none;
+  border-radius: 0 0 4px 4px;
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 200px;
+}
+
+.json-editor-container.fullscreen .CodeMirror {
+  height: calc(100vh - 60px) !important;
+  border-radius: 0;
+}
+
+.CodeMirror-scroll {
+  min-height: 200px;
+}
+
+.json-editor-container.fullscreen .CodeMirror-scroll {
+  min-height: calc(100vh - 60px);
+}
+
+/* Line Numbers */
+.CodeMirror-linenumber {
+  color: #999;
+  font-size: 12px;
+}
+
+/* Syntax Highlighting for JSON */
+.cm-s-monokai .cm-string {
+  color: #e6db74;
+}
+
+.cm-s-monokai .cm-number {
+  color: #ae81ff;
+}
+
+.cm-s-monokai .cm-atom {
+  color: #ae81ff;
+}
+
+.cm-s-monokai .cm-keyword {
+  color: #f92672;
+}
+
+.cm-s-monokai .cm-property {
+  color: #a6e22e;
+}
+
+/* Error Highlighting */
+.CodeMirror-lint-marker-error {
+  background: #dc3232;
+  border-radius: 50%;
+  width: 8px;
+  height: 8px;
+  margin-left: 4px;
+}
+
+.CodeMirror-lint-tooltip {
+  background: #333;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 12px;
+  max-width: 300px;
+}
+
+/* Fullscreen Body Class */
+body.json-editor-fullscreen {
+  overflow: hidden;
+}
+
+body.json-editor-fullscreen #wpcontent,
+body.json-editor-fullscreen #wpfooter {
+  display: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .json-editor-toolbar {
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  .json-editor-toolbar .button {
+    padding: 4px 8px;
+    font-size: 12px;
+  }
+
+  .json-status {
+    width: 100%;
+    margin-left: 0;
+    margin-top: 5px;
+    justify-content: center;
+  }
+}
+
+/* Dark Theme Support */
+@media (prefers-color-scheme: dark) {
+  .json-editor-container {
+    border-color: #555;
+    background: #1e1e1e;
+  }
+
+  .json-editor-toolbar {
+    background: #2d2d2d;
+    border-bottom-color: #555;
+  }
+
+  .json-editor-toolbar .button {
+    background: #3c3c3c;
+    border-color: #555;
+    color: #fff;
+  }
+
+  .json-editor-toolbar .button:hover {
+    background: #4a4a4a;
+  }
+
+  .status-text {
+    color: #ccc;
+  }
+}
+
+/* Animation for Status Changes */
+.status-indicator {
+  animation: pulse 0.3s ease-in-out;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Loading State */
+.json-editor-loading {
+  position: relative;
+}
+
+.json-editor-loading::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #0073aa;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Accessibility */
+.json-editor-toolbar .button:focus {
+  outline: 2px solid #0073aa;
+  outline-offset: 2px;
+}
+
+.CodeMirror-focused {
+  outline: 2px solid #0073aa;
+  outline-offset: -2px;
+}
+
+/* Print Styles */
+@media print {
+  .json-editor-toolbar {
+    display: none;
+  }
+
+  .json-editor-container {
+    border: 1px solid #000;
+  }
+
+  .CodeMirror {
+    background: #fff !important;
+    color: #000 !important;
+  }
+}

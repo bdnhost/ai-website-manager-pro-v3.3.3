@@ -1,0 +1,79 @@
+# AI Website Manager Pro
+# Copyright (C) 2024 Manus AI
+# This file is distributed under the same license as the AI Website Manager Pro package.
+msgid ""
+msgstr ""
+"Project-Id-Version: AI Website Manager Pro 2.0.0\n"
+"Report-Msgid-Bugs-To: https://example.com/support\n"
+"POT-Creation-Date: 2024-01-01 12:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: includes/admin/class-admin-manager.php:45
+msgid "General Settings"
+msgstr ""
+
+#: includes/admin/class-admin-manager.php:50
+msgid "API Keys"
+msgstr ""
+
+#: includes/admin/class-admin-manager.php:55
+msgid "Brand Management"
+msgstr ""
+
+#: includes/admin/class-admin-manager.php:60
+msgid "Automation"
+msgstr ""
+
+#: includes/admin/class-admin-manager.php:65
+msgid "Logs & History"
+msgstr ""
+
+#: includes/admin/class-admin-manager.php:75
+msgid "AI Manager Pro"
+msgstr ""
+
+#: includes/settings/schemas/class-general-settings-schema.php:25
+msgid "Default AI Provider"
+msgstr ""
+
+#: includes/settings/schemas/class-general-settings-schema.php:26
+msgid "The default AI provider to use for content generation"
+msgstr ""
+
+#: includes/settings/schemas/class-general-settings-schema.php:32
+msgid "Auto Publish"
+msgstr ""
+
+#: includes/settings/schemas/class-general-settings-schema.php:33
+msgid "Automatically publish generated content"
+msgstr ""
+
+#: includes/settings/schemas/class-general-settings-schema.php:39
+msgid "Default Post Status"
+msgstr ""
+
+#: includes/settings/schemas/class-general-settings-schema.php:40
+msgid "Default status for generated posts"
+msgstr ""
+
+#: includes/settings/schemas/class-general-settings-schema.php:46
+msgid "Enable Logging"
+msgstr ""
+
+#: includes/settings/schemas/class-general-settings-schema.php:47
+msgid "Enable system logging for debugging and monitoring"
+msgstr ""
+
+#: includes/settings/schemas/class-general-settings-schema.php:53
+msgid "Log Level"
+msgstr ""
+
+#: includes/settings/schemas/class-general-settings-schema.php:54
+msgid "Minimum log level to record"
+msgstr ""

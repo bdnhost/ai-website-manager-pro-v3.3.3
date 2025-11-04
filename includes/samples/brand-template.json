@@ -1,0 +1,207 @@
+{
+  "brand_info": {
+    "name": "שם המותג שלך",
+    "description": "תיאור קצר של המותג והערכים שלו",
+    "industry": "תחום הפעילות (טכנולוגיה, אופנה, מזון וכו')",
+    "founded": "2024",
+    "website": "https://example.com",
+    "logo_url": "https://example.com/logo.png"
+  },
+  "voice_and_tone": {
+    "primary_tone": "מקצועי",
+    "secondary_tone": "ידידותי",
+    "personality_traits": [
+      "אמין",
+      "חדשני",
+      "נגיש",
+      "מומחה"
+    ],
+    "communication_style": "ישיר וברור",
+    "formality_level": "בינוני",
+    "emotional_tone": "חיובי ומעודד"
+  },
+  "target_audience": {
+    "primary_demographic": {
+      "age_range": "25-45",
+      "gender": "כל המגדרים",
+      "location": "ישראל",
+      "income_level": "בינוני-גבוה",
+      "education": "אקדמאי",
+      "occupation": "אנשי מקצוע וטכנולוגיה"
+    },
+    "interests": [
+      "טכנולוגיה",
+      "חדשנות",
+      "פיתוח עסקי",
+      "פתרונות דיגיטליים"
+    ],
+    "pain_points": [
+      "חוסר זמן",
+      "צורך בפתרונות יעילים",
+      "רצון להתקדם מקצועית"
+    ],
+    "preferred_channels": [
+      "LinkedIn",
+      "אימייל מקצועי",
+      "בלוגים טכניים",
+      "ועידות מקצועיות"
+    ]
+  },
+  "content_guidelines": {
+    "content_pillars": [
+      {
+        "pillar": "מומחיות טכנית",
+        "description": "תוכן המדגים ידע עמוק בתחום",
+        "percentage": 40
+      },
+      {
+        "pillar": "חדשנות ומגמות",
+        "description": "עדכונים על טכנולוגיות חדשות",
+        "percentage": 30
+      },
+      {
+        "pillar": "סיפורי הצלחה",
+        "description": "מקרי בוחן ותוצאות ללקוחות",
+        "percentage": 20
+      },
+      {
+        "pillar": "תוכן חינוכי",
+        "description": "מדריכים וטיפים מקצועיים",
+        "percentage": 10
+      }
+    ],
+    "content_length": {
+      "blog_posts": "800-1500 מילים",
+      "social_media": "50-150 מילים",
+      "email_marketing": "200-400 מילים",
+      "product_descriptions": "100-300 מילים"
+    },
+    "writing_style": {
+      "sentence_structure": "משפטים בינוניים עד קצרים",
+      "paragraph_length": "2-4 משפטים",
+      "use_of_jargon": "מינימלי עם הסברים",
+      "call_to_action_style": "ברור ומוביל לפעולה"
+    }
+  },
+  "keywords_and_messaging": {
+    "primary_keywords": [
+      "פתרונות דיגיטליים",
+      "טכנולוגיה מתקדמת",
+      "חדשנות עסקית",
+      "אוטומציה חכמה",
+      "בינה מלאכותית"
+    ],
+    "secondary_keywords": [
+      "יעילות",
+      "מקצועיות",
+      "אמינות",
+      "תמיכה",
+      "התאמה אישית"
+    ],
+    "avoid_words": [
+      "זול",
+      "בסיסי",
+      "פשוט מדי",
+      "ללא התחייבות"
+    ],
+    "key_messages": [
+      "אנחנו מביאים פתרונות טכנולוגיים מתקדמים",
+      "המומחיות שלנו מבטיחה תוצאות מעולות",
+      "אנחנו שותפים לצמיחה העסקית שלכם"
+    ]
+  },
+  "visual_identity": {
+    "color_palette": {
+      "primary": "#2563eb",
+      "secondary": "#7c3aed",
+      "accent": "#059669",
+      "neutral": "#6b7280"
+    },
+    "typography": {
+      "primary_font": "Assistant",
+      "secondary_font": "Open Sans",
+      "heading_style": "bold",
+      "body_style": "regular"
+    },
+    "imagery_style": {
+      "photo_style": "מקצועי ונקי",
+      "color_treatment": "בהיר ואופטימי",
+      "composition": "מינימליסטי ומסודר"
+    }
+  },
+  "compliance_and_legal": {
+    "regulatory_requirements": [
+      "עמידה בתקנות הגנת הפרטיות",
+      "שקיפות במחירים",
+      "הצהרות אחריות ברורות"
+    ],
+    "disclaimers": [
+      "התוצאות עשויות להשתנות בין לקוחות",
+      "השירות כפוף לתנאי השימוש"
+    ],
+    "sensitive_topics": [
+      "מידע פיננסי אישי",
+      "נתונים רפואיים",
+      "מידע ביטחוני"
+    ]
+  },
+  "content_calendar": {
+    "posting_frequency": {
+      "blog": "2-3 פוסטים בשבוע",
+      "social_media": "יומי",
+      "newsletter": "שבועי",
+      "case_studies": "חודשי"
+    },
+    "seasonal_themes": [
+      {
+        "period": "ינואר-מרץ",
+        "theme": "תכנון שנתי וחדשנות"
+      },
+      {
+        "period": "אפריל-יוני",
+        "theme": "צמיחה ופיתוח"
+      },
+      {
+        "period": "יולי-ספטמבר",
+        "theme": "אופטימיזציה ויעילות"
+      },
+      {
+        "period": "אוקטובר-דצמבר",
+        "theme": "סיכום שנה ומגמות עתידיות"
+      }
+    ]
+  },
+  "performance_metrics": {
+    "content_kpis": [
+      "engagement rate",
+      "click-through rate",
+      "conversion rate",
+      "brand awareness",
+      "lead generation"
+    ],
+    "target_metrics": {
+      "blog_engagement": "5%+",
+      "social_engagement": "3%+",
+      "email_open_rate": "25%+",
+      "email_click_rate": "5%+"
+    }
+  },
+  "competitive_analysis": {
+    "direct_competitors": [
+      "מתחרה ראשי 1",
+      "מתחרה ראשי 2"
+    ],
+    "competitive_advantages": [
+      "טכנולוגיה מתקדמת יותר",
+      "שירות לקוחות מעולה",
+      "מחירים תחרותיים",
+      "ניסיון רב בתחום"
+    ],
+    "differentiation_points": [
+      "פתרונות מותאמים אישית",
+      "תמיכה 24/7",
+      "יישום מהיר",
+      "ROI מוכח"
+    ]
+  }
+}
