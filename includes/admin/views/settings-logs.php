@@ -10,6 +10,9 @@
 if (!defined('ABSPATH')) {
     exit;
 }
+
+// Include plugin header
+include AI_MANAGER_PRO_PLUGIN_DIR . 'includes/admin/views/plugin-header.php';
 ?>
 
 <div class="wrap">
@@ -165,4 +168,124 @@ if (!defined('ABSPATH')) {
         margin: 10px 0;
     }
 </style>
-< ?php // Include plugin footer include_once AI_MANAGER_PRO_PLUGIN_DIR . 'includes/admin/views/plugin-footer.php' ; ?>
+
+<script>
+jQuery(document).ready(function($) {
+    // Export logs handler
+    $('#export-logs-btn').on('click', function() {
+        window.location.href = ajaxurl + '?action=ai_manager_pro_export_logs&nonce=' + '<?php echo wp_create_nonce('ai_manager_pro_nonce'); ?>';
+    });
+
+    // Cleanup logs handler
+    $('#cleanup-logs-btn').on('click', function() {
+        if (!confirm('<?php _e('Are you sure you want to delete logs older than 90 days?', 'ai-website-manager-pro'); ?>')) {
+            return;
+        }
+
+        const $btn = $(this);
+        $btn.prop('disabled', true).text('<?php _e('Cleaning...', 'ai-website-manager-pro'); ?>');
+
+        $.ajax({
+            url: ajaxurl,
+            method: 'POST',
+            data: {
+                action: 'ai_manager_pro_cleanup_logs',
+                nonce: '<?php echo wp_create_nonce('ai_manager_pro_nonce'); ?>'
+            },
+            success: function(response) {
+                if (response.success) {
+                    alert(response.data.message);
+                    location.reload();
+                } else {
+                    alert('<?php _e('Error cleaning logs', 'ai-website-manager-pro'); ?>: ' + response.data);
+                }
+            },
+            error: function() {
+                alert('<?php _e('Network error', 'ai-website-manager-pro'); ?>');
+            },
+            complete: function() {
+                $btn.prop('disabled', false).text('<?php _e('Cleanup Old Logs', 'ai-website-manager-pro'); ?>');
+            }
+        });
+    });
+
+    // View details handler
+    $('.view-details-btn').on('click', function() {
+        const changeId = $(this).data('change-id');
+
+        $.ajax({
+            url: ajaxurl,
+            method: 'POST',
+            data: {
+                action: 'ai_manager_pro_get_log_details',
+                nonce: '<?php echo wp_create_nonce('ai_manager_pro_nonce'); ?>',
+                change_id: changeId
+            },
+            success: function(response) {
+                if (response.success) {
+                    const change = response.data;
+                    let html = '<div style="max-width: 600px;">';
+                    html += '<h3><?php _e('Change Details', 'ai-website-manager-pro'); ?></h3>';
+                    html += '<p><strong><?php _e('Setting', 'ai-website-manager-pro'); ?>:</strong> ' + change.setting_key + '</p>';
+                    html += '<p><strong><?php _e('Action', 'ai-website-manager-pro'); ?>:</strong> ' + change.action + '</p>';
+                    html += '<p><strong><?php _e('User', 'ai-website-manager-pro'); ?>:</strong> ' + change.user_name + '</p>';
+                    html += '<p><strong><?php _e('Date', 'ai-website-manager-pro'); ?>:</strong> ' + change.formatted_timestamp + '</p>';
+                    html += '<p><strong><?php _e('Old Value', 'ai-website-manager-pro'); ?>:</strong><br><pre>' + JSON.stringify(change.old_value, null, 2) + '</pre></p>';
+                    html += '<p><strong><?php _e('New Value', 'ai-website-manager-pro'); ?>:</strong><br><pre>' + JSON.stringify(change.new_value, null, 2) + '</pre></p>';
+                    html += '</div>';
+
+                    // Show in modal or alert
+                    if (typeof wp !== 'undefined' && wp.template) {
+                        // Use WP modal if available
+                        $(html).dialog({
+                            modal: true,
+                            width: 700,
+                            close: function() { $(this).dialog('destroy').remove(); }
+                        });
+                    } else {
+                        alert(html.replace(/<[^>]*>/g, '\n'));
+                    }
+                } else {
+                    alert('<?php _e('Error loading details', 'ai-website-manager-pro'); ?>');
+                }
+            }
+        });
+    });
+
+    // Search and filter functionality
+    let searchTimeout;
+    $('#log-search, #log-filter-action').on('change keyup', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(function() {
+            const search = $('#log-search').val();
+            const action = $('#log-filter-action').val();
+
+            // Filter table rows
+            $('tbody tr').each(function() {
+                const $row = $(this);
+                const settingKey = $row.find('td:first code').text().toLowerCase();
+                const rowAction = $row.find('td:nth-child(2) span').text().toLowerCase();
+
+                let showRow = true;
+
+                // Apply search filter
+                if (search && !settingKey.includes(search.toLowerCase())) {
+                    showRow = false;
+                }
+
+                // Apply action filter
+                if (action && !rowAction.includes(action.toLowerCase())) {
+                    showRow = false;
+                }
+
+                $row.toggle(showRow);
+            });
+        }, 300);
+    });
+});
+</script>
+
+<?php
+// Include plugin footer
+include AI_MANAGER_PRO_PLUGIN_DIR . 'includes/admin/views/plugin-footer.php';
+?>

@@ -130,14 +130,39 @@ class Automation_Manager {
         
         // Schedule WordPress cron if needed
         $this->schedule_wordpress_cron($task_id, $rules);
-        
+
         $this->logger->info('Automation task created', [
             'task_id' => $task_id,
             'name' => $task_data['name'],
             'next_run' => $next_run,
             'user_id' => get_current_user_id()
         ]);
-        
+
+        // Log to Settings Change Log
+        try {
+            if (class_exists('AI_Manager_Pro\\Core\\Plugin')) {
+                $plugin = \AI_Manager_Pro\Core\Plugin::get_instance();
+                $container = $plugin->get_container();
+                $change_log = $container->get('settings_change_log');
+
+                if ($change_log) {
+                    $change_log->log_change(
+                        'automation_task_created',
+                        null,
+                        [
+                            'task_id' => $task_id,
+                            'name' => $task_data['name'],
+                            'schedule' => $task_data['schedule'],
+                            'next_run' => $next_run
+                        ],
+                        'create'
+                    );
+                }
+            }
+        } catch (\Exception $e) {
+            $this->logger->error('Failed to log automation creation: ' . $e->getMessage());
+        }
+
         return $task_id;
     }
     
@@ -323,7 +348,32 @@ class Automation_Manager {
                 'task_id' => $task_id,
                 'results_count' => count($results)
             ]);
-            
+
+            // Log to Settings Change Log
+            try {
+                if (class_exists('AI_Manager_Pro\\Core\\Plugin')) {
+                    $plugin = \AI_Manager_Pro\Core\Plugin::get_instance();
+                    $container = $plugin->get_container();
+                    $change_log = $container->get('settings_change_log');
+
+                    if ($change_log) {
+                        $change_log->log_change(
+                            'automation_task_executed',
+                            null,
+                            [
+                                'task_id' => $task_id,
+                                'task_name' => $task->name,
+                                'results_count' => count($results),
+                                'timestamp' => current_time('mysql')
+                            ],
+                            'create'
+                        );
+                    }
+                }
+            } catch (\Exception $e) {
+                $this->logger->error('Failed to log automation execution: ' . $e->getMessage());
+            }
+
             return true;
             
         } catch (\Exception $e) {
@@ -650,24 +700,247 @@ class Automation_Manager {
         if (!wp_verify_nonce($_POST['nonce'] ?? '', 'ai_manager_pro_nonce')) {
             wp_die('Security check failed');
         }
-        
+
         if (!current_user_can('ai_manager_manage_automation')) {
             wp_send_json_error('Insufficient permissions');
         }
-        
+
         $task_id = intval($_POST['task_id'] ?? 0);
-        
+
         if (!$task_id) {
             wp_send_json_error('Invalid task ID');
         }
-        
+
         $result = $this->run_automation_task($task_id);
-        
+
         if ($result) {
             wp_send_json_success(['message' => 'Automation task executed successfully']);
         } else {
             wp_send_json_error('Failed to execute automation task');
         }
+    }
+
+    /**
+     * Handle update automation AJAX request
+     */
+    public function handle_update_automation() {
+        // Verify nonce and permissions
+        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'ai_manager_pro_nonce')) {
+            wp_send_json_error('Security check failed');
+        }
+
+        if (!current_user_can('ai_manager_manage_automation')) {
+            wp_send_json_error('Insufficient permissions');
+        }
+
+        $task_id = intval($_POST['task_id'] ?? 0);
+
+        if (!$task_id) {
+            wp_send_json_error('Invalid task ID');
+        }
+
+        try {
+            $task_data = [
+                'name' => sanitize_text_field($_POST['name'] ?? ''),
+                'description' => sanitize_textarea_field($_POST['description'] ?? ''),
+                'content_type' => sanitize_text_field($_POST['content_type'] ?? ''),
+                'schedule' => json_decode(stripslashes($_POST['schedule'] ?? '{}'), true),
+                'content_options' => json_decode(stripslashes($_POST['content_options'] ?? '{}'), true),
+                'conditions' => json_decode(stripslashes($_POST['conditions'] ?? '[]'), true),
+                'actions' => json_decode(stripslashes($_POST['actions'] ?? '[]'), true),
+                'notifications' => json_decode(stripslashes($_POST['notifications'] ?? '[]'), true)
+            ];
+
+            $result = $this->update_automation_task($task_id, $task_data);
+
+            if ($result) {
+                wp_send_json_success(['message' => 'Automation task updated successfully']);
+            } else {
+                wp_send_json_error('Failed to update automation task');
+            }
+
+        } catch (\Exception $e) {
+            $this->logger->error('Update automation AJAX error', [
+                'error' => $e->getMessage()
+            ]);
+            wp_send_json_error('An error occurred');
+        }
+    }
+
+    /**
+     * Handle delete automation AJAX request
+     */
+    public function handle_delete_automation() {
+        // Verify nonce and permissions
+        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'ai_manager_pro_nonce')) {
+            wp_send_json_error('Security check failed');
+        }
+
+        if (!current_user_can('ai_manager_manage_automation')) {
+            wp_send_json_error('Insufficient permissions');
+        }
+
+        $task_id = intval($_POST['task_id'] ?? 0);
+
+        if (!$task_id) {
+            wp_send_json_error('Invalid task ID');
+        }
+
+        $result = $this->delete_automation_task($task_id);
+
+        if ($result) {
+            wp_send_json_success(['message' => 'Automation task deleted successfully']);
+        } else {
+            wp_send_json_error('Failed to delete automation task');
+        }
+    }
+
+    /**
+     * Update automation task
+     *
+     * @param int $task_id Task ID
+     * @param array $task_data Updated task data
+     * @return bool Success status
+     */
+    public function update_automation_task($task_id, $task_data) {
+        global $wpdb;
+
+        // Validate task data
+        $validation_result = $this->validate_task_data($task_data);
+        if ($validation_result !== true) {
+            $this->logger->error('Automation task validation failed during update', [
+                'task_id' => $task_id,
+                'errors' => $validation_result
+            ]);
+            return false;
+        }
+
+        // Prepare task rules
+        $rules = $this->prepare_task_rules($task_data);
+
+        // Calculate next run time
+        $next_run = $this->scheduler->calculate_next_run($task_data['schedule']);
+
+        $table_name = $wpdb->prefix . 'ai_manager_pro_automation_tasks';
+
+        $result = $wpdb->update(
+            $table_name,
+            [
+                'name' => sanitize_text_field($task_data['name']),
+                'description' => sanitize_textarea_field($task_data['description'] ?? ''),
+                'rules' => json_encode($rules, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT),
+                'next_run' => $next_run,
+                'updated_at' => current_time('mysql')
+            ],
+            ['id' => $task_id],
+            ['%s', '%s', '%s', '%s', '%s'],
+            ['%d']
+        );
+
+        if ($result !== false) {
+            $this->logger->info('Automation task updated', [
+                'task_id' => $task_id,
+                'user_id' => get_current_user_id()
+            ]);
+
+            // Log to Settings Change Log
+            try {
+                if (class_exists('AI_Manager_Pro\\Core\\Plugin')) {
+                    $plugin = \AI_Manager_Pro\Core\Plugin::get_instance();
+                    $container = $plugin->get_container();
+                    $change_log = $container->get('settings_change_log');
+
+                    if ($change_log) {
+                        $change_log->log_change(
+                            'automation_task_updated',
+                            ['task_id' => $task_id],
+                            [
+                                'task_id' => $task_id,
+                                'name' => $task_data['name'],
+                                'schedule' => $task_data['schedule']
+                            ],
+                            'update'
+                        );
+                    }
+                }
+            } catch (\Exception $e) {
+                $this->logger->error('Failed to log automation update: ' . $e->getMessage());
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Delete automation task
+     *
+     * @param int $task_id Task ID
+     * @return bool Success status
+     */
+    public function delete_automation_task($task_id) {
+        global $wpdb;
+
+        $table_name = $wpdb->prefix . 'ai_manager_pro_automation_tasks';
+
+        // Get task name before deleting
+        $task = $wpdb->get_row($wpdb->prepare(
+            "SELECT name FROM {$table_name} WHERE id = %d",
+            $task_id
+        ));
+
+        $result = $wpdb->delete(
+            $table_name,
+            ['id' => $task_id],
+            ['%d']
+        );
+
+        if ($result !== false) {
+            // Unschedule WordPress cron if exists
+            $this->unschedule_wordpress_cron($task_id);
+
+            $this->logger->info('Automation task deleted', [
+                'task_id' => $task_id,
+                'user_id' => get_current_user_id()
+            ]);
+
+            // Log to Settings Change Log
+            try {
+                if (class_exists('AI_Manager_Pro\\Core\\Plugin')) {
+                    $plugin = \AI_Manager_Pro\Core\Plugin::get_instance();
+                    $container = $plugin->get_container();
+                    $change_log = $container->get('settings_change_log');
+
+                    if ($change_log) {
+                        $change_log->log_change(
+                            'automation_task_deleted',
+                            [
+                                'task_id' => $task_id,
+                                'name' => $task ? $task->name : 'Unknown'
+                            ],
+                            null,
+                            'delete'
+                        );
+                    }
+                }
+            } catch (\Exception $e) {
+                $this->logger->error('Failed to log automation deletion: ' . $e->getMessage());
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Unschedule WordPress cron for a task
+     *
+     * @param int $task_id Task ID
+     */
+    private function unschedule_wordpress_cron($task_id) {
+        wp_clear_scheduled_hook('ai_manager_pro_custom_task', [$task_id]);
     }
 }
 

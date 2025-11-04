@@ -478,13 +478,37 @@ class Brand_Manager {
         }
         
         $brand_id = $wpdb->insert_id;
-        
+
         $this->logger->info('Brand created successfully', [
             'brand_id' => $brand_id,
             'name' => $brand_name,
             'user_id' => get_current_user_id()
         ]);
-        
+
+        // Log to Settings Change Log
+        try {
+            if (class_exists('AI_Manager_Pro\\Core\\Plugin')) {
+                $plugin = \AI_Manager_Pro\Core\Plugin::get_instance();
+                $container = $plugin->get_container();
+                $change_log = $container->get('settings_change_log');
+
+                if ($change_log) {
+                    $change_log->log_change(
+                        'brand_created',
+                        null,
+                        [
+                            'brand_id' => $brand_id,
+                            'name' => $brand_name,
+                            'description' => $brand_description
+                        ],
+                        'create'
+                    );
+                }
+            }
+        } catch (Exception $e) {
+            $this->logger->error('Failed to log brand creation: ' . $e->getMessage());
+        }
+
         return $brand_id;
     }
     
@@ -764,6 +788,31 @@ class Brand_Manager {
                 'brand_id' => $brand_id,
                 'user_id' => get_current_user_id()
             ]);
+
+            // Log to Settings Change Log
+            try {
+                if (class_exists('AI_Manager_Pro\\Core\\Plugin')) {
+                    $plugin = \AI_Manager_Pro\Core\Plugin::get_instance();
+                    $container = $plugin->get_container();
+                    $change_log = $container->get('settings_change_log');
+
+                    if ($change_log) {
+                        $change_log->log_change(
+                            'brand_updated',
+                            ['brand_id' => $brand_id],
+                            [
+                                'brand_id' => $brand_id,
+                                'name' => $brand_data['name'],
+                                'description' => $brand_data['description'] ?? ''
+                            ],
+                            'update'
+                        );
+                    }
+                }
+            } catch (Exception $e) {
+                $this->logger->error('Failed to log brand update: ' . $e->getMessage());
+            }
+
             return true;
         }
         
@@ -792,9 +841,30 @@ class Brand_Manager {
                 'brand_id' => $brand_id,
                 'user_id' => get_current_user_id()
             ]);
+
+            // Log to Settings Change Log
+            try {
+                if (class_exists('AI_Manager_Pro\\Core\\Plugin')) {
+                    $plugin = \AI_Manager_Pro\Core\Plugin::get_instance();
+                    $container = $plugin->get_container();
+                    $change_log = $container->get('settings_change_log');
+
+                    if ($change_log) {
+                        $change_log->log_change(
+                            'brand_deleted',
+                            ['brand_id' => $brand_id],
+                            null,
+                            'delete'
+                        );
+                    }
+                }
+            } catch (Exception $e) {
+                $this->logger->error('Failed to log brand deletion: ' . $e->getMessage());
+            }
+
             return true;
         }
-        
+
         return false;
     }
     

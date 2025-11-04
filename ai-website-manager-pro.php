@@ -91,6 +91,13 @@ class AI_Manager_Pro_Safe
         add_action('wp_ajax_ai_manager_pro_generate_deepseek_content', [$this, 'handle_generate_deepseek_content']);
         add_action('wp_ajax_ai_manager_pro_import_brand_json', [$this, 'handle_import_brand_json']);
         add_action('wp_ajax_ai_manager_pro_export_brand_json', [$this, 'handle_export_brand_json']);
+        add_action('wp_ajax_ai_manager_pro_publish_content', [$this, 'handle_publish_content']);
+        error_log('AI Manager Pro - Registered publish_content handler');
+
+        // Logs & History AJAX handlers
+        add_action('wp_ajax_ai_manager_pro_export_logs', [$this, 'handle_export_logs']);
+        add_action('wp_ajax_ai_manager_pro_cleanup_logs', [$this, 'handle_cleanup_logs']);
+        add_action('wp_ajax_ai_manager_pro_get_log_details', [$this, 'handle_get_log_details']);
 
         // Cron jobs
         add_action('ai_manager_pro_automation_task', [$this, 'run_automation_task']);
@@ -403,8 +410,8 @@ class AI_Manager_Pro_Safe
 
     public function render_dashboard_page()
     {
-        // Load the new main dashboard
-        $dashboard_file = AI_MANAGER_PRO_PLUGIN_DIR . 'includes/admin/views/dashboard-main.php';
+        // Load the enhanced dashboard with SEO teasers (v3.3.3)
+        $dashboard_file = AI_MANAGER_PRO_PLUGIN_DIR . 'includes/admin/views/dashboard.php';
 
         if (file_exists($dashboard_file)) {
             include $dashboard_file;
@@ -3041,460 +3048,14 @@ class AI_Manager_Pro_Safe
 
     public function render_content_generator_page()
     {
-        $brands_data = get_option('ai_manager_pro_brands_data', []);
-        $active_brand = get_option('ai_manager_pro_active_brand', '');
-        $default_provider = get_option('ai_manager_pro_default_provider', 'openai');
+        // Load the enhanced content generator with SEO templates support (v3.3.3)
+        $content_generator_file = AI_MANAGER_PRO_PLUGIN_DIR . 'includes/admin/views/content-generator.php';
 
-        ?>
-        <div class="wrap">
-            <div class="ai-manager-header"
-                style="display: flex; align-items: center; margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; color: white;">
-                <div style="font-size: 48px; margin-left: 20px;">🤖</div>
-                <div>
-                    <h1 style="color: white; margin: 0; font-size: 28px;">יצירת תוכן מיידית</h1>
-                    <p style="color: rgba(255,255,255,0.9); margin: 5px 0 0 0;">צור תוכן איכותי עם AI בלחיצת כפתור</p>
-                </div>
-            </div>
-            <!-- Quick Actions Bar -->
-            <div class="quick-actions-bar"
-                style="display: flex; gap: 15px; margin-bottom: 30px; padding: 20px; background: #f8f9fa; border-radius: 8px; border-right: 4px solid #007cba;">
-                <button type="button" class="button button-primary" onclick="quickGenerate('blog_post')"
-                    style="display: flex; align-items: center; gap: 8px;">📝 <span>פוסט בלוג מהיר</span></button><button
-                    type="button" class="button button-secondary" onclick="quickGenerate('social_media')"
-                    style="display: flex; align-items: center; gap: 8px;">📱 <span>פוסט רשתות חברתיות</span></button><button
-                    type="button" class="button button-secondary" onclick="quickGenerate('product_description')"
-                    style="display: flex; align-items: center; gap: 8px;">🛍️ <span>תיאור מוצר</span></button><button
-                    type="button" class="button button-secondary" onclick="quickGenerate('email')"
-                    style="display: flex; align-items: center; gap: 8px;">✉️ <span>אימייל שיווקי</span></button>
-            </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
-                <!-- Content Generation Form  -->
-                <div class="card"
-                    style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
-                        <div style="display: flex; align-items: center;">
-                            <span style="font-size: 24px; margin-left: 10px;">✨</span>
-                            <h2 style="margin: 0; color: #1e3a8a;">יצירת תוכן מותאם אישית</h2>
-                        </div>
-                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                            <button type="button" onclick="pingPlugin()" class="button" style="padding: 8px 16px;">
-                                � דוק חיבור
-                            </button>
-                            <button type="button" onclick="checkApiKeys()" class="button" style="padding: 8px 16px;">
-                                🔑 בדוק מפתחות API
-                            </button>
-                            <button type="button" onclick="testDeepSeek()" class="button" style="padding: 8px 16px;">
-                                🧪 בדוק DeepSeek
-                            </button>
-                        </div>
-                    </div>
-                    <form id="content-generator-form">
-                        <div class="form-group" style="margin-bottom: 20px;"><label
-                                style="display: block; font-weight: 600; margin-bottom: 8px; color: #374151;">🎯 נושא
-                                התוכן </label><input type="text" id="content_topic"
-                                placeholder="לדוגמה: טיפים לשיפור הפרודוקטיביות"
-                                style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 6px; font-size: 14px;"
-                                required /></div>
-                        <div class="form-group" style="margin-bottom: 20px;">
-                            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #374151;">
-                                📄 סוג התוכן
-                            </label> <select id="content_type"
-                                style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 6px;">
-                                <option value="blog_post">📝 פוסט בלוג (800-1200 מילים)</option>
-                                <option value="social_media">📱 פוסט רשתות חברתיות (150-280 תווים)</option>
-                                <option value="product_description">🛍️ תיאור מוצר (200-400 מילים)</option>
-                                <option value="email">✉️ אימייל שיווקי (300-500 מילים)</option>
-                            </select>
-                        </div>
-                        <div class="form-group" style="margin-bottom: 20px;">
-                            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #374151;">
-                                🤖 ספק AI
-                            </label> <select id="ai_provider"
-                                style=" width:100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 6px;">
-                                <option value="openai">OpenAI (GPT)</option>
-                                <option value="anthropic">Anthropic (Claude)</option>
-                                <option value="openrouter">OpenRouter</option>
-                                <option value="deepseek" selected>DeepSeek</option>
-                            </select>
-                        </div>
-                        <div class=" form-group" style="margin-bottom: 20px;"><label
-                                style="display: block; font-weight: 600; margin-bottom: 8px; color: #374151;">🏢 מותג
-                                פעיל </label><select id="active_brand"
-                                style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 6px;">
-                                <option value="">ללא מותג ספציפי</option>
-                                <?php foreach ($brands_data as $id => $brand): ?>
-                                    <option value="<?php echo esc_attr($id); ?>" <?php selected($active_brand, $id); ?>>
-                                        <?php echo esc_html($brand['name']); ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <!-- Debugging Tools -->
-                        <div class="debug-tools"
-                            style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 6px; border-left: 4px solid #007cba;">
-                            <h4 style="margin: 0 0 10px 0; color: #007cba;">🔧 כלי דיבוג</h4>
-                            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                                <button type="button" class="button" onclick="pingPlugin()" style="padding: 8px 12px;">📡 בדוק
-                                    חיבור</button>
-                                <button type="button" class="button" onclick="checkApiKeys()" style="padding: 8px 12px;">🔑 בדוק
-                                    מפתחות API</button>
-                                <button type="button" class="button" onclick="testDeepSeek()" style="padding: 8px 12px;">🧪 בדוק
-                                    DeepSeek</button>
-                            </div>
-                        </div>
-
-                        <div class="form-actions" style="display: flex; gap: 10px; margin-top: 25px;"><button type="button"
-                                id="generate-content-btn" class="button-primary" onclick="generateContent()"
-                                style="flex: 1; padding: 15px; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 8px;"><span
-                                    id="generate-icon">🚀</span><span id="generate-text">צור תוכן</span></button><button
-                                type="button" class="button" onclick="clearForm()" style="padding: 15px;">🗑️ נקה
-                            </button></div>
-                    </form>
-                </div>
-                <!-- Generated Content Display -->
-                <div class="card"
-                    style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                    <div style="display: flex; align-items: center; justify-content: between; margin-bottom: 20px;">
-                        <div style="display: flex; align-items: center;"><span
-                                style="font-size: 24px; margin-left: 10px;">📄</span>
-                            <h2 style="margin: 0; color: #1e3a8a;">תוכן שנוצר</h2>
-                        </div>
-                        <div id="content-actions" style="display: none; gap: 10px;"><button type="button" class="button"
-                                onclick="copyContent()" style="display: flex; align-items: center; gap: 5px;">📋 העתק
-                            </button><button type="button" class="button button-primary" onclick="createPost()"
-                                style="display: flex; align-items: center; gap: 5px;">📝 צור פוסט </button></div>
-                    </div>
-                    <div id="content-preview"
-                        style="min-height: 400px; padding: 20px; background: #f9fafb; border: 2px dashed #d1d5db; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #6b7280;">
-                        <div style="text-align: center;">
-                            <div style="font-size: 48px; margin-bottom: 15px;">🤖</div>
-                            <p style="margin: 0; font-size: 16px;">התוכן שיווצר יופיע כאן</p>
-                            <p style="margin: 5px 0 0 0; font-size: 14px; opacity: 0.7;">בחר נושא ולחץ על "צור תוכן"
-                            </p>
-                        </div>
-                    </div>
-                    <div id="content-stats"
-                        style="display: none; margin-top: 15px; padding: 15px; background: #eff6ff; border-radius: 6px; border-right: 4px solid #3b82f6;">
-                        <div style="display: flex; gap: 20px; font-size: 14px; color: #1e40af;"><span>📊 <strong
-                                    id="word-count">0</strong>מילים</span><span>⏱️ <strong
-                                    id="char-count">0</strong>תווים</span><span>🤖 <strong id="used-provider">-</strong></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <script>
-            // Define ajaxurl for WordP              ress AJAX
-            var ajaxurl = '<?php echo admin_url('admin-ajax.php'); ?>';
-            let generatedContent = '';
-
-            // Debug: Check if jQuery is loaded
-            console.log('jQuery loaded:', typeof jQuery !== 'undefined');
-            console.log('ajaxurl:', ajaxurl);
-
-            // Define functions globally first
-            window.checkApiKeys = function () {
-                console.log('Checking API keys...');
-
-                jQuery.post(ajaxurl, {
-                    action: 'ai_manager_pro_check_api_keys',
-                    nonce: '<?php echo wp_create_nonce('ai_manager_pro_nonce'); ?>'
-                }).done(function (response) {
-                    if (response.success) {
-                        let message = 'סטטוס מפתחות API:\n\n';
-                        for (const [provider, status] of Object.entries(response.data)) {
-                            message += `${provider.toUpperCase()}: ${status.configured ? '✅ מוגדר' : '❌ לא מוגדר'} (${status.preview})\n`;
-                        }
-                        alert(message);
-                    } else {
-                        alert('שגיאה בבדיקת מפתחות API: ' + response.data);
-                    }
-                }).fail(function () {
-                    alert('שגיאה בחיבור לשרת');
-                });
-            };
-
-            window.pingPlugin = function () {
-                console.log('Pinging plugin...');
-
-                jQuery.post(ajaxurl, {
-                    action: 'ai_manager_pro_ping',
-                    nonce: '<?php echo wp_create_nonce('ai_manager_pro_nonce'); ?>'
-                }).done(function (response) {
-                    console.log('Ping response:', response);
-                    if (response.success) {
-                        alert('✅ חיבור תקין!\n\nהפלאגין עובד כראוי.\nזמן: ' + response.data.time);
-                    } else {
-                        alert('❌ חיבור נכשל:\n\n' + response.data);
-                    }
-                }).fail(function (xhr, status, error) {
-                    console.log('Ping failed:', xhr, status, error);
-                    alert('❌ שגיאה בחיבור:\n\nStatus: ' + xhr.status + '\nError: ' + error + '\nResponse: ' + xhr.responseText.substring(0, 200));
-                });
-            };
-
-            window.testDeepSeek = function () {
-                console.log('Testing DeepSeek connection...');
-
-                jQuery.post(ajaxurl, {
-                    action: 'ai_manager_pro_test_deepseek',
-                    nonce: '<?php echo wp_create_nonce('ai_manager_pro_nonce'); ?>'
-                }).done(function (response) {
-                    if (response.success) {
-                        alert('✅ DeepSeek חיבור תקין!\n\n' + response.data.message);
-                    } else {
-                        alert('❌ DeepSeek חיבור נכשל:\n\n' + response.data);
-                    }
-                }).fail(function () {
-                    alert('❌ שגיאה בחיבור לשרת');
-                });
-            };
-
-            // Ping test function
-            window.pingPlugin = function () {
-                console.log('Testing plugin ping...');
-
-                jQuery.post(ajaxurl, {
-                    action: 'ai_manager_pro_ping',
-                    nonce: '<?php echo wp_create_nonce('ai_manager_pro_nonce'); ?>'
-                }).done(function (response) {
-                    console.log('Ping response:', response);
-                    if (response.success) {
-                        let message = '✅ Plugin עובד תקין!\n\n';
-                        message += 'זמן: ' + response.data.time + '\n';
-                        message += 'גרסה: ' + response.data.plugin_version + '\n\n';
-                        message += 'סטטוס Handlers:\n';
-                        for (let handler in response.data.handlers_registered) {
-                            let status = response.data.handlers_registered[handler] ? '✅' : '❌';
-                            message += '• ' + handler + ': ' + status + '\n';
-                        }
-                        alert(message);
-                    } else {
-                        alert('❌ Ping נכשל:\n\n' + response.data);
-                    }
-                }).fail(function (xhr, status, error) {
-                    console.error('Ping failed:', xhr, status, error);
-                    alert('❌ שגיאה בחיבור לשרת\n\nStatus: ' + status + '\nError: ' + error + '\nResponse: ' + xhr.responseText);
-                });
-            };
-
-            // API Keys check function
-            window.checkApiKeys = function () {
-                console.log('Checking API keys...');
-
-                jQuery.post(ajaxurl, {
-                    action: 'ai_manager_pro_check_api_keys',
-                    nonce: '<?php echo wp_create_nonce('ai_manager_pro_nonce'); ?>'
-                }).done(function (response) {
-                    console.log('API Keys response:', response);
-                    if (response.success) {
-                        let message = '🔑 סטטוס מפתחות API:\n\n';
-                        for (let provider in response.data) {
-                            let keyInfo = response.data[provider];
-                            let status = keyInfo.configured ? '✅' : '❌';
-                            message += '• ' + provider + ': ' + status + ' (' + keyInfo.preview + ')\n';
-                        }
-                        alert(message);
-                    } else {
-                        alert('❌ בדיקת מפתחות נכשלה:\n\n' + response.data);
-                    }
-                }).fail(function (xhr, status, error) {
-                    console.error('API Keys check failed:', xhr, status, error);
-                    alert('❌ שגיאה בחיבור לשרת\n\nStatus: ' + status + '\nError: ' + error);
-                });
-            };
-
-            window.generateContent = function () {
-                console.log('generateContent function called');
-                const topic = document.getElementById('content_topic').value;
-                const type = document.getElementById('content_type').value;
-                console.log('Topic:', topic, 'Type:', type);
-
-                if (!topic.trim()) {
-                    alert('אנא הכנס נושא לתוכן');
-                    document.getElementById('content_topic').focus();
-                    return;
-                }
-
-                const generateBtn = document.querySelector('[onclick="generateContent()"]');
-                const generateIcon = document.getElementById('generate-icon');
-                const generateText = document.getElementById('generate-text');
-
-                generateIcon.textContent = '⏳';
-                generateText.textContent = 'יוצר תוכן...';
-                generateBtn.disabled = true;
-
-                document.getElementById('content-preview').innerHTML = '<div style = "text-align: center;" ><div style="font-size: 48px; margin-bottom: 15px;">⏳</div><p style="margin: 0; font-size: 16px;">יוצר תוכן עם AI...</p><p style="margin: 5px 0 0 0; font-size: 14px; opacity: 0.7;">זה יכול לקחת כמה שניות</p></div > ';
-
-                const provider = document.getElementById('ai_provider').value;
-                const brand = document.getElementById('active_brand').value;
-
-                console.log('Sending AJAX request to:', ajaxurl);
-                console.log('Provider:', provider, 'Brand:', brand);
-
-                jQuery.post(ajaxurl, {
-                    action: 'ai_manager_pro_generate_content',
-                    nonce: '<?php echo wp_create_nonce('ai_manager_pro_nonce'); ?>',
-                    topic: topic,
-                    content_type: type,
-                    ai_provider: provider,
-                    brand_id: brand
-                }).done(function (response) {
-                    console.log('AJAX response received:', response);
-                    if (response.success) {
-                        generatedContent = response.data.content;
-                        displayGeneratedContent(generatedContent, type);
-                    } else {
-                        showError('שגיאה ביצירת תוכן: ' + (response.data || 'Unknown error'));
-                    }
-                }).fail(function (xhr, status, error) {
-                    console.log('AJAX error:', xhr, status, error);
-                    showError('שגיאת רשת: ' + error);
-                }).always(function () {
-                    generateIcon.textContent = '🚀';
-                    generateText.textContent = 'צור תוכן';
-                    generateBtn.disabled = false;
-                });
-            };
-
-            window.clearForm = function () {
-                document.getElementById('content_topic').value = '';
-                document.getElementById('content_type').value = 'blog_post';
-                document.getElementById('ai_provider').value = 'deepseek';
-                document.getElementById('active_brand').value = '';
-                document.getElementById('content-preview').innerHTML = '<div style="text-align: center;"><div style="font-size: 48px; margin-bottom: 15px;">🤖</div><p style="margin: 0; font-size: 16px;">התוכן שיווצר יופיע כאן</p><p style="margin: 5px 0 0 0; font-size: 14px; opacity: 0.7;">בחר נושא ולחץ על "צור תוכן"</p></div>';
-                document.getElementById('content-actions').style.display = 'none';
-                document.getElementById('content-stats').style.display = 'none';
-                generatedContent = '';
-            };
-
-            window.displayGeneratedContent = function (content, type) {
-                const preview = document.getElementById('content-preview');
-                const actions = document.getElementById('content-actions');
-                const stats = document.getElementById('content-stats');
-
-                preview.innerHTML = '<div style="text-align: right; line-height: 1.6; white-space: pre-wrap;">' + content + '</div>';
-
-                actions.style.display = 'flex';
-                stats.style.display = 'block';
-
-                const wordCount = content.split(/\s+/).length;
-                const charCount = content.length;
-
-                document.getElementById('word-count').textContent = wordCount;
-                document.getElementById('char-count').textContent = charCount;
-                document.getElementById('used-provider').textContent = 'AI';
-            };
-
-            window.showError = function (message) {
-                document.getElementById('content-preview').innerHTML = '<div style="text-align: center; color: #dc2626;"><div style="font-size: 48px; margin-bottom: 15px;">❌</div><p style="margin: 0; font-size: 16px;">' + message + '</p><p style="margin: 10px 0 0 0; font-size: 14px; opacity: 0.7;">נסה שוב או בדוק את הגדרות ה-API</p></div>';
-            };
-
-            // Add DOM ready event listener
-            jQuery(document).ready(function ($) {
-                console.log('DOM ready - setting up event listeners');
-
-                // Add backup event listeners
-                $('#generate-content-btn').on('click', function (e) {
-                    console.log('Generate button clicked via jQuery');
-                    e.preventDefault();
-                    generateContent();
-                });
-
-                $('[onclick*="clearForm"]').on('click', function (e) {
-                    console.log('Clear button clicked via jQuery');
-                    e.preventDefault();
-                    clearForm();
-                });
-            });
-
-            function quickGenerate(type) {
-                document.getElementById('content_type').value = type;
-
-                const defaultTopics = {
-                    'blog_post': 'טיפים לשיפור הפרודוקטיביות',
-                    'social_media': 'חדשנות בטכנולוגיה',
-                    'product_description': 'מוצר חדשני',
-                    'email': 'הזדמנות מיוחדת'
-                };
-
-                document.getElementById('content_topic').value = defaultTopics[type] || '';
-                generateContent();
-            }
-
-
-
-
-
-            function copyContent() {
-                if (!generatedContent) return;
-
-                navigator.clipboard.writeText(generatedContent).then(function () {
-                    alert('התוכן הועתק ללוח!');
-                }).catch(function () {
-                    const textArea = document.createElement('textarea');
-                    textArea.value = generatedContent;
-                    document.body.appendChild(textArea);
-                    textArea.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(textArea);
-                    alert('התוכן הועתק ללוח!');
-                });
-            }
-
-            function createPost() {
-                if (!generatedContent) return;
-
-                const topic = document.getElementById('content_topic').value;
-
-                if (confirm('האם ליצור פוסט WordPress חדש עם התוכן שנוצר?')) {
-                    jQuery.post(ajaxurl, {
-                        action: 'ai_manager_pro_create_post',
-                        nonce: '<?php echo wp_create_nonce('ai_manager_pro_nonce'); ?>',
-                        title: topic,
-                        content: generatedContent
-
-                    }).done(function (response) {
-                        if (response.success) {
-                            alert('הפוסט נוצר בהצלחה!');
-
-                            if (response.data.edit_url) {
-                                window.open(response.data.edit_url, '_blank');
-                            }
-                        }
-
-                        else {
-                            alert('שגיאה ביצירת הפוסט: ' + response.data);
-                        }
-                    });
-                }
-            }
-
-
-
-        </script>
-        <style>
-            .card {
-                transition: transform 0.2s ease, box-shadow 0.2s ease;
-            }
-
-            .card:hover {
-                tr ansform: translateY(-2px);
-                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
-            }
-
-            .butto n-primary {
-                background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
-                border: none !important;
-                transition: all 0.2s ease !important;
-            }
-
-            .button-primary:hover {
-                transform: translateY(-1px) !important;
-                box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4) !important;
-            }
-        </style>
-        <?php
+        if (file_exists($content_generator_file)) {
+            include $content_generator_file;
+        } else {
+            echo '<div class="wrap"><h1>Content Generator Error</h1><p>Content generator file not found.</p></div>';
+        }
     }
 
     /**
@@ -3602,6 +3163,247 @@ class AI_Manager_Pro_Safe
             'edit_url' => admin_url('post.php?post=' . $post_id . '&action=edit'),
             'view_url' => get_permalink($post_id)
         ]);
+    }
+
+    /**
+     * Handle publish content AJAX request - for Content Generator
+     */
+    public function handle_publish_content()
+    {
+        try {
+            // Log the request
+            error_log('AI Manager Pro: Publish content AJAX called');
+            error_log('AI Manager Pro: POST data: ' . print_r($_POST, true));
+
+            // Verify nonce
+            if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'ai_manager_pro_nonce')) {
+                error_log('AI Manager Pro: Nonce verification failed');
+                wp_send_json_error('אימות נכשל - אנא רענן את הדף');
+                return;
+            }
+
+            // Check permissions
+            if (!current_user_can('edit_posts')) {
+                error_log('AI Manager Pro: Permission denied');
+                wp_send_json_error('אין לך הרשאות מספיקות');
+                return;
+            }
+
+            // Get POST data
+            $title = isset($_POST['title']) ? sanitize_text_field($_POST['title']) : '';
+            $content = isset($_POST['content']) ? wp_kses_post(wp_unslash($_POST['content'])) : '';
+            $status = isset($_POST['status']) ? sanitize_text_field($_POST['status']) : 'draft';
+            $category = isset($_POST['category']) ? absint($_POST['category']) : 0;
+            $content_type = isset($_POST['content_type']) ? sanitize_text_field($_POST['content_type']) : 'blog_post';
+            $keywords = isset($_POST['keywords']) ? sanitize_text_field($_POST['keywords']) : '';
+
+            // Validate required fields
+            if (empty($title)) {
+                error_log('AI Manager Pro: Title is empty');
+                wp_send_json_error('חובה למלא כותרת');
+                return;
+            }
+
+            if (empty($content)) {
+                error_log('AI Manager Pro: Content is empty');
+                wp_send_json_error('חובה למלא תוכן');
+                return;
+            }
+
+            // Validate status
+            if (!in_array($status, ['draft', 'publish'])) {
+                $status = 'draft';
+            }
+
+            error_log("AI Manager Pro: Creating post with status: {$status}");
+
+            // Create post data
+            $post_data = [
+                'post_title'    => $title,
+                'post_content'  => $content,
+                'post_status'   => $status,
+                'post_type'     => 'post',
+                'post_author'   => get_current_user_id(),
+            ];
+
+            // Add category if provided
+            if ($category > 0) {
+                $post_data['post_category'] = [$category];
+                error_log("AI Manager Pro: Adding category: {$category}");
+            }
+
+            // Insert the post
+            $post_id = wp_insert_post($post_data, true);
+
+            if (is_wp_error($post_id)) {
+                error_log('AI Manager Pro: Post insert error: ' . $post_id->get_error_message());
+                wp_send_json_error('שגיאה ביצירת הפוסט: ' . $post_id->get_error_message());
+                return;
+            }
+
+            // Extract and add tags automatically
+            $auto_tags = $this->extract_auto_tags($title, $content, $keywords);
+            if (!empty($auto_tags)) {
+                wp_set_post_tags($post_id, $auto_tags, false);
+                error_log('AI Manager Pro: Added ' . count($auto_tags) . ' auto tags to post');
+            }
+
+            // Add post meta for content type
+            update_post_meta($post_id, '_ai_content_type', $content_type);
+            update_post_meta($post_id, '_ai_generated', true);
+            update_post_meta($post_id, '_ai_generated_date', current_time('mysql'));
+
+            // Save keywords as meta data for SEO
+            if (!empty($keywords)) {
+                update_post_meta($post_id, '_ai_keywords', $keywords);
+                update_post_meta($post_id, '_yoast_wpseo_focuskw', $keywords); // Yoast SEO compatibility
+                update_post_meta($post_id, '_aioseop_keywords', $keywords); // All in One SEO compatibility
+                error_log('AI Manager Pro: Saved SEO keywords: ' . $keywords);
+            }
+
+            // Save auto-generated tags list for reference
+            if (!empty($auto_tags)) {
+                update_post_meta($post_id, '_ai_auto_tags', implode(', ', $auto_tags));
+            }
+
+            error_log('AI Manager Pro: Post created successfully with ID: ' . $post_id);
+
+            // Log activity (old method)
+            $this->log_activity('info', "תוכן פורסם: {$title} (ID: {$post_id}, סטטוס: {$status})", 'content_generation');
+
+            // Log to Settings Change Log (new comprehensive logging)
+            try {
+                if (class_exists('AI_Manager_Pro\\Core\\Plugin')) {
+                    $plugin = \AI_Manager_Pro\Core\Plugin::get_instance();
+                    $container = $plugin->get_container();
+                    $change_log = $container->get('settings_change_log');
+
+                    if ($change_log) {
+                        $change_log->log_change(
+                            'content_published',
+                            null,
+                            [
+                                'post_id' => $post_id,
+                                'title' => $title,
+                                'status' => $status,
+                                'content_type' => $content_type,
+                                'keywords' => $keywords,
+                                'tags_count' => count($auto_tags),
+                                'category' => $category
+                            ],
+                            'create'
+                        );
+                    }
+                }
+            } catch (Exception $e) {
+                error_log('AI Manager Pro: Failed to log content publication: ' . $e->getMessage());
+            }
+
+            // Return success with post URLs and metadata
+            wp_send_json_success([
+                'post_id'  => $post_id,
+                'edit_url' => get_edit_post_link($post_id, 'raw'),
+                'view_url' => get_permalink($post_id),
+                'status'   => $status,
+                'tags_count' => count($auto_tags),
+                'tags_list' => implode(', ', $auto_tags),
+                'has_keywords' => !empty($keywords)
+            ]);
+
+        } catch (Exception $e) {
+            error_log('AI Manager Pro: Exception in publish content: ' . $e->getMessage());
+            wp_send_json_error('שגיאה: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Extract relevant tags automatically from title and content
+     *
+     * @param string $title Post title
+     * @param string $content Post content
+     * @param string $keywords Optional keywords from user input
+     * @return array Array of tag names
+     */
+    private function extract_auto_tags($title, $content, $keywords = '') {
+        $tags = [];
+
+        // 1. Add keywords if provided
+        if (!empty($keywords)) {
+            $keyword_array = array_map('trim', explode(',', $keywords));
+            foreach ($keyword_array as $keyword) {
+                if (!empty($keyword) && mb_strlen($keyword) >= 2) {
+                    $tags[] = $keyword;
+                }
+            }
+        }
+
+        // 2. Extract words from title (words with 3+ characters)
+        $title_words = preg_split('/[\s,.\-:;!?()]+/u', strip_tags($title), -1, PREG_SPLIT_NO_EMPTY);
+        foreach ($title_words as $word) {
+            $word = trim($word);
+            // Hebrew and English words with 3+ characters
+            if (mb_strlen($word) >= 3 && !is_numeric($word)) {
+                // Skip common Hebrew stop words
+                $stop_words = ['של', 'את', 'עם', 'על', 'אל', 'מה', 'זה', 'או', 'גם', 'כי', 'אם', 'לא', 'כל', 'היא', 'הוא', 'the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'her', 'was', 'one', 'our', 'out'];
+                if (!in_array(mb_strtolower($word), $stop_words)) {
+                    $tags[] = $word;
+                }
+            }
+        }
+
+        // 3. Extract from H2 and H3 headings (important keywords)
+        preg_match_all('/<h[23][^>]*>(.*?)<\/h[23]>/is', $content, $headings);
+        if (!empty($headings[1])) {
+            foreach ($headings[1] as $heading) {
+                $heading = strip_tags($heading);
+                $heading_words = preg_split('/[\s,.\-:;!?()]+/u', $heading, -1, PREG_SPLIT_NO_EMPTY);
+                foreach ($heading_words as $word) {
+                    $word = trim($word);
+                    if (mb_strlen($word) >= 3 && !is_numeric($word)) {
+                        $stop_words = ['של', 'את', 'עם', 'על', 'אל', 'מה', 'זה', 'או', 'גם', 'כי', 'אם', 'לא', 'כל', 'היא', 'הוא', 'the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'her', 'was', 'one', 'our', 'out'];
+                        if (!in_array(mb_strtolower($word), $stop_words)) {
+                            $tags[] = $word;
+                        }
+                    }
+                }
+            }
+        }
+
+        // 4. Extract bold text (usually important)
+        preg_match_all('/<strong[^>]*>(.*?)<\/strong>/is', $content, $bold_texts);
+        if (!empty($bold_texts[1])) {
+            foreach ($bold_texts[1] as $bold) {
+                $bold = strip_tags($bold);
+                $bold_words = preg_split('/[\s,.\-:;!?()]+/u', $bold, -1, PREG_SPLIT_NO_EMPTY);
+                foreach ($bold_words as $word) {
+                    $word = trim($word);
+                    if (mb_strlen($word) >= 3 && !is_numeric($word)) {
+                        $tags[] = $word;
+                    }
+                }
+            }
+        }
+
+        // Remove duplicates and limit to 15 tags
+        $tags = array_unique($tags);
+        $tags = array_slice($tags, 0, 15);
+
+        // Clean and validate tags
+        $clean_tags = [];
+        foreach ($tags as $tag) {
+            // Remove any remaining HTML entities
+            $tag = html_entity_decode($tag, ENT_QUOTES, 'UTF-8');
+            $tag = trim($tag);
+
+            // Only add valid tags
+            if (!empty($tag) && mb_strlen($tag) >= 2 && mb_strlen($tag) <= 50) {
+                $clean_tags[] = $tag;
+            }
+        }
+
+        error_log('AI Manager Pro: Extracted ' . count($clean_tags) . ' tags: ' . implode(', ', $clean_tags));
+
+        return $clean_tags;
     }
 
     /**
@@ -4016,6 +3818,167 @@ class AI_Manager_Pro_Safe
                 ]
             ]
         ];
+    }
+
+    /**
+     * Handle export logs AJAX request
+     */
+    public function handle_export_logs()
+    {
+        error_log('AI Manager Pro: Export logs AJAX called');
+
+        // Verify nonce
+        if (!isset($_GET['nonce']) || !wp_verify_nonce($_GET['nonce'], 'ai_manager_pro_nonce')) {
+            wp_die('Security check failed');
+        }
+
+        // Check permissions
+        if (!current_user_can('ai_manager_view_logs') && !current_user_can('manage_options')) {
+            wp_die('Insufficient permissions');
+        }
+
+        try {
+            // Get change log service from container if available
+            if (class_exists('AI_Manager_Pro\\Core\\Plugin')) {
+                $plugin = \AI_Manager_Pro\Core\Plugin::get_instance();
+                $container = $plugin->get_container();
+                $change_log = $container->get('settings_change_log');
+            } else {
+                // Fallback: create instance directly
+                require_once AI_MANAGER_PRO_PLUGIN_DIR . 'includes/settings/class-settings-change-log.php';
+                require_once AI_MANAGER_PRO_PLUGIN_DIR . 'vendor/autoload.php';
+                $logger = new \Monolog\Logger('ai-manager-pro');
+                $change_log = new \AI_Manager_Pro\Settings\Settings_Change_Log($logger);
+            }
+
+            if (!$change_log) {
+                wp_die('Change log service not available');
+            }
+
+            // Export logs as CSV
+            $csv_content = $change_log->export([], 'csv');
+
+            // Set headers for download
+            header('Content-Type: text/csv; charset=utf-8');
+            header('Content-Disposition: attachment; filename="ai-manager-pro-logs-' . date('Y-m-d-His') . '.csv"');
+            header('Pragma: no-cache');
+            header('Expires: 0');
+
+            echo $csv_content;
+            exit;
+
+        } catch (Exception $e) {
+            error_log('AI Manager Pro: Export logs error: ' . $e->getMessage());
+            wp_die('Error exporting logs: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Handle cleanup logs AJAX request
+     */
+    public function handle_cleanup_logs()
+    {
+        error_log('AI Manager Pro: Cleanup logs AJAX called');
+
+        // Verify nonce
+        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'ai_manager_pro_nonce')) {
+            wp_send_json_error('Security check failed');
+        }
+
+        // Check permissions
+        if (!current_user_can('ai_manager_manage_settings') && !current_user_can('manage_options')) {
+            wp_send_json_error('Insufficient permissions');
+        }
+
+        try {
+            // Get change log service
+            if (class_exists('AI_Manager_Pro\\Core\\Plugin')) {
+                $plugin = \AI_Manager_Pro\Core\Plugin::get_instance();
+                $container = $plugin->get_container();
+                $change_log = $container->get('settings_change_log');
+            } else {
+                // Fallback: create instance directly
+                require_once AI_MANAGER_PRO_PLUGIN_DIR . 'includes/settings/class-settings-change-log.php';
+                require_once AI_MANAGER_PRO_PLUGIN_DIR . 'vendor/autoload.php';
+                $logger = new \Monolog\Logger('ai-manager-pro');
+                $change_log = new \AI_Manager_Pro\Settings\Settings_Change_Log($logger);
+            }
+
+            if (!$change_log) {
+                wp_send_json_error('Change log service not available');
+            }
+
+            // Cleanup old entries (older than 90 days)
+            $deleted_count = $change_log->cleanup_old_entries(90);
+
+            wp_send_json_success([
+                'message' => sprintf(__('Successfully deleted %d old log entries', 'ai-website-manager-pro'), $deleted_count),
+                'deleted_count' => $deleted_count
+            ]);
+
+        } catch (Exception $e) {
+            error_log('AI Manager Pro: Cleanup logs error: ' . $e->getMessage());
+            wp_send_json_error('Error cleaning logs: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Handle get log details AJAX request
+     */
+    public function handle_get_log_details()
+    {
+        error_log('AI Manager Pro: Get log details AJAX called');
+
+        // Verify nonce
+        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'ai_manager_pro_nonce')) {
+            wp_send_json_error('Security check failed');
+        }
+
+        // Check permissions
+        if (!current_user_can('ai_manager_view_logs') && !current_user_can('manage_options')) {
+            wp_send_json_error('Insufficient permissions');
+        }
+
+        $change_id = isset($_POST['change_id']) ? intval($_POST['change_id']) : 0;
+
+        if (!$change_id) {
+            wp_send_json_error('Change ID is required');
+        }
+
+        try {
+            global $wpdb;
+            $table_name = $wpdb->prefix . 'ai_manager_pro_settings_log';
+
+            // Get change details from database
+            $change = $wpdb->get_row($wpdb->prepare(
+                "SELECT * FROM {$table_name} WHERE id = %d",
+                $change_id
+            ), ARRAY_A);
+
+            if (!$change) {
+                wp_send_json_error('Change not found');
+            }
+
+            // Process the change data
+            $user = get_user_by('ID', $change['user_id']);
+            $change['user_name'] = $user ? $user->display_name : "User #{$change['user_id']}";
+
+            // Unserialize values
+            $change['old_value'] = json_decode($change['old_value'], true) ?? $change['old_value'];
+            $change['new_value'] = json_decode($change['new_value'], true) ?? $change['new_value'];
+
+            // Format timestamp
+            $change['formatted_timestamp'] = date_i18n(
+                get_option('date_format') . ' ' . get_option('time_format'),
+                strtotime($change['timestamp'])
+            );
+
+            wp_send_json_success($change);
+
+        } catch (Exception $e) {
+            error_log('AI Manager Pro: Get log details error: ' . $e->getMessage());
+            wp_send_json_error('Error fetching log details: ' . $e->getMessage());
+        }
     }
 }
 

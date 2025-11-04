@@ -1,0 +1,282 @@
+{
+  "article": {
+    "name": "מאמרים מקצועיים",
+    "templates": [
+      {
+        "pattern": "המדריך המלא ל{topic} ב-{year}",
+        "example": "המדריך המלא לשיווק דיגיטלי ב-2025",
+        "category": "מדריך"
+      },
+      {
+        "pattern": "{number} דרכים להצליח ב{topic}",
+        "example": "10 דרכים להצליח בשיווק תוכן",
+        "category": "רשימה"
+      },
+      {
+        "pattern": "כל מה שצריך לדעת על {topic}",
+        "example": "כל מה שצריך לדעת על SEO",
+        "category": "מקיף"
+      },
+      {
+        "pattern": "איך לשפר את ה{topic} שלך ב{number} שלבים",
+        "example": "איך לשפר את האתר שלך ב-5 שלבים",
+        "category": "הוראות"
+      },
+      {
+        "pattern": "{topic}: המדריך למתחילים",
+        "example": "וורדפרס: המדריך למתחילים",
+        "category": "מתחילים"
+      },
+      {
+        "pattern": "הטעויות הנפוצות ב{topic} ואיך להימנע מהן",
+        "example": "הטעויות הנפוצות בקידום אתרים ואיך להימנע מהן",
+        "category": "טעויות"
+      },
+      {
+        "pattern": "{topic} מתקדם: טיפים למקצוענים",
+        "example": "שיווק תוכן מתקדם: טיפים למקצוענים",
+        "category": "מתקדמים"
+      },
+      {
+        "pattern": "מה חדש ב{topic} ב{year}",
+        "example": "מה חדש בעולם ה-AI ב-2025",
+        "category": "טרנדים"
+      },
+      {
+        "pattern": "{number} כלים חיוניים ל{topic}",
+        "example": "7 כלים חיוניים לניהול רשתות חברתיות",
+        "category": "כלים"
+      },
+      {
+        "pattern": "למה {topic} זה חשוב לעסק שלך",
+        "example": "למה שיווק תוכן זה חשוב לעסק שלך",
+        "category": "חשיבות"
+      }
+    ]
+  },
+  "guide": {
+    "name": "מדריכים",
+    "templates": [
+      {
+        "pattern": "מדריך שלב אחר שלב ל{topic}",
+        "example": "מדריך שלב אחר שלב לבניית אתר וורדפרס",
+        "category": "שלב אחר שלב"
+      },
+      {
+        "pattern": "איך ל{action} ב{number} דקות",
+        "example": "איך ליצור דף נחיתה ב-10 דקות",
+        "category": "מהיר"
+      },
+      {
+        "pattern": "{topic} למתחילים: מאפס להצלחה",
+        "example": "פרסום בפייסבוק למתחילים: מאפס להצלחה",
+        "category": "התחלה"
+      },
+      {
+        "pattern": "המדריך המקיף ל{topic}",
+        "example": "המדריך המקיף לאופטימיזציה למנועי חיפוש",
+        "category": "מקיף"
+      },
+      {
+        "pattern": "{number} צעדים ל{achievement}",
+        "example": "5 צעדים להכפלת התנועה באתר",
+        "category": "הישג"
+      }
+    ]
+  },
+  "review": {
+    "name": "ביקורות והשוואות",
+    "templates": [
+      {
+        "pattern": "ביקורת {product}: שווה את הכסף?",
+        "example": "ביקורת Elementor Pro: שווה את הכסף?",
+        "category": "ביקורת"
+      },
+      {
+        "pattern": "{product1} vs {product2}: מי מנצח?",
+        "example": "WordPress vs Wix: מי מנצח?",
+        "category": "השוואה"
+      },
+      {
+        "pattern": "היתרונות והחסרונות של {product}",
+        "example": "היתרונות והחסרונות של WooCommerce",
+        "category": "יתרונות וחסרונות"
+      },
+      {
+        "pattern": "האמת על {product} - ביקורת כנה",
+        "example": "האמת על Shopify - ביקורת כנה",
+        "category": "ביקורת כנה"
+      },
+      {
+        "pattern": "{number} חלופות ל{product}",
+        "example": "5 חלופות ל-MailChimp",
+        "category": "חלופות"
+      }
+    ]
+  },
+  "product": {
+    "name": "תיאורי מוצרים",
+    "templates": [
+      {
+        "pattern": "{product} - הפתרון המושלם ל{problem}",
+        "example": "Rank Math - הפתרון המושלם ל-SEO",
+        "category": "פתרון"
+      },
+      {
+        "pattern": "גלה את {product}: {benefit}",
+        "example": "גלה את Canva: עיצוב גרפי מקצועי בקלות",
+        "category": "הצגה"
+      },
+      {
+        "pattern": "למה {audience} בוחרים ב{product}",
+        "example": "למה מעצבים בוחרים ב-Figma",
+        "category": "בחירה"
+      },
+      {
+        "pattern": "{product} - מפרט, מחירים וכל הפרטים",
+        "example": "WP Rocket - מפרט, מחירים וכל הפרטים",
+        "category": "מפרט"
+      }
+    ]
+  },
+  "blog_post": {
+    "name": "פוסטים בבלוג",
+    "templates": [
+      {
+        "pattern": "{number} סיבות ל{action}",
+        "example": "7 סיבות להתחיל לבלוג היום",
+        "category": "סיבות"
+      },
+      {
+        "pattern": "הסוד ל{achievement} שלא ידעת",
+        "example": "הסוד להגדלת מכירות שלא ידעת",
+        "category": "סוד"
+      },
+      {
+        "pattern": "{topic}: מה שאף אחד לא מספר לך",
+        "example": "שיווק באינסטגרם: מה שאף אחד לא מספר לך",
+        "category": "חשיפה"
+      },
+      {
+        "pattern": "איך {achievement} ב{timeframe}",
+        "example": "איך להכפיל תנועה ב-30 יום",
+        "category": "מהיר"
+      },
+      {
+        "pattern": "{number} טיפים ל{topic} שיעבדו בשבילך",
+        "example": "10 טיפים לכתיבה שיעבדו בשבילך",
+        "category": "טיפים"
+      }
+    ]
+  },
+  "how_to": {
+    "name": "הוראות פעולה",
+    "templates": [
+      {
+        "pattern": "איך ל{action} בלי {problem}",
+        "example": "איך לקדם אתר בלי תקציב",
+        "category": "פתרון"
+      },
+      {
+        "pattern": "דרך פשוטה ל{action}",
+        "example": "דרך פשוטה ליצור תוכן ויראלי",
+        "category": "פשוט"
+      },
+      {
+        "pattern": "{action}: המדריך השלם",
+        "example": "בניית קמפיין PPC: המדריך השלם",
+        "category": "מלא"
+      },
+      {
+        "pattern": "איך ל{action} כמו מקצוען",
+        "example": "איך לערוך וידאו כמו מקצוען",
+        "category": "מקצועי"
+      }
+    ]
+  },
+  "listicle": {
+    "name": "רשימות",
+    "templates": [
+      {
+        "pattern": "{number} {items} שכל {audience} חייב להכיר",
+        "example": "15 כלים שכל משווק חייב להכיר",
+        "category": "חובה"
+      },
+      {
+        "pattern": "ה-{number} {items} הטובים ביותר ל{topic}",
+        "example": "ה-10 תוספים הטובים ביותר לוורדפרס",
+        "category": "הכי טוב"
+      },
+      {
+        "pattern": "{number} {items} ש{action}",
+        "example": "7 אסטרטגיות שיגדילו את המכירות",
+        "category": "פעולה"
+      },
+      {
+        "pattern": "{number} דברים ש{audience} עושים ב{topic}",
+        "example": "10 דברים שמשווקים מצליחים עושים בתוכן",
+        "category": "הרגלים"
+      }
+    ]
+  },
+  "case_study": {
+    "name": "מקרי מבחן",
+    "templates": [
+      {
+        "pattern": "איך {company} {achievement} ב{timeframe}",
+        "example": "איך Airbnb הכפילה מכירות ב-6 חודשים",
+        "category": "הצלחה"
+      },
+      {
+        "pattern": "מ{before} ל{after}: סיפור הצלחה של {company}",
+        "example": "מ-0 ל-100K: סיפור הצלחה של Dropbox",
+        "category": "שינוי"
+      },
+      {
+        "pattern": "{achievement}: לימודים מ{company}",
+        "example": "גידול ויראלי: לימודים מ-TikTok",
+        "category": "לימוד"
+      }
+    ]
+  },
+  "news": {
+    "name": "חדשות ועדכונים",
+    "templates": [
+      {
+        "pattern": "{company} משיקה {product/feature} חדש",
+        "example": "Google משיקה אלגוריתם חדש",
+        "category": "השקה"
+      },
+      {
+        "pattern": "{topic}: מה השתנה ב{year}",
+        "example": "SEO: מה השתנה ב-2025",
+        "category": "שינויים"
+      },
+      {
+        "pattern": "עדכון חשוב ב{topic} שחייבים לדעת",
+        "example": "עדכון חשוב בפייסבוק אדס שחייבים לדעת",
+        "category": "עדכון"
+      }
+    ]
+  },
+  "trends": {
+    "name": "טרנדים ותחזיות",
+    "templates": [
+      {
+        "pattern": "{number} טרנדים ב{topic} ל{year}",
+        "example": "10 טרנדים בשיווק דיגיטלי ל-2025",
+        "category": "טרנדים"
+      },
+      {
+        "pattern": "העתיד של {topic}: תחזיות ל{year}",
+        "example": "העתיד של AI: תחזיות ל-2025",
+        "category": "עתיד"
+      },
+      {
+        "pattern": "מה צפוי ל{topic} ב{year}",
+        "example": "מה צפוי ל-eCommerce ב-2025",
+        "category": "צפי"
+      }
+    ]
+  }
+}

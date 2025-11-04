@@ -10,19 +10,34 @@
 if (!defined('ABSPATH')) {
     exit;
 }
+
+// Include plugin header
+include AI_MANAGER_PRO_PLUGIN_DIR . 'includes/admin/views/plugin-header.php';
 ?>
 
 <div class="content-generator-container">
     <div class="generator-header">
-        <h1><?php _e('AI Content Generator', 'ai-website-manager-pro'); ?></h1>
+        <h1>🤖 מחולל תוכן AI</h1>
         <p class="generator-subtitle">
-            <?php _e('Create high-quality content using AI with your brand voice', 'ai-website-manager-pro'); ?>
+            צור תוכן איכותי באמצעות AI עם קול המותג שלך
         </p>
     </div>
 
     <div class="generator-form">
         <div class="form-section">
             <h2>⚙️ הגדרות יצירת תוכן</h2>
+
+            <!-- Template Indicator -->
+            <div id="template-indicator" class="template-indicator" style="display: none;">
+                <div class="template-indicator-content">
+                    <span class="template-icon">📄</span>
+                    <div class="template-info">
+                        <strong>תבנית נבחרה:</strong>
+                        <span id="template-name"></span>
+                    </div>
+                    <button type="button" class="template-clear" onclick="clearTemplate()">×</button>
+                </div>
+            </div>
 
             <div class="form-row">
                 <div class="form-group">
@@ -42,68 +57,153 @@ if (!defined('ABSPATH')) {
                 </div>
 
                 <div class="form-group">
-                    <label for="content-length">
-                        <?php _e('Content Length', 'ai-website-manager-pro'); ?>
-                    </label>
+                    <label for="content-length">📏 אורך התוכן</label>
                     <select id="content-length" class="form-control">
-                        <option value="short">
-                            <?php _e('Short (100-300 words)', 'ai-website-manager-pro'); ?>
-                        </option>
-                        <option value="medium" selected>
-                            <?php _e('Medium (300-800 words)', 'ai-website-manager-pro'); ?>
-                        </option>
-                        <option value="long">
-                            <?php _e('Long (800-1500 words)', 'ai-website-manager-pro'); ?>
-                        </option>
-                        <option value="very-long"><?php _e('Very Long (1500+ words)', 'ai-website-manager-pro'); ?>
-                        </option>
+                        <option value="short">קצר (100-300 מילים)</option>
+                        <option value="medium" selected>בינוני (300-800 מילים)</option>
+                        <option value="long">ארוך (800-1500 מילים)</option>
+                        <option value="very-long">ארוך מאוד (1500+ מילים)</option>
                     </select>
+                    <small class="form-help">
+                        בחר את אורך התוכן בהתאם לסוג והמטרה
+                    </small>
                 </div>
             </div>
 
             <div class="form-row">
                             <div class="form-group">
-                                <label for="brand-select">
-                                    <?php _e('Brand Voice', 'ai-website-manager-pro'); ?>
-                                </label>
+                                <label for="brand-select">🎤 קול המותג</label>
                                 <select id="brand-select" class="form-control">
-                                    <option value="">
-                                        <?php _e('Select Brand...', 'ai-website-manager-pro'); ?>
-                                    </option>
-                                    <option value="tech-startup">
-                                        <?php _e('Tech Startup', 'ai-website-manager-pro'); ?>
-                                    </option>
-                                    <option value="professional-services">
-                            <?php _e('Professional Services', 'ai-website-manager-pro'); ?>
-                        </option>
-                        <option value="e-commerce"><?php _e('E-commerce', 'ai-website-manager-pro'); ?></option>
+                                    <option value="">בחר מותג...</option>
+                                    <option value="tech-startup">סטארטאפ טכנולוגי</option>
+                                    <option value="professional-services">שירותים מקצועיים</option>
+                                    <option value="e-commerce">מסחר אלקטרוני</option>
                     </select>
+                    <small class="form-help">
+                        המותג יקבע את הטון והסגנון של התוכן
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label for="ai-provider">🔌 ספק AI</label>
+                    <select id="ai-provider" class="form-control">
+                        <?php
+                        $default_provider = get_option('ai_manager_pro_default_provider', 'openai');
+
+                        // Check which providers have API keys configured
+                        $providers = [
+                            'openai' => [
+                                'name' => 'OpenAI',
+                                'icon' => '🤖',
+                                'has_key' => !empty(get_option('ai_manager_pro_openai_api_key'))
+                            ],
+                            'anthropic' => [
+                                'name' => 'Anthropic (Claude)',
+                                'icon' => '🧠',
+                                'has_key' => !empty(get_option('ai_manager_pro_anthropic_api_key'))
+                            ],
+                            'openrouter' => [
+                                'name' => 'OpenRouter',
+                                'icon' => '🌐',
+                                'has_key' => !empty(get_option('ai_manager_pro_openrouter_api_key'))
+                            ],
+                            'deepseek' => [
+                                'name' => 'DeepSeek',
+                                'icon' => '🔬',
+                                'has_key' => !empty(get_option('ai_manager_pro_deepseek_key'))
+                            ]
+                        ];
+
+                        foreach ($providers as $provider_id => $provider_info):
+                            if ($provider_info['has_key']):
+                        ?>
+                            <option value="<?php echo esc_attr($provider_id); ?>"
+                                    <?php selected($default_provider, $provider_id); ?>>
+                                <?php echo $provider_info['icon'] . ' ' . esc_html($provider_info['name']); ?>
+                            </option>
+                        <?php
+                            endif;
+                        endforeach;
+
+                        // If no providers configured, show message
+                        if (!array_filter($providers, function($p) { return $p['has_key']; })):
+                        ?>
+                            <option value="">אין ספקי AI מוגדרים - נא להגדיר מפתח API</option>
+                        <?php endif; ?>
+                    </select>
+                    <small class="form-help">
+                        ספק ה-AI שישמש ליצירת התוכן
+                    </small>
                 </div>
 
                 <div class="form-group">
                     <label for="ai-model">🤖 מודל AI</label>
                     <select id="ai-model" class="form-control">
                         <?php
-                        require_once AI_MANAGER_PRO_PLUGIN_DIR . 'includes/ai/class-openrouter-service.php';
-                        $openrouter_service = new AI_Manager_Pro_OpenRouter_Service();
-                        $popular_models = $openrouter_service->get_popular_models();
-                        $current_model = get_option('ai_manager_pro_default_model', 'openai/gpt-3.5-turbo');
+                        $current_model = get_option('ai_manager_pro_default_model', '');
 
-                        foreach ($popular_models as $model_id => $model_info):
-                            ?>
-                                <option value="<?php echo esc_attr($model_id); ?>" <?php selected($current_model, $model_id); ?>>
-                                    <?php echo $model_info['icon'] . ' ' . esc_html($model_info['name']); ?>
-                                    - <?php echo esc_html($model_info['description']); ?>
-                                </option>
-                        <?php endforeach; ?>
+                        // OpenAI models
+                        if (!empty(get_option('ai_manager_pro_openai_api_key'))):
+                        ?>
+                            <optgroup label="🤖 OpenAI">
+                                <option value="gpt-4" <?php selected($current_model, 'gpt-4'); ?>>GPT-4 - חכם ומדויק ביותר</option>
+                                <option value="gpt-4-turbo" <?php selected($current_model, 'gpt-4-turbo'); ?>>GPT-4 Turbo - מהיר ועדכני</option>
+                                <option value="gpt-3.5-turbo" <?php selected($current_model, 'gpt-3.5-turbo'); ?>>GPT-3.5 Turbo - מהיר וחסכוני</option>
+                            </optgroup>
+                        <?php endif; ?>
+
+                        <?php
+                        // Anthropic models
+                        if (!empty(get_option('ai_manager_pro_anthropic_api_key'))):
+                        ?>
+                            <optgroup label="🧠 Anthropic Claude">
+                                <option value="claude-3-opus" <?php selected($current_model, 'claude-3-opus'); ?>>Claude 3 Opus - הכי מתקדם</option>
+                                <option value="claude-3-sonnet" <?php selected($current_model, 'claude-3-sonnet'); ?>>Claude 3 Sonnet - איזון מושלם</option>
+                                <option value="claude-3-haiku" <?php selected($current_model, 'claude-3-haiku'); ?>>Claude 3 Haiku - מהיר וזול</option>
+                            </optgroup>
+                        <?php endif; ?>
+
+                        <?php
+                        // DeepSeek models
+                        if (!empty(get_option('ai_manager_pro_deepseek_key'))):
+                        ?>
+                            <optgroup label="🔬 DeepSeek">
+                                <option value="deepseek-chat" <?php selected($current_model, 'deepseek-chat'); ?>>DeepSeek Chat - שיחה כללית</option>
+                                <option value="deepseek-coder" <?php selected($current_model, 'deepseek-coder'); ?>>DeepSeek Coder - כתיבת קוד</option>
+                            </optgroup>
+                        <?php endif; ?>
+
+                        <?php
+                        // OpenRouter models
+                        if (!empty(get_option('ai_manager_pro_openrouter_api_key'))):
+                            require_once AI_MANAGER_PRO_PLUGIN_DIR . 'includes/ai/class-openrouter-service.php';
+                            $openrouter_service = new AI_Manager_Pro_OpenRouter_Service();
+                            $popular_models = $openrouter_service->get_popular_models();
+                        ?>
+                            <optgroup label="🌐 OpenRouter">
+                                <?php foreach ($popular_models as $model_id => $model_info): ?>
+                                    <option value="<?php echo esc_attr($model_id); ?>"
+                                            <?php selected($current_model, $model_id); ?>>
+                                        <?php echo $model_info['icon'] . ' ' . esc_html($model_info['name']); ?>
+                                        - <?php echo esc_html($model_info['description']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </optgroup>
+                        <?php endif; ?>
                     </select>
+                    <small class="form-help">
+                        בחר מודל לפי הצורך: GPT-4 לאיכות, GPT-3.5 למהירות, Claude ליצירתיות
+                    </small>
                 </div>
             </div>
 
             <div class="form-group">
-                <label for="content-topic"><?php _e('Topic / Subject', 'ai-website-manager-pro'); ?></label>
+                <label for="content-topic">📝 נושא / כותרת התוכן</label>
                                         <input type="text" id="content-topic" class="form-control"
-                                            placeholder="<?php _e('Enter the main topic or subject for your content...', 'ai-website-manager-pro'); ?>">
+                                            placeholder="הזן את הנושא או הכותרת הראשית לתוכן שלך... (למשל: 'כיצד לבחור מחשב נייד')">
+                                        <small class="form-help">
+                        הנושא הראשי שעליו ייכתב התוכן - היה ספציפי וברור
+                    </small>
                             </div>
 
                             <div class="form-row">
@@ -125,80 +225,103 @@ if (!defined('ABSPATH')) {
                                 </div>
 
                             <div class="form-group">
-                                <label for="content-keywords"><?php _e('Keywords (Optional)', 'ai-website-manager-pro'); ?></label>
+                                <label for="content-keywords">🔑 מילות מפתח (אופציונלי)</label>
                 <input type="text" id="content-keywords" class="form-control"
-                                    placeholder="<?php _e('keyword1, keyword2, keyword3...', 'ai-website-manager-pro'); ?>">
+                                    placeholder="מילה1, מילה2, מילה3... (למשל: 'שיווק דיגיטלי, קידום אתרים, SEO')">
                                     <small class="form-help">
-                                        <?php _e('Separate keywords with commas', 'ai-website-manager-pro'); ?>
+                                        הפרד מילות מפתח בפסיקים - ישפרו את ה-SEO של התוכן
                                     </small>
                             </div>
                             </div>
 
                             <div class="form-group">
-                <label
-                    for=" additional-instructions">
-                                <?php _e('Additional Instructions', 'ai-website-manager-pro'); ?></label>
+                <label for="additional-instructions">📋 הוראות נוספות (אופציונלי)</label>
                                 <textarea id="additional-instructions" class="form-control" rows="4"
-                                    placeholder="<?php _e('Any specific requirements, tone adjustments, or special instructions...', 'ai-website-manager-pro'); ?>"></textarea>
+                                    placeholder="דרישות ספציפיות, התאמות טון, או הוראות מיוחדות... (למשל: 'השתמש בסגנון פשוט ונגיש', 'הוסף דוגמאות מעשיות')"></textarea>
+                                <small class="form-help">
+                        הוסף הנחיות מיוחדות שיעזרו ל-AI ליצור את התוכן המדויק שאתה צריך
+                    </small>
                             </div>
 
                             <div class="form-actions">
                                 <button type="button" id="generate-content-btn" class="button button-primary button-large">
-                    <span class=" dashicons dashicons-edit"></span>
-                                    <?php _e('Generate Content', 'ai-website-manager-pro'); ?>
+                    <span class="dashicons dashicons-edit"></span>
+                                    ✨ צור תוכן
                                 </button>
 
                                 <button type="button" id="use-prompt-library-btn" class="button button-secondary">
                                     <span class="dashicons dashicons-book"></span>
-                                    <?php _e('Use Prompt Library', 'ai-website-manager-pro'); ?>
+                                    📚 השתמש בספריית פרומפטים
                                 </button>
 
                                 <button type="button" id="save-as-template-btn" class="button button-secondary"
                                     disabled>
                                     <span class="dashicons dashicons-saved"></span>
-                                    <?php _e('Save as Template', 'ai-website-manager-pro'); ?>
+                                    💾 שמור כתבנית
                                 </button>
                             </div>
                 </div>
 
                 <div class="form-section">
-                    <h2>
-                        <?php _e('Generated Content', 'ai-website-manager-pro'); ?>
-                    </h2>
+                    <h2>📄 התוכן שנוצר</h2>
 
                     <div class="content-output">
                         <div class="output-toolbar">
                                 <div class="toolbar-left">
                             <span class="content-stats" id="content-stats">
-                                <?php _e('Ready to generate', 'ai-website-manager-pro'); ?>
+                                ⚡ מוכן ליצירת תוכן
                             </span>
                         </div>
                         <div class="toolbar-right">
                             <button type="button" id="copy-content-btn" class="button button-small" disabled>
                                 <span class="dashicons dashicons-admin-page"></span>
-                            <?php _e('Copy', 'ai-website-manager-pro'); ?>
+                            📋 העתק
                         </button>
-                        <button type=" button" id="export-content-btn" class="button button-small" disabled>
+                        <button type="button" id="export-content-btn" class="button button-small" disabled>
                                     <span class="dashicons dashicons-download"></span>
-                                    <?php _e('Export', 'ai-website-manager-pro'); ?>
+                                    💾 ייצא
                             </button>
                             <button type="button" id="regenerate-btn" class="button button-small" disabled>
                                 <span class="dashicons dashicons-update"></span>
-                                <?php _e('Regenerate', 'ai-website-manager-pro'); ?>
+                                🔄 צור מחדש
                             </button>
+                        </div>
+                    </div>
+
+                    <!-- Publish Buttons Section -->
+                    <div class="publish-actions" id="publish-actions" style="display: none; margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 2px solid #667eea;">
+                        <div style="display: flex; gap: 10px; align-items: center; justify-content: space-between;">
+                            <div style="flex: 1;">
+                                <p style="margin: 0 0 10px 0; font-weight: 600; color: #1d2327;">
+                                    ✅ התוכן מוכן! בחר פעולה:
+                                </p>
+                            </div>
+                            <div style="display: flex; gap: 10px;">
+                                <button type="button" id="publish-draft-btn" class="button button-secondary">
+                                    <span class="dashicons dashicons-edit"></span>
+                                    💾 שמור כטיוטה
+                                </button>
+                                <button type="button" id="publish-now-btn" class="button button-primary">
+                                    <span class="dashicons dashicons-admin-post"></span>
+                                    🚀 פרסם כעת
+                                </button>
+                            </div>
+                        </div>
+                        <div id="publish-status" style="margin-top: 10px; padding: 8px; background: white; border-radius: 4px; display: none;">
+                            <span id="publish-message"></span>
                         </div>
                     </div>
 
                     <div class="content-editor-wrapper">
                         <textarea id="generated-content" class="content-editor"
-                            placeholder="<?php _e('Generated content will appear here...', 'ai-website-manager-pro'); ?>"></textarea>
+                            placeholder="התוכן שנוצר יופיע כאן... לחץ על 'צור תוכן' כדי להתחיל"></textarea>
                     </div>
 
                     <div class="generation-status" id="generation-status" style="display: none;">
                         <div class="status-indicator">
-                        <div class=" loading-spinner"></div>
+                        <div class="loading-spinner"></div>
                         <span class="status-text">
-                            <?php _e('Generating content...', 'ai-website-manager-pro'); ?>
+                            ⏳ יוצר תוכן מושלם... אנא המתן
                         </span>
                     </div>
                 </div>
@@ -208,31 +331,54 @@ if (!defined('ABSPATH')) {
 
     <div class="generator-sidebar">
         <div class="sidebar-section">
-            <h3>
-                <?php _e('Recent Generations', 'ai-website-manager-pro'); ?>
-            </h3>
-            <div class="recent-list">
-                <div class="recent-item">
-                    <div class="recent-title">
-                        <?php _e('Blog Post: AI in Marketing', 'ai-website-manager-pro'); ?>
+            <h3>🕒 פוסטים אחרונים שנוצרו</h3>
+            <div class="recent-list" id="recent-posts-list">
+                <?php
+                // Get recent AI-generated posts
+                $recent_posts = get_posts([
+                    'posts_per_page' => 5,
+                    'post_status' => ['publish', 'draft'],
+                    'meta_key' => '_ai_generated',
+                    'meta_value' => true,
+                    'orderby' => 'date',
+                    'order' => 'DESC'
+                ]);
+
+                if (!empty($recent_posts)):
+                    foreach ($recent_posts as $post):
+                        $content_type = get_post_meta($post->ID, '_ai_content_type', true);
+                        $icons = [
+                            'article' => '📄',
+                            'guide' => '📖',
+                            'review' => '⭐',
+                            'product' => '🛍️',
+                            'blog_post' => '📰',
+                        ];
+                        $icon = $icons[$content_type] ?? '📝';
+                        $time_diff = human_time_diff(get_the_time('U', $post), current_time('timestamp'));
+                        ?>
+                        <div class="recent-item">
+                            <div class="recent-title">
+                                <?php echo $icon; ?> <?php echo esc_html(wp_trim_words($post->post_title, 6)); ?>
+                            </div>
+                            <div class="recent-meta">
+                                לפני <?php echo $time_diff; ?>
+                                <?php if ($post->post_status === 'draft'): ?>
+                                    <span style="color: #d63638;">• טיוטה</span>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    <?php endforeach;
+                else: ?>
+                    <div class="recent-item">
+                        <div class="recent-title" style="color: #646970;">
+                            עדיין לא יצרת תוכן
+                        </div>
+                        <div class="recent-meta">
+                            התחל ליצור תוכן עכשיו!
+                        </div>
                     </div>
-                        <div class="recent-meta"><?php _e('2 hours ago', 'ai-website-manager-pro'); ?>
-                </div>
-            </div>
-            <div class="recent-item">
-                <div class="recent-title"><?php _e('Product Description: Smart Watch', 'ai-website-manager-pro'); ?>
-                </div>
-                <div class="recent-meta">
-                    <?php _e('Yesterday', 'ai-website-manager-pro'); ?>
-                </div>
-            </div>
-            <div class="recent-item">
-                <div class="recent-title">
-                    <?php _e('Social Media: Launch Announcement', 'ai-website-manager-pro'); ?>
-                </div>
-                <div class="recent-meta">
-                    <?php _e('2 days ago', 'ai-website-manager-pro'); ?>
-                </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -285,6 +431,34 @@ if (!defined('ABSPATH')) {
         </div>
     </div>
 </div>
+</div>
+
+<!-- Prompt Library Modal -->
+<div id="prompt-library-modal" class="prompt-library-modal" style="display: none;">
+    <div class="prompt-library-overlay" onclick="closePromptLibrary()"></div>
+    <div class="prompt-library-content">
+        <div class="prompt-library-header">
+            <h2>📚 ספריית הפרומפטים</h2>
+            <button class="prompt-library-close" onclick="closePromptLibrary()">×</button>
+        </div>
+
+        <div class="prompt-library-body">
+            <!-- Search -->
+            <div class="prompt-search-bar">
+                <input type="text" id="prompt-search" class="form-control" placeholder="🔍 חפש פרומפט...">
+            </div>
+
+            <!-- Categories -->
+            <div class="prompt-categories" id="prompt-categories">
+                <!-- Will be populated by JavaScript -->
+            </div>
+
+            <!-- Prompts List -->
+            <div class="prompt-list" id="prompt-list">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
 </div>
 
 <style>
@@ -376,6 +550,74 @@ if (!defined('ABSPATH')) {
         margin-top: 5px;
         font-size: 12px;
         color: #646970;
+    }
+
+    /* Template Indicator Styles */
+    .template-indicator {
+        margin-bottom: 20px;
+        padding: 15px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .template-indicator-content {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        color: white;
+    }
+
+    .template-icon {
+        font-size: 32px;
+        line-height: 1;
+    }
+
+    .template-info {
+        flex: 1;
+        font-size: 14px;
+    }
+
+    .template-info strong {
+        display: block;
+        font-size: 12px;
+        opacity: 0.9;
+        margin-bottom: 4px;
+    }
+
+    .template-info span {
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    .template-clear {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 20px;
+        line-height: 1;
+        transition: all 0.2s ease;
+    }
+
+    .template-clear:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: scale(1.1);
     }
 
     .form-actions {
@@ -553,6 +795,257 @@ if (!defined('ABSPATH')) {
         flex-shrink: 0;
     }
 
+    /* Prompt Library Modal Styles */
+    .prompt-library-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 100000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .prompt-library-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(4px);
+    }
+
+    .prompt-library-content {
+        position: relative;
+        background: white;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 900px;
+        max-height: 85vh;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        animation: slideUp 0.3s ease-out;
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .prompt-library-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 30px;
+        border-bottom: 2px solid #f0f0f1;
+    }
+
+    .prompt-library-header h2 {
+        margin: 0;
+        font-size: 22px;
+        color: #1d2327;
+    }
+
+    .prompt-library-close {
+        background: none;
+        border: none;
+        font-size: 32px;
+        color: #646970;
+        cursor: pointer;
+        line-height: 1;
+        padding: 0;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        transition: all 0.2s;
+    }
+
+    .prompt-library-close:hover {
+        background: #f0f0f1;
+        color: #d63638;
+    }
+
+    .prompt-library-body {
+        padding: 20px 30px;
+        overflow-y: auto;
+        flex: 1;
+    }
+
+    .prompt-search-bar {
+        margin-bottom: 20px;
+    }
+
+    .prompt-search-bar input {
+        width: 100%;
+        padding: 12px 16px;
+        font-size: 15px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+    }
+
+    .prompt-search-bar input:focus {
+        border-color: #667eea;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .prompt-categories {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 25px;
+    }
+
+    .prompt-category-btn {
+        padding: 8px 16px;
+        background: #f0f0f1;
+        border: 2px solid transparent;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        color: #1d2327;
+    }
+
+    .prompt-category-btn:hover {
+        background: #e8e8e9;
+    }
+
+    .prompt-category-btn.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-color: #667eea;
+    }
+
+    .prompt-list {
+        display: grid;
+        gap: 15px;
+    }
+
+    .prompt-item {
+        background: #f9f9f9;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 18px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .prompt-item:hover {
+        border-color: #667eea;
+        background: white;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+        transform: translateY(-2px);
+    }
+
+    .prompt-item-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 10px;
+    }
+
+    .prompt-item-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1d2327;
+        margin: 0;
+    }
+
+    .prompt-item-category {
+        font-size: 12px;
+        padding: 4px 10px;
+        background: #667eea;
+        color: white;
+        border-radius: 12px;
+        white-space: nowrap;
+    }
+
+    .prompt-item-description {
+        font-size: 14px;
+        color: #646970;
+        margin: 8px 0;
+        line-height: 1.5;
+    }
+
+    .prompt-item-preview {
+        font-size: 13px;
+        color: #1d2327;
+        background: white;
+        padding: 12px;
+        border-radius: 6px;
+        border-right: 3px solid #667eea;
+        margin-top: 12px;
+        line-height: 1.6;
+        max-height: 100px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .prompt-item-preview::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 30px;
+        background: linear-gradient(transparent, white);
+    }
+
+    .prompt-item-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid #e0e0e0;
+    }
+
+    .prompt-item-tags {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+
+    .prompt-tag {
+        font-size: 11px;
+        padding: 3px 8px;
+        background: #e8e8e9;
+        color: #646970;
+        border-radius: 8px;
+    }
+
+    .prompt-use-btn {
+        padding: 6px 14px;
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .prompt-use-btn:hover {
+        background: #5568d3;
+        transform: scale(1.05);
+    }
+
     @media (max-width: 1024px) {
         .content-generator-container {
             grid-template-columns: 1fr;
@@ -727,6 +1220,9 @@ if (!defined('ABSPATH')) {
                     $('#copy-content-btn').prop('disabled', false);
                     $('#export-content-btn').prop('disabled', false);
                     $('#save-as-template-btn').prop('disabled', false);
+
+                    // Show publish buttons
+                    $('#publish-actions').slideDown(300);
                 } else {
                     showNotification('<?php _e('Content generation failed: ', 'ai-website-manager-pro'); ?>' + response.data, 'error');
                 }
@@ -846,35 +1342,377 @@ if (!defined('ABSPATH')) {
         }
     });
 
-    // Check if a template was selected from dashboard
-    const selectedTemplate = sessionStorage.getItem('ai_selected_template');
-    if (selectedTemplate) {
-        // Set the content type to the selected template
-        $('#content-type').val(selectedTemplate);
+    // Function to load template from sessionStorage
+    function loadTemplateFromDashboard() {
+        console.log('🔍 Checking for selected template...');
+        const selectedTemplate = sessionStorage.getItem('ai_selected_template');
+        console.log('📦 SessionStorage value:', selectedTemplate);
 
-        // Clear the sessionStorage so it doesn't keep loading on refresh
-        sessionStorage.removeItem('ai_selected_template');
+        if (selectedTemplate) {
+            console.log('✅ Template found:', selectedTemplate);
 
-        // Show a notification
-        const templateNames = {
-            'article': 'מאמר מקיף',
-            'guide': 'מדריך הדרכה',
-            'review': 'ביקורת מוצר',
-            'product': 'תיאור מוצר',
-            'blog_post': 'פוסט בלוג'
+            // Set the content type to the selected template
+            $('#content-type').val(selectedTemplate);
+            console.log('✅ Content type dropdown set to:', selectedTemplate);
+
+            // Trigger change event to update UI if needed
+            $('#content-type').trigger('change');
+
+            // Highlight the dropdown to show it changed
+            $('#content-type').css({
+                'border': '3px solid #667eea',
+                'box-shadow': '0 0 10px rgba(102, 126, 234, 0.5)',
+                'background': 'linear-gradient(135deg, #f0f4ff 0%, #e8efff 100%)'
+            });
+
+            // Remove highlight after 3 seconds
+            setTimeout(function() {
+                $('#content-type').css({
+                    'border': '',
+                    'box-shadow': '',
+                    'background': ''
+                });
+            }, 3000);
+
+            // Clear the sessionStorage so it doesn't keep loading on refresh
+            sessionStorage.removeItem('ai_selected_template');
+
+            // Show a notification
+            const templateNames = {
+                'article': 'מאמר מקיף',
+                'guide': 'מדריך הדרכה',
+                'review': 'ביקורת מוצר',
+                'product': 'תיאור מוצר',
+                'blog_post': 'פוסט בלוג'
+            };
+
+            const templateName = templateNames[selectedTemplate] || selectedTemplate;
+
+            // Show template indicator
+            showTemplateIndicator(selectedTemplate, templateName);
+
+            showNotification(`✨ תבנית "${templateName}" נבחרה! מוכן ליצור תוכן מקצועי עם SEO מושלם.`, 'success');
+
+            // Scroll to the topic input to encourage user to start
+            setTimeout(function() {
+                const topicInput = $('#content-topic');
+                if (topicInput.length) {
+                    $('html, body').animate({
+                        scrollTop: topicInput.offset().top - 100
+                    }, 500);
+
+                    // Focus on the topic input
+                    topicInput.focus();
+                }
+            }, 100);
+        } else {
+            console.log('ℹ️ No template selected from dashboard');
+        }
+    }
+
+    // Show template indicator
+    function showTemplateIndicator(templateKey, templateName) {
+        const icons = {
+            'article': '📄',
+            'guide': '📖',
+            'review': '⭐',
+            'product': '🛍️',
+            'blog_post': '📰'
         };
 
-        const templateName = templateNames[selectedTemplate] || selectedTemplate;
-        showNotification(`✨ תבנית "${templateName}" נבחרה! מוכן ליצור תוכן מקצועי עם SEO מושלם.`, 'success');
-
-        // Scroll to the topic input to encourage user to start
-        $('html, body').animate({
-            scrollTop: $('#content-topic').offset().top - 100
-        }, 500);
-
-        // Focus on the topic input
-        $('#content-topic').focus();
+        $('#template-indicator .template-icon').text(icons[templateKey] || '📝');
+        $('#template-name').text(templateName);
+        $('#template-indicator').slideDown(300);
     }
+
+    // Clear template
+    window.clearTemplate = function() {
+        $('#template-indicator').slideUp(300);
+        $('#content-type').val('blog_post').trigger('change');
+    }
+
+    // Publish content as draft
+    $('#publish-draft-btn').on('click', function() {
+        publishContent('draft');
+    });
+
+    // Publish content now
+    $('#publish-now-btn').on('click', function() {
+        publishContent('publish');
+    });
+
+    // Publish content function
+    function publishContent(status) {
+        const content = $('#generated-content').val();
+        const topic = $('#content-topic').val();
+        const category = $('#post-category').val();
+        const contentType = $('#content-type').val();
+        const keywords = $('#content-keywords').val();
+
+        if (!content || !topic) {
+            showNotification('⚠️ נא למלא נושא ולייצר תוכן לפני פרסום', 'error');
+            return;
+        }
+
+        // Disable buttons
+        $('#publish-draft-btn, #publish-now-btn').prop('disabled', true);
+        $('#publish-status').show().find('#publish-message').html('⏳ מפרסם...');
+
+        // Prepare data
+        const postData = {
+            action: 'ai_manager_pro_publish_content',
+            nonce: '<?php echo wp_create_nonce('ai_manager_pro_nonce'); ?>',
+            title: topic,
+            content: content,
+            status: status,
+            category: category,
+            content_type: contentType,
+            keywords: keywords
+        };
+
+        console.log('Publishing content with data:', postData);
+        console.log('AJAX URL:', ajaxurl);
+
+        jQuery.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            data: postData,
+            dataType: 'json',
+            success: function(response) {
+                console.log('Success response:', response);
+                if (response.success) {
+                    const statusText = status === 'draft' ? 'נשמר כטיוטה' : 'פורסם בהצלחה';
+                    const icon = status === 'draft' ? '💾' : '🚀';
+
+                    // Build success message with tags info
+                    let successMessage = `${icon} <strong>${statusText}!</strong> `;
+                    successMessage += `<a href="${response.data.edit_url}" target="_blank">ערוך</a> | `;
+                    successMessage += `<a href="${response.data.view_url}" target="_blank">צפה</a>`;
+
+                    if (response.data.tags_count > 0) {
+                        successMessage += `<br><small style="color: #10b981;">✓ נוספו ${response.data.tags_count} תגיות אוטומטית</small>`;
+                    }
+
+                    if (response.data.has_keywords) {
+                        successMessage += `<br><small style="color: #10b981;">✓ מילות מפתח נשמרו ל-SEO</small>`;
+                    }
+
+                    $('#publish-status').find('#publish-message').html(successMessage);
+
+                    showNotification(`${icon} ${statusText}!`, 'success');
+
+                    // Clear the form after successful publish
+                    setTimeout(function() {
+                        if (confirm('האם לנקות את הטופס ולהתחיל תוכן חדש?')) {
+                            $('#content-topic').val('');
+                            $('#generated-content').val('');
+                            $('#content-keywords').val('');
+                            $('#additional-instructions').val('');
+                            $('#publish-actions').slideUp(300);
+                            $('#content-stats').text('⚡ מוכן ליצירת תוכן');
+                            clearTemplate();
+                        }
+                    }, 2000);
+                } else {
+                    $('#publish-status').find('#publish-message').html(
+                        `❌ <strong>שגיאה:</strong> ${response.data}`
+                    );
+                    showNotification('❌ שגיאה בפרסום: ' + response.data, 'error');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('AJAX Error:', {xhr, status, error});
+                console.error('Response Text:', xhr.responseText);
+                console.error('Status Code:', xhr.status);
+
+                let errorMessage = error;
+                if (xhr.responseText) {
+                    try {
+                        const errorData = JSON.parse(xhr.responseText);
+                        errorMessage = errorData.message || errorData.data || error;
+                    } catch(e) {
+                        errorMessage = xhr.responseText.substring(0, 200);
+                    }
+                }
+
+                $('#publish-status').find('#publish-message').html(
+                    `❌ <strong>שגיאה (${xhr.status}):</strong> ${errorMessage}`
+                );
+                showNotification('❌ שגיאה בפרסום: ' + errorMessage, 'error');
+            },
+            complete: function() {
+                $('#publish-draft-btn, #publish-now-btn').prop('disabled', false);
+            }
+        });
+    }
+
+    // Load template immediately
+    loadTemplateFromDashboard();
+
+    // Also load template if page loaded via SPA
+    $(document).on('ai-page-loaded', function() {
+        console.log('🔄 Page loaded via SPA, checking template again...');
+        loadTemplateFromDashboard();
+    });
+
+    // ============= Prompt Library Functions =============
+
+    const promptsData = <?php
+        $prompts_file = AI_MANAGER_PRO_PLUGIN_DIR . 'includes/prompts/data/default-prompts.json';
+        if (file_exists($prompts_file)) {
+            echo file_get_contents($prompts_file);
+        } else {
+            echo '{"categories": {}}';
+        }
+    ?>;
+
+    let selectedCategory = null;
+
+    // Open prompt library
+    $('#use-prompt-library-btn').on('click', function() {
+        openPromptLibrary();
+    });
+
+    function openPromptLibrary() {
+        $('#prompt-library-modal').fadeIn(200);
+        loadCategories();
+        loadPrompts();
+    }
+
+    window.closePromptLibrary = function() {
+        $('#prompt-library-modal').fadeOut(200);
+    }
+
+    function loadCategories() {
+        const categories = promptsData.categories;
+        const $container = $('#prompt-categories');
+        $container.empty();
+
+        // Add "All" button
+        $container.append(`
+            <button class="prompt-category-btn active" onclick="filterByCategory(null)">
+                🔥 הכל (${getTotalPromptsCount()})
+            </button>
+        `);
+
+        // Add category buttons
+        Object.keys(categories).forEach(catKey => {
+            const cat = categories[catKey];
+            const count = cat.prompts.length;
+            $container.append(`
+                <button class="prompt-category-btn" onclick="filterByCategory('${catKey}')">
+                    ${cat.icon} ${cat.name} (${count})
+                </button>
+            `);
+        });
+    }
+
+    function getTotalPromptsCount() {
+        let total = 0;
+        Object.keys(promptsData.categories).forEach(catKey => {
+            total += promptsData.categories[catKey].prompts.length;
+        });
+        return total;
+    }
+
+    window.filterByCategory = function(category) {
+        selectedCategory = category;
+
+        // Update active button
+        $('.prompt-category-btn').removeClass('active');
+        if (category === null) {
+            $('.prompt-category-btn').first().addClass('active');
+        } else {
+            $(`.prompt-category-btn:contains("${promptsData.categories[category].name}")`).addClass('active');
+        }
+
+        loadPrompts();
+    }
+
+    function loadPrompts() {
+        const $container = $('#prompt-list');
+        $container.empty();
+
+        const categories = promptsData.categories;
+        let allPrompts = [];
+
+        // Collect prompts
+        Object.keys(categories).forEach(catKey => {
+            if (selectedCategory === null || selectedCategory === catKey) {
+                categories[catKey].prompts.forEach(prompt => {
+                    allPrompts.push({
+                        ...prompt,
+                        categoryKey: catKey,
+                        categoryName: categories[catKey].name,
+                        categoryIcon: categories[catKey].icon
+                    });
+                });
+            }
+        });
+
+        // Display prompts
+        allPrompts.forEach(prompt => {
+            const tagsHtml = prompt.tags.map(tag => `<span class="prompt-tag">#${tag}</span>`).join('');
+
+            $container.append(`
+                <div class="prompt-item" onclick='usePrompt(${JSON.stringify(prompt).replace(/'/g, "\\'")})'>
+                    <div class="prompt-item-header">
+                        <h4 class="prompt-item-title">${prompt.title}</h4>
+                        <span class="prompt-item-category">${prompt.categoryIcon} ${prompt.categoryName}</span>
+                    </div>
+                    <div class="prompt-item-description">${prompt.description}</div>
+                    <div class="prompt-item-preview">${prompt.prompt}</div>
+                    <div class="prompt-item-footer">
+                        <div class="prompt-item-tags">${tagsHtml}</div>
+                        <button class="prompt-use-btn" onclick="event.stopPropagation(); usePrompt(${JSON.stringify(prompt).replace(/'/g, "\\'")}); return false;">
+                            ✨ השתמש בפרומפט
+                        </button>
+                    </div>
+                </div>
+            `);
+        });
+
+        if (allPrompts.length === 0) {
+            $container.append('<p style="text-align: center; color: #646970; padding: 40px;">לא נמצאו פרומפטים</p>');
+        }
+    }
+
+    window.usePrompt = function(prompt) {
+        // Fill in the additional instructions with the prompt
+        $('#additional-instructions').val(prompt.prompt);
+
+        // Close the modal
+        closePromptLibrary();
+
+        // Show notification
+        showNotification(`✅ הפרומפט "${prompt.title}" נוסף להוראות נוספות`, 'success');
+
+        // Focus on the instructions field
+        $('#additional-instructions').focus();
+
+        // Scroll to it
+        $('html, body').animate({
+            scrollTop: $('#additional-instructions').offset().top - 100
+        }, 500);
+    }
+
+    // Search prompts
+    $('#prompt-search').on('input', function() {
+        const query = $(this).val().toLowerCase();
+
+        $('.prompt-item').each(function() {
+            const title = $(this).find('.prompt-item-title').text().toLowerCase();
+            const description = $(this).find('.prompt-item-description').text().toLowerCase();
+            const preview = $(this).find('.prompt-item-preview').text().toLowerCase();
+
+            if (title.includes(query) || description.includes(query) || preview.includes(query)) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+    });
+
     });
 </script>
 
