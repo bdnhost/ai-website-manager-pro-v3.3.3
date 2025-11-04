@@ -14,6 +14,9 @@ if (!defined('ABSPATH')) {
 use AI_Manager_Pro\Settings\Schemas\General_Settings_Schema;
 
 $form_fields = General_Settings_Schema::get_form_fields();
+
+// Include plugin header
+include AI_MANAGER_PRO_PLUGIN_DIR . 'includes/admin/views/plugin-header.php';
 ?>
 
 <div class="wrap">

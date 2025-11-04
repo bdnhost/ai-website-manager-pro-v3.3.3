@@ -18,6 +18,9 @@ $popular_models = $openrouter_service->get_popular_models();
 $current_api_key = get_option('ai_manager_pro_openrouter_api_key', '');
 $current_model = get_option('ai_manager_pro_default_model', 'openai/gpt-3.5-turbo');
 $connection_status = !empty($current_api_key) ? 'configured' : 'not-configured';
+
+// Include plugin header
+include AI_MANAGER_PRO_PLUGIN_DIR . 'includes/admin/views/plugin-header.php';
 ?>
 
 <div class="ai-openrouter-settings">

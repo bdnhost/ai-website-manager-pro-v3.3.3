@@ -10,6 +10,9 @@
 if (!defined('ABSPATH')) {
     exit;
 }
+
+// Include plugin header
+include AI_MANAGER_PRO_PLUGIN_DIR . 'includes/admin/views/plugin-header.php';
 ?>
 
 <div class="wrap">

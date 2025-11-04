@@ -1849,13 +1849,4 @@ $current_model_name = isset($popular_models[$current_model]) ? $popular_models[$
 <?php
 // Include the plugin footer
 include AI_MANAGER_PRO_PLUGIN_DIR . 'includes/admin/views/plugin-footer.php';
-?> setInterval(() => {
-location.reload();
-}, 300000);
-});
-</script>
-
-<?php
-// Include plugin footer
-include_once AI_MANAGER_PRO_PLUGIN_DIR . 'includes/admin/views/plugin-footer.php';
 ?>
