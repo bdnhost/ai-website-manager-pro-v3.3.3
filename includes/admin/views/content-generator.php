@@ -1444,6 +1444,7 @@ if (!defined('ABSPATH')) {
         const topic = $('#content-topic').val();
         const category = $('#post-category').val();
         const contentType = $('#content-type').val();
+        const keywords = $('#content-keywords').val();
 
         if (!content || !topic) {
             showNotification('⚠️ נא למלא נושא ולייצר תוכן לפני פרסום', 'error');
@@ -1462,7 +1463,8 @@ if (!defined('ABSPATH')) {
             content: content,
             status: status,
             category: category,
-            content_type: contentType
+            content_type: contentType,
+            keywords: keywords
         };
 
         console.log('Publishing content with data:', postData);
@@ -1478,11 +1480,21 @@ if (!defined('ABSPATH')) {
                 if (response.success) {
                     const statusText = status === 'draft' ? 'נשמר כטיוטה' : 'פורסם בהצלחה';
                     const icon = status === 'draft' ? '💾' : '🚀';
-                    $('#publish-status').find('#publish-message').html(
-                        `${icon} <strong>${statusText}!</strong> ` +
-                        `<a href="${response.data.edit_url}" target="_blank">ערוך</a> | ` +
-                        `<a href="${response.data.view_url}" target="_blank">צפה</a>`
-                    );
+
+                    // Build success message with tags info
+                    let successMessage = `${icon} <strong>${statusText}!</strong> `;
+                    successMessage += `<a href="${response.data.edit_url}" target="_blank">ערוך</a> | `;
+                    successMessage += `<a href="${response.data.view_url}" target="_blank">צפה</a>`;
+
+                    if (response.data.tags_count > 0) {
+                        successMessage += `<br><small style="color: #10b981;">✓ נוספו ${response.data.tags_count} תגיות אוטומטית</small>`;
+                    }
+
+                    if (response.data.has_keywords) {
+                        successMessage += `<br><small style="color: #10b981;">✓ מילות מפתח נשמרו ל-SEO</small>`;
+                    }
+
+                    $('#publish-status').find('#publish-message').html(successMessage);
 
                     showNotification(`${icon} ${statusText}!`, 'success');
 

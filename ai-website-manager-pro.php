@@ -3190,6 +3190,7 @@ class AI_Manager_Pro_Safe
             $status = isset($_POST['status']) ? sanitize_text_field($_POST['status']) : 'draft';
             $category = isset($_POST['category']) ? absint($_POST['category']) : 0;
             $content_type = isset($_POST['content_type']) ? sanitize_text_field($_POST['content_type']) : 'blog_post';
+            $keywords = isset($_POST['keywords']) ? sanitize_text_field($_POST['keywords']) : '';
 
             // Validate required fields
             if (empty($title)) {
@@ -3235,28 +3236,141 @@ class AI_Manager_Pro_Safe
                 return;
             }
 
+            // Extract and add tags automatically
+            $auto_tags = $this->extract_auto_tags($title, $content, $keywords);
+            if (!empty($auto_tags)) {
+                wp_set_post_tags($post_id, $auto_tags, false);
+                error_log('AI Manager Pro: Added ' . count($auto_tags) . ' auto tags to post');
+            }
+
             // Add post meta for content type
             update_post_meta($post_id, '_ai_content_type', $content_type);
             update_post_meta($post_id, '_ai_generated', true);
             update_post_meta($post_id, '_ai_generated_date', current_time('mysql'));
+
+            // Save keywords as meta data for SEO
+            if (!empty($keywords)) {
+                update_post_meta($post_id, '_ai_keywords', $keywords);
+                update_post_meta($post_id, '_yoast_wpseo_focuskw', $keywords); // Yoast SEO compatibility
+                update_post_meta($post_id, '_aioseop_keywords', $keywords); // All in One SEO compatibility
+                error_log('AI Manager Pro: Saved SEO keywords: ' . $keywords);
+            }
+
+            // Save auto-generated tags list for reference
+            if (!empty($auto_tags)) {
+                update_post_meta($post_id, '_ai_auto_tags', implode(', ', $auto_tags));
+            }
 
             error_log('AI Manager Pro: Post created successfully with ID: ' . $post_id);
 
             // Log activity
             $this->log_activity('info', "תוכן פורסם: {$title} (ID: {$post_id}, סטטוס: {$status})", 'content_generation');
 
-            // Return success with post URLs
+            // Return success with post URLs and metadata
             wp_send_json_success([
                 'post_id'  => $post_id,
                 'edit_url' => get_edit_post_link($post_id, 'raw'),
                 'view_url' => get_permalink($post_id),
-                'status'   => $status
+                'status'   => $status,
+                'tags_count' => count($auto_tags),
+                'tags_list' => implode(', ', $auto_tags),
+                'has_keywords' => !empty($keywords)
             ]);
 
         } catch (Exception $e) {
             error_log('AI Manager Pro: Exception in publish content: ' . $e->getMessage());
             wp_send_json_error('שגיאה: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Extract relevant tags automatically from title and content
+     *
+     * @param string $title Post title
+     * @param string $content Post content
+     * @param string $keywords Optional keywords from user input
+     * @return array Array of tag names
+     */
+    private function extract_auto_tags($title, $content, $keywords = '') {
+        $tags = [];
+
+        // 1. Add keywords if provided
+        if (!empty($keywords)) {
+            $keyword_array = array_map('trim', explode(',', $keywords));
+            foreach ($keyword_array as $keyword) {
+                if (!empty($keyword) && mb_strlen($keyword) >= 2) {
+                    $tags[] = $keyword;
+                }
+            }
+        }
+
+        // 2. Extract words from title (words with 3+ characters)
+        $title_words = preg_split('/[\s,.\-:;!?()]+/u', strip_tags($title), -1, PREG_SPLIT_NO_EMPTY);
+        foreach ($title_words as $word) {
+            $word = trim($word);
+            // Hebrew and English words with 3+ characters
+            if (mb_strlen($word) >= 3 && !is_numeric($word)) {
+                // Skip common Hebrew stop words
+                $stop_words = ['של', 'את', 'עם', 'על', 'אל', 'מה', 'זה', 'או', 'גם', 'כי', 'אם', 'לא', 'כל', 'היא', 'הוא', 'the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'her', 'was', 'one', 'our', 'out'];
+                if (!in_array(mb_strtolower($word), $stop_words)) {
+                    $tags[] = $word;
+                }
+            }
+        }
+
+        // 3. Extract from H2 and H3 headings (important keywords)
+        preg_match_all('/<h[23][^>]*>(.*?)<\/h[23]>/is', $content, $headings);
+        if (!empty($headings[1])) {
+            foreach ($headings[1] as $heading) {
+                $heading = strip_tags($heading);
+                $heading_words = preg_split('/[\s,.\-:;!?()]+/u', $heading, -1, PREG_SPLIT_NO_EMPTY);
+                foreach ($heading_words as $word) {
+                    $word = trim($word);
+                    if (mb_strlen($word) >= 3 && !is_numeric($word)) {
+                        $stop_words = ['של', 'את', 'עם', 'על', 'אל', 'מה', 'זה', 'או', 'גם', 'כי', 'אם', 'לא', 'כל', 'היא', 'הוא', 'the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'her', 'was', 'one', 'our', 'out'];
+                        if (!in_array(mb_strtolower($word), $stop_words)) {
+                            $tags[] = $word;
+                        }
+                    }
+                }
+            }
+        }
+
+        // 4. Extract bold text (usually important)
+        preg_match_all('/<strong[^>]*>(.*?)<\/strong>/is', $content, $bold_texts);
+        if (!empty($bold_texts[1])) {
+            foreach ($bold_texts[1] as $bold) {
+                $bold = strip_tags($bold);
+                $bold_words = preg_split('/[\s,.\-:;!?()]+/u', $bold, -1, PREG_SPLIT_NO_EMPTY);
+                foreach ($bold_words as $word) {
+                    $word = trim($word);
+                    if (mb_strlen($word) >= 3 && !is_numeric($word)) {
+                        $tags[] = $word;
+                    }
+                }
+            }
+        }
+
+        // Remove duplicates and limit to 15 tags
+        $tags = array_unique($tags);
+        $tags = array_slice($tags, 0, 15);
+
+        // Clean and validate tags
+        $clean_tags = [];
+        foreach ($tags as $tag) {
+            // Remove any remaining HTML entities
+            $tag = html_entity_decode($tag, ENT_QUOTES, 'UTF-8');
+            $tag = trim($tag);
+
+            // Only add valid tags
+            if (!empty($tag) && mb_strlen($tag) >= 2 && mb_strlen($tag) <= 50) {
+                $clean_tags[] = $tag;
+            }
+        }
+
+        error_log('AI Manager Pro: Extracted ' . count($clean_tags) . ' tags: ' . implode(', ', $clean_tags));
+
+        return $clean_tags;
     }
 
     /**
