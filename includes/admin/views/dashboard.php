@@ -305,6 +305,155 @@ $current_model_name = isset($popular_models[$current_model]) ? $popular_models[$
             </div>
         </div>
 
+        <!-- What's New in Version 3.3.2 -->
+        <div class="whats-new-section">
+            <h2 class="section-title">🎉 מה חדש בגרסה 3.3.2</h2>
+            <div class="whats-new-card featured-update">
+                <div class="update-badge">NEW</div>
+                <div class="update-icon">🎯</div>
+                <div class="update-content">
+                    <h3>תבניות SEO אוטומטיות - 5 סוגי תוכן!</h3>
+                    <p class="update-description">צור תוכן SEO מושלם עם מבנה כותרות, טבלאות ורשימות אוטומטיות</p>
+                    <div class="update-features">
+                        <span class="feature-tag">📄 מאמר מקיף</span>
+                        <span class="feature-tag">📖 מדריך הדרכה</span>
+                        <span class="feature-tag">⭐ ביקורת מוצר</span>
+                        <span class="feature-tag">🛍️ תיאור מוצר</span>
+                        <span class="feature-tag">📰 פוסט בלוג</span>
+                    </div>
+                    <button class="update-cta" data-route="content-generator">נסה עכשיו →</button>
+                </div>
+            </div>
+
+            <div class="whats-new-grid">
+                <div class="update-item">
+                    <div class="update-item-icon">📁</div>
+                    <div class="update-item-content">
+                        <h4>בחירת קטגוריות</h4>
+                        <p>קישור אוטומטי של פוסטים לקטגוריות</p>
+                    </div>
+                </div>
+
+                <div class="update-item">
+                    <div class="update-item-icon">📊</div>
+                    <div class="update-item-content">
+                        <h4>ציון SEO אוטומטי</h4>
+                        <p>הערכת איכות 0-100 לכל תוכן</p>
+                    </div>
+                </div>
+
+                <div class="update-item">
+                    <div class="update-item-icon">🔄</div>
+                    <div class="update-item-content">
+                        <h4>ניקוי קאש אוטומטי</h4>
+                        <p>עדכונים מיידיים ללא קאש ישן</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEO Templates Quick Access -->
+        <div class="seo-templates-section">
+            <h2 class="section-title">📝 תבניות SEO - גישה מהירה</h2>
+            <div class="seo-templates-grid">
+                <div class="template-card article">
+                    <div class="template-header">
+                        <div class="template-icon">📄</div>
+                        <div class="template-badge">מומלץ</div>
+                    </div>
+                    <div class="template-content">
+                        <h3>מאמר מקיף</h3>
+                        <p>1500-2500 מילים</p>
+                        <ul class="template-features">
+                            <li>✓ תוכן עניינים</li>
+                            <li>✓ טבלאות השוואה</li>
+                            <li>✓ מבנה H1-H2-H3</li>
+                            <li>✓ סעיף FAQ</li>
+                        </ul>
+                    </div>
+                    <button class="template-action" onclick="createWithTemplate('article')">
+                        צור מאמר →
+                    </button>
+                </div>
+
+                <div class="template-card guide">
+                    <div class="template-header">
+                        <div class="template-icon">📖</div>
+                    </div>
+                    <div class="template-content">
+                        <h3>מדריך הדרכה</h3>
+                        <p>צעד אחר צעד</p>
+                        <ul class="template-features">
+                            <li>✓ הערכות זמן</li>
+                            <li>✓ רשימות ממוספרות</li>
+                            <li>✓ טיפים מודגשים</li>
+                            <li>✓ סיכום בסוף</li>
+                        </ul>
+                    </div>
+                    <button class="template-action" onclick="createWithTemplate('guide')">
+                        צור מדריך →
+                    </button>
+                </div>
+
+                <div class="template-card review">
+                    <div class="template-header">
+                        <div class="template-icon">⭐</div>
+                    </div>
+                    <div class="template-content">
+                        <h3>ביקורת מוצר</h3>
+                        <p>דירוגים + השוואות</p>
+                        <ul class="template-features">
+                            <li>✓ דירוג כוכבים</li>
+                            <li>✓ טבלת יתרונות/חסרונות</li>
+                            <li>✓ המלצת קנייה</li>
+                            <li>✓ השוואה למתחרים</li>
+                        </ul>
+                    </div>
+                    <button class="template-action" onclick="createWithTemplate('review')">
+                        צור ביקורת →
+                    </button>
+                </div>
+
+                <div class="template-card product">
+                    <div class="template-header">
+                        <div class="template-icon">🛍️</div>
+                    </div>
+                    <div class="template-content">
+                        <h3>תיאור מוצר</h3>
+                        <p>מפרטים + תכונות</p>
+                        <ul class="template-features">
+                            <li>✓ טבלת מפרטים</li>
+                            <li>✓ רשימת תכונות</li>
+                            <li>✓ מידע טכני</li>
+                            <li>✓ שימושים מומלצים</li>
+                        </ul>
+                    </div>
+                    <button class="template-action" onclick="createWithTemplate('product')">
+                        צור תיאור →
+                    </button>
+                </div>
+
+                <div class="template-card blog">
+                    <div class="template-header">
+                        <div class="template-icon">📰</div>
+                    </div>
+                    <div class="template-content">
+                        <h3>פוסט בלוג</h3>
+                        <p>800-1200 מילים</p>
+                        <ul class="template-features">
+                            <li>✓ מבנה מאורגן</li>
+                            <li>✓ פסקאות קצרות</li>
+                            <li>✓ רשימות מסודרות</li>
+                            <li>✓ קריא ומרתק</li>
+                        </ul>
+                    </div>
+                    <button class="template-action" onclick="createWithTemplate('blog_post')">
+                        צור פוסט →
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Tips & Updates -->
         <div class="tips-section">
             <h2 class="section-title">💡 טיפים ועדכונים</h2>
@@ -313,7 +462,7 @@ $current_model_name = isset($popular_models[$current_model]) ? $popular_models[$
                     <div class="tip-icon">🌟</div>
                     <div class="tip-content">
                         <h4>טיפ מומלץ</h4>
-                        <p>השתמש בתבניות מותג כדי לשמור על עקביות בכל התוכן שנוצר עם AI.</p>
+                        <p>השתמש בתבניות SEO החדשות ליצירת תוכן מקצועי עם מבנה מושלם ודירוג גבוה במנועי חיפוש.</p>
                     </div>
                 </div>
 
@@ -321,7 +470,7 @@ $current_model_name = isset($popular_models[$current_model]) ? $popular_models[$
                     <div class="tip-icon">🆕</div>
                     <div class="tip-content">
                         <h4>תכונה חדשה</h4>
-                        <p>נסה את עורך ה-JSON החדש עם הדגשת תחביר ואימות בזמן אמת!</p>
+                        <p>כל תוכן מקבל ציון SEO אוטומטי (0-100) המעריך את איכות המבנה והתוכן!</p>
                     </div>
                 </div>
 
@@ -1286,6 +1435,290 @@ $current_model_name = isset($popular_models[$current_model]) ? $popular_models[$
         animation: fadeInUp 0.3s ease-out;
     }
 
+    /* What's New Section */
+    .whats-new-section {
+        grid-column: 1 / -1;
+    }
+
+    .whats-new-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 16px;
+        padding: 30px;
+        color: white;
+        margin-bottom: 20px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .whats-new-card.featured-update {
+        box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+    }
+
+    .update-badge {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        background: #fbbf24;
+        color: #1f2937;
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+
+    .update-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+        display: block;
+    }
+
+    .update-content h3 {
+        margin: 0 0 12px 0;
+        font-size: 24px;
+        font-weight: 700;
+    }
+
+    .update-description {
+        margin: 0 0 20px 0;
+        font-size: 16px;
+        opacity: 0.95;
+        line-height: 1.5;
+    }
+
+    .update-features {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 24px;
+    }
+
+    .feature-tag {
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 500;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        transition: all 0.2s ease;
+    }
+
+    .feature-tag:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateY(-2px);
+    }
+
+    .update-cta {
+        background: white;
+        color: #667eea;
+        border: none;
+        padding: 14px 32px;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .update-cta:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .whats-new-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+    }
+
+    .update-item {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+        transition: all 0.2s ease;
+    }
+
+    .update-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    .update-item-icon {
+        font-size: 32px;
+        flex-shrink: 0;
+    }
+
+    .update-item-content h4 {
+        margin: 0 0 6px 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: #1f2937;
+    }
+
+    .update-item-content p {
+        margin: 0;
+        font-size: 13px;
+        color: #6b7280;
+        line-height: 1.4;
+    }
+
+    /* SEO Templates Section */
+    .seo-templates-section {
+        grid-column: 1 / -1;
+    }
+
+    .seo-templates-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 20px;
+    }
+
+    .template-card {
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        border: 2px solid #e5e7eb;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .template-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+        border-color: #3b82f6;
+    }
+
+    .template-card.article {
+        border-top: 4px solid #3b82f6;
+    }
+
+    .template-card.guide {
+        border-top: 4px solid #10b981;
+    }
+
+    .template-card.review {
+        border-top: 4px solid #f59e0b;
+    }
+
+    .template-card.product {
+        border-top: 4px solid #8b5cf6;
+    }
+
+    .template-card.blog {
+        border-top: 4px solid #ef4444;
+    }
+
+    .template-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 16px;
+    }
+
+    .template-icon {
+        font-size: 40px;
+        display: block;
+    }
+
+    .template-badge {
+        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    .template-content {
+        flex: 1;
+    }
+
+    .template-content h3 {
+        margin: 0 0 6px 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: #1f2937;
+    }
+
+    .template-content p {
+        margin: 0 0 16px 0;
+        font-size: 13px;
+        color: #6b7280;
+    }
+
+    .template-features {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 20px 0;
+    }
+
+    .template-features li {
+        font-size: 13px;
+        color: #374151;
+        margin-bottom: 8px;
+        padding-right: 4px;
+        line-height: 1.4;
+    }
+
+    .template-action {
+        width: 100%;
+        padding: 12px 16px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    }
+
+    .template-action:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+    }
+
+    .template-card.article .template-action {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+    }
+
+    .template-card.guide .template-action {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+    }
+
+    .template-card.review .template-action {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+    }
+
+    .template-card.product .template-action {
+        background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+    }
+
+    .template-card.blog .template-action {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+    }
+
     /* Dark mode support */
     @media (prefers-color-scheme: dark) {
         .ai-dashboard-rtl {
@@ -1297,7 +1730,9 @@ $current_model_name = isset($popular_models[$current_model]) ? $popular_models[$
         .activity-list,
         .status-list,
         .tip-item,
-        .chart-container {
+        .chart-container,
+        .template-card,
+        .update-item {
             background: #1f2937;
             border-color: #374151;
             color: #f9fafb;
@@ -1308,7 +1743,9 @@ $current_model_name = isset($popular_models[$current_model]) ? $popular_models[$
         .activity-title,
         .status-title,
         .action-content h3,
-        .tip-content h4 {
+        .tip-content h4,
+        .template-content h3,
+        .update-item-content h4 {
             color: #f9fafb;
         }
 
@@ -1316,13 +1753,28 @@ $current_model_name = isset($popular_models[$current_model]) ? $popular_models[$
         .activity-meta,
         .status-meta,
         .action-content p,
-        .tip-content p {
+        .tip-content p,
+        .template-content p,
+        .update-item-content p {
             color: #d1d5db;
         }
     }
 </style>
 
 <script>
+    // Function to create content with specific template
+    function createWithTemplate(templateType) {
+        // Store the selected template in sessionStorage
+        sessionStorage.setItem('ai_selected_template', templateType);
+
+        // Navigate to content generator
+        if (window.aiSpaRouter) {
+            window.aiSpaRouter.navigateTo('content-generator');
+        } else {
+            window.location.href = 'admin.php?page=ai-manager-pro-content-generator';
+        }
+    }
+
     jQuery(document).ready(function ($) {
         // Handle navigation clicks
         $('[data-route]').on('click', function () {

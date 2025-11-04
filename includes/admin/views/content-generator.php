@@ -26,15 +26,19 @@ if (!defined('ABSPATH')) {
 
             <div class="form-row">
                 <div class="form-group">
-                    <label for="content-type">📝 סוג התוכן</label>
+                    <label for="content-type">📝 סוג התוכן (עם תבניות SEO אוטומטיות)</label>
                     <select id="content-type" class="form-control">
-                        <option value="blog-post">📰 פוסט בלוג</option>
-                        <option value="product-description">🛍️ תיאור מוצר</option>
-                        <option value="social-media">📱 פוסט לרשתות חברתיות</option>
-                        <option value="email-newsletter">📧 ניוזלטר אימייל</option>
-                        <option value="landing-page">🎯 עמוד נחיתה</option>
-                        <option value="custom">✨ תוכן מותאם אישית</option>
+                        <option value="blog_post">📰 פוסט בלוג (800-1200 מילים)</option>
+                        <option value="article">📄 מאמר מקיף (1500-2500 מילים + תוכן עניינים + טבלאות)</option>
+                        <option value="guide">📖 מדריך הדרכה (צעד אחר צעד + הערכות זמן)</option>
+                        <option value="review">⭐ ביקורת מוצר (דירוגים + טבלת השוואה)</option>
+                        <option value="product">🛍️ תיאור מוצר (מפרטים + תכונות)</option>
+                        <option value="social_media">📱 פוסט לרשתות חברתיות</option>
+                        <option value="newsletter">📧 ניוזלטר אימייל</option>
                     </select>
+                    <small class="form-help" style="color: #0073aa; font-weight: 600;">
+                        ✨ תבניות SEO חדשות! כל תוכן נוצר עם מבנה מושלם של כותרות, טבלאות ורשימות
+                    </small>
                 </div>
 
                 <div class="form-group">
@@ -57,7 +61,7 @@ if (!defined('ABSPATH')) {
                 </div>
             </div>
 
-            <div class=" form-row">
+            <div class="form-row">
                             <div class="form-group">
                                 <label for="brand-select">
                                     <?php _e('Brand Voice', 'ai-website-manager-pro'); ?>
@@ -72,7 +76,7 @@ if (!defined('ABSPATH')) {
                                     <option value="professional-services">
                             <?php _e('Professional Services', 'ai-website-manager-pro'); ?>
                         </option>
-                        <option value=" e-commerce"><?php _e('E-commerce', 'ai-website-manager-pro'); ?></option>
+                        <option value="e-commerce"><?php _e('E-commerce', 'ai-website-manager-pro'); ?></option>
                     </select>
                 </div>
 
@@ -102,13 +106,32 @@ if (!defined('ABSPATH')) {
                                             placeholder="<?php _e('Enter the main topic or subject for your content...', 'ai-website-manager-pro'); ?>">
                             </div>
 
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="post-category">📁 קטגוריה לפרסום</label>
+                                    <select id="post-category" class="form-control">
+                                        <option value="">ללא קטגוריה (Uncategorized)</option>
+                                        <?php
+                                        $categories = get_categories(['hide_empty' => false]);
+                                        foreach ($categories as $category) {
+                                            echo '<option value="' . esc_attr($category->term_id) . '">' .
+                                                 esc_html($category->name) . ' (' . $category->count . ' פוסטים)</option>';
+                                        }
+                                        ?>
+                                    </select>
+                                    <small class="form-help">
+                                        הפוסט שייווצר יקושר אוטומטית לקטגוריה זו
+                                    </small>
+                                </div>
+
                             <div class="form-group">
                                 <label for="content-keywords"><?php _e('Keywords (Optional)', 'ai-website-manager-pro'); ?></label>
-                <input type=" text" id="content-keywords" class="form-control"
+                <input type="text" id="content-keywords" class="form-control"
                                     placeholder="<?php _e('keyword1, keyword2, keyword3...', 'ai-website-manager-pro'); ?>">
                                     <small class="form-help">
                                         <?php _e('Separate keywords with commas', 'ai-website-manager-pro'); ?>
                                     </small>
+                            </div>
                             </div>
 
                             <div class="form-group">
@@ -216,20 +239,48 @@ if (!defined('ABSPATH')) {
 
     <div class="sidebar-section">
         <h3>
-            <?php _e('Quick Tips', 'ai-website-manager-pro'); ?>
+            ✨ תבניות SEO חדשות בגרסה 3.3.1!
+        </h3>
+        <div class="tips-list">
+            <div class="tip-item">
+                <span class="dashicons dashicons-yes-alt" style="color: #00a32a;"></span>
+                <span><strong>מאמר:</strong> תוכן עניינים + טבלאות + FAQ</span>
+            </div>
+            <div class="tip-item">
+                <span class="dashicons dashicons-yes-alt" style="color: #00a32a;"></span>
+                <span><strong>מדריך:</strong> צעדים ממוספרים + הערכות זמן</span>
+            </div>
+            <div class="tip-item">
+                <span class="dashicons dashicons-yes-alt" style="color: #00a32a;"></span>
+                <span><strong>ביקורת:</strong> דירוגים ★ + השוואות</span>
+            </div>
+            <div class="tip-item">
+                <span class="dashicons dashicons-yes-alt" style="color: #00a32a;"></span>
+                <span><strong>מוצר:</strong> מפרטים + תכונות עם ✅</span>
+            </div>
+            <div class="tip-item">
+                <span class="dashicons dashicons-chart-line" style="color: #0073aa;"></span>
+                <span><strong>ציון SEO אוטומטי</strong> לכל תוכן (0-100)</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="sidebar-section">
+        <h3>
+            💡 טיפים מהירים
         </h3>
         <div class="tips-list">
             <div class="tip-item">
                 <span class="dashicons dashicons-lightbulb"></span>
-                    <span><?php _e('Be specific with your topic for better results', 'ai-website-manager-pro'); ?></span>
+                    <span>בחר קטגוריה לפני יצירת התוכן</span>
             </div>
             <div class="tip-item">
                 <span class="dashicons dashicons-star-filled"></span>
-                <span><?php _e('Use brand voices for consistent tone', 'ai-website-manager-pro'); ?></span>
+                <span>השתמש במותג לטון עקבי</span>
             </div>
             <div class="tip-item">
                 <span class="dashicons dashicons-admin-tools"></span>
-                <span><?php _e('Try different AI providers for variety', 'ai-website-manager-pro'); ?></span>
+                <span>בחר את סוג התוכן המתאים למטרה</span>
             </div>
         </div>
     </div>
@@ -627,9 +678,13 @@ if (!defined('ABSPATH')) {
             content_type: $('#content-type').val(),
             content_length: $('#content-length').val(),
             brand_id: $('#brand-select').val(),
+            post_category: $('#post-category').val(),
             ai_provider: $('#ai-provider').val(),
+            ai_model: $('#ai-model').val(),
             keywords: $('#content-keywords').val(),
             additional_instructions: $('#additional-instructions').val(),
+            auto_publish: false,
+            post_status: 'draft',
             nonce: '<?php echo wp_create_nonce('ai_manager_pro_nonce'); ?>'
         };
 
@@ -640,16 +695,34 @@ if (!defined('ABSPATH')) {
             data: formData,
             success: function(response) {
                 if (response.success) {
-                    $('#generated-content').val(response.data.content);
-                    updateContentStats(response.data.content);
-                    
+                    // Handle content structure
+                    let content = response.data.content;
+                    if (typeof content === 'object' && content.content) {
+                        $('#generated-content').val(content.content);
+
+                        // Show SEO score if available
+                        if (content.seo_score) {
+                            let scoreColor = content.seo_score >= 80 ? 'green' : (content.seo_score >= 60 ? 'orange' : 'red');
+                            let scoreMessage = `<span style="color: ${scoreColor}; font-weight: bold;">✓ ציון SEO: ${content.seo_score}/100</span>`;
+                            $('#content-stats').html(scoreMessage + ' | ' + $('#content-stats').text());
+                        }
+
+                        updateContentStats(content.content);
+                    } else {
+                        $('#generated-content').val(content);
+                        updateContentStats(content);
+                    }
+
                     let message = '<?php _e('Content generated successfully!', 'ai-website-manager-pro'); ?>';
+                    if (response.data.seo_score) {
+                        message += ' ציון SEO: ' + response.data.seo_score + '/100';
+                    }
                     if (response.data.fallback) {
                         message = '<?php _e('Content generated using fallback template', 'ai-website-manager-pro'); ?>';
                     }
-                    
+
                     showNotification(message, response.data.fallback ? 'warning' : 'success');
-                    
+
                     // Enable action buttons
                     $('#copy-content-btn').prop('disabled', false);
                     $('#export-content-btn').prop('disabled', false);
@@ -772,6 +845,36 @@ if (!defined('ABSPATH')) {
             $('#content-stats').text('<?php _e('Ready to generate', 'ai-website-manager-pro'); ?>');
         }
     });
+
+    // Check if a template was selected from dashboard
+    const selectedTemplate = sessionStorage.getItem('ai_selected_template');
+    if (selectedTemplate) {
+        // Set the content type to the selected template
+        $('#content-type').val(selectedTemplate);
+
+        // Clear the sessionStorage so it doesn't keep loading on refresh
+        sessionStorage.removeItem('ai_selected_template');
+
+        // Show a notification
+        const templateNames = {
+            'article': 'מאמר מקיף',
+            'guide': 'מדריך הדרכה',
+            'review': 'ביקורת מוצר',
+            'product': 'תיאור מוצר',
+            'blog_post': 'פוסט בלוג'
+        };
+
+        const templateName = templateNames[selectedTemplate] || selectedTemplate;
+        showNotification(`✨ תבנית "${templateName}" נבחרה! מוכן ליצור תוכן מקצועי עם SEO מושלם.`, 'success');
+
+        // Scroll to the topic input to encourage user to start
+        $('html, body').animate({
+            scrollTop: $('#content-topic').offset().top - 100
+        }, 500);
+
+        // Focus on the topic input
+        $('#content-topic').focus();
+    }
     });
 </script>
 
