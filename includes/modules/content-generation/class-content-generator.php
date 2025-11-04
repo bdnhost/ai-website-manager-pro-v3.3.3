@@ -37,13 +37,20 @@ class Content_Generator {
      * @var Logger
      */
     private $logger;
-    
+
     /**
      * Content templates
      *
      * @var array
      */
     private $content_templates;
+
+    /**
+     * SEO Template Manager instance
+     *
+     * @var SEO_Template_Manager
+     */
+    private $seo_template_manager;
     
     /**
      * Constructor
@@ -57,7 +64,8 @@ class Content_Generator {
         $this->brand_manager = $brand_manager;
         $this->logger = $logger;
         $this->content_templates = $this->get_content_templates();
-        
+        $this->seo_template_manager = new SEO_Template_Manager();
+
         $this->init_hooks();
     }
     
@@ -203,6 +211,86 @@ Create a compelling case study that demonstrates value and builds credibility.',
                 'default_options' => [
                     'max_tokens' => 2500,
                     'temperature' => 0.5
+                ]
+            ],
+            'article' => [
+                'name' => 'Article',
+                'description' => 'Generate comprehensive SEO-optimized article',
+                'system_prompt' => 'You are a professional content writer creating in-depth, SEO-optimized articles.',
+                'user_prompt_template' => 'Write a comprehensive article about "{topic}" for {brand_name}.
+
+Brand Context:
+- Industry: {industry}
+- Target Audience: {target_audience}
+- Brand Voice: {brand_voice}
+- Key Messages: {key_messages}
+
+Requirements:
+- Length: {content_length}
+- Tone: {tone}
+- SEO keywords: {seo_keywords}
+- Include data, statistics, and expert insights
+- Create comprehensive coverage of the topic
+- Optimize for search engines and readers
+
+Create an authoritative, well-researched article that provides value and ranks well in search results.',
+                'default_options' => [
+                    'max_tokens' => 3000,
+                    'temperature' => 0.6
+                ]
+            ],
+            'guide' => [
+                'name' => 'How-To Guide',
+                'description' => 'Generate step-by-step how-to guide',
+                'system_prompt' => 'You are an expert at creating clear, actionable how-to guides and tutorials.',
+                'user_prompt_template' => 'Create a detailed how-to guide for "{topic}" for {brand_name}.
+
+Brand Context:
+- Industry: {industry}
+- Target Audience: {target_audience}
+- Brand Voice: {brand_voice}
+
+Requirements:
+- Clear step-by-step instructions
+- Practical and actionable
+- Length: {content_length}
+- Tone: {tone}
+- SEO keywords: {seo_keywords}
+- Include prerequisites, tools needed, and time estimates
+- Add tips, warnings, and common mistakes to avoid
+
+Create a comprehensive guide that helps users successfully complete the task.',
+                'default_options' => [
+                    'max_tokens' => 3000,
+                    'temperature' => 0.5
+                ]
+            ],
+            'review' => [
+                'name' => 'Product/Service Review',
+                'description' => 'Generate detailed product or service review',
+                'system_prompt' => 'You are a professional reviewer creating honest, in-depth product and service reviews.',
+                'user_prompt_template' => 'Write a comprehensive review of "{topic}" for {brand_name}.
+
+Brand Context:
+- Industry: {industry}
+- Target Audience: {target_audience}
+- Brand Voice: {brand_voice}
+
+Requirements:
+- Honest and balanced assessment
+- Include pros and cons
+- Detailed feature analysis
+- Comparison with alternatives
+- Length: {content_length}
+- Tone: {tone}
+- SEO keywords: {seo_keywords}
+- Include ratings and scores
+- Provide clear recommendation
+
+Create a thorough review that helps readers make informed decisions.',
+                'default_options' => [
+                    'max_tokens' => 3500,
+                    'temperature' => 0.6
                 ]
             ]
         ];
@@ -431,12 +519,20 @@ Create a compelling case study that demonstrates value and builds credibility.',
     private function build_prompt($options, $brand_context) {
         // Use custom prompt if provided
         if (!empty($options['custom_prompt'])) {
+            $user_prompt = $this->replace_placeholders($options['custom_prompt'], $options, $brand_context);
+
+            // Enhance custom prompt with SEO template instructions
+            $user_prompt = $this->seo_template_manager->enhance_prompt_with_seo(
+                $user_prompt,
+                $options['content_type']
+            );
+
             return [
-                'system_prompt' => 'You are a professional content writer.',
-                'user_prompt' => $this->replace_placeholders($options['custom_prompt'], $options, $brand_context)
+                'system_prompt' => 'You are a professional content writer with expertise in SEO optimization.',
+                'user_prompt' => $user_prompt
             ];
         }
-        
+
         // Use template
         $template = $this->content_templates[$options['content_type']] ?? null;
         if (!$template) {
@@ -445,15 +541,21 @@ Create a compelling case study that demonstrates value and builds credibility.',
             ]);
             return false;
         }
-        
+
         $user_prompt = $this->replace_placeholders(
             $template['user_prompt_template'],
             $options,
             $brand_context
         );
-        
+
+        // Enhance prompt with SEO template instructions
+        $user_prompt = $this->seo_template_manager->enhance_prompt_with_seo(
+            $user_prompt,
+            $options['content_type']
+        );
+
         return [
-            'system_prompt' => $template['system_prompt'],
+            'system_prompt' => $template['system_prompt'] . ' You are an expert in creating SEO-optimized content with proper structure and formatting.',
             'user_prompt' => $user_prompt
         ];
     }
@@ -491,12 +593,16 @@ Create a compelling case study that demonstrates value and builds credibility.',
     private function get_content_length($content_type) {
         $length_map = [
             'blog_post' => '800-1200 words',
+            'article' => '1500-2500 words',
+            'guide' => '1500-3000 words',
+            'review' => '1200-2000 words',
             'social_media' => '50-280 characters',
             'product_description' => '150-300 words',
+            'product' => '400-800 words',
             'newsletter' => '300-600 words',
             'case_study' => '1000-2000 words'
         ];
-        
+
         return $length_map[$content_type] ?? '500-800 words';
     }
     
@@ -510,23 +616,44 @@ Create a compelling case study that demonstrates value and builds credibility.',
     private function process_generated_content($raw_content, $options) {
         // Extract title if it exists
         $title = $this->extract_title($raw_content, $options);
-        
+
         // Clean and format content
         $content = $this->clean_content($raw_content);
-        
+
         // Generate excerpt
         $excerpt = $this->generate_excerpt($content);
-        
+
         // Generate meta description for SEO
         $meta_description = $this->generate_meta_description($content);
-        
+
+        // Validate SEO structure
+        $seo_validation = $this->seo_template_manager->validate_seo_structure(
+            $content,
+            $options['content_type']
+        );
+
+        // Log SEO validation results
+        if (!$seo_validation['passed']) {
+            $this->logger->warning('Generated content did not meet all SEO requirements', [
+                'content_type' => $options['content_type'],
+                'seo_score' => $seo_validation['score'],
+                'issues' => $seo_validation['issues']
+            ]);
+        } else {
+            $this->logger->info('Generated content meets SEO requirements', [
+                'content_type' => $options['content_type'],
+                'seo_score' => $seo_validation['score']
+            ]);
+        }
+
         return [
             'title' => $title,
             'content' => $content,
             'excerpt' => $excerpt,
             'meta_description' => $meta_description,
             'content_type' => $options['content_type'],
-            'topic' => $options['topic']
+            'topic' => $options['topic'],
+            'seo_validation' => $seo_validation
         ];
     }
     
