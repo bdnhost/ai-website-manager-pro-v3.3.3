@@ -56,6 +56,9 @@ class AI_Manager_Pro_Safe
         error_log('AI Manager Pro - PHP version: ' . PHP_VERSION);
         error_log('AI Manager Pro - Plugin version: 3.3.3');
 
+        // Create logs table if it doesn't exist
+        $this->create_logs_table();
+
         // Check if version was updated and show notice
         $this->check_version_update();
 
@@ -1774,6 +1777,9 @@ class AI_Manager_Pro_Safe
 
     public static function activate()
     {
+        // Create logs table
+        self::create_logs_table_static();
+
         add_option('ai_manager_pro_version', AI_MANAGER_PRO_VERSION);
         add_option('ai_manager_pro_activated', current_time('mysql'));
 
@@ -2576,7 +2582,7 @@ class AI_Manager_Pro_Safe
     }
 
     // Database and utility functions
-    public function create_logs_table()
+    public static function create_logs_table_static()
     {
         global $wpdb;
 
@@ -2601,6 +2607,11 @@ class AI_Manager_Pro_Safe
 
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql);
+    }
+
+    public function create_logs_table()
+    {
+        self::create_logs_table_static();
     }
 
     public function log_activity($level, $message, $module = '', $context = [])
