@@ -416,5 +416,94 @@
         "machine learning"
       ]
     }
+  },
+  "ai_features": {
+    "topic_generation": {
+      "enabled": true,
+      "auto_refresh": false,
+      "refresh_frequency": "monthly",
+      "topics_per_refresh": 10,
+      "ai_provider": "openrouter",
+      "ai_model": "openai/gpt-4o-mini",
+      "temperature": 0.7,
+      "last_refresh": null
+    },
+    "trending_detection": {
+      "enabled": false,
+      "scan_frequency": "daily",
+      "minimum_mentions": 3,
+      "time_window": "24h",
+      "auto_add_to_pool": true,
+      "last_scan": null
+    },
+    "performance_tracking": {
+      "enabled": true,
+      "update_frequency": "weekly",
+      "min_posts_per_topic": 1,
+      "consider_in_selection": false,
+      "last_update": null
+    },
+    "gap_analysis": {
+      "enabled": true,
+      "analysis_frequency": "weekly",
+      "days_back": 90,
+      "auto_recommendations": true,
+      "last_analysis": null
+    }
+  },
+  "dashboard_preferences": {
+    "theme": "light",
+    "primary_color": "#2563eb",
+    "accent_color": "#10b981",
+    "danger_color": "#ef4444",
+    "warning_color": "#f59e0b",
+    "success_color": "#10b981",
+    "show_welcome_widget": true,
+    "show_quick_stats": true,
+    "show_recent_activity": true,
+    "show_ai_features_status": true,
+    "show_performance_chart": true,
+    "default_view": "overview",
+    "widgets_order": [
+      "quick_stats",
+      "ai_features",
+      "topic_pool",
+      "performance",
+      "gaps",
+      "recent_activity"
+    ]
+  },
+  "analytics_goals": {
+    "monthly_posts_target": 30,
+    "average_performance_target": 7.0,
+    "category_balance_tolerance": 5,
+    "max_gap_days": 7,
+    "min_topic_pool_size": 20,
+    "target_engagement_rate": 5.0,
+    "target_social_shares": 50
+  },
+  "performance_targets": {
+    "views_per_post": 1000,
+    "comments_per_post": 10,
+    "shares_per_post": 25,
+    "avg_time_on_page": 180,
+    "max_bounce_rate": 50,
+    "seo_score_target": 80
+  },
+  "brand_colors": {
+    "primary": "#2563eb",
+    "secondary": "#64748b",
+    "accent": "#10b981",
+    "background": "#f8fafc",
+    "text": "#1e293b",
+    "border": "#e2e8f0"
+  },
+  "notification_preferences": {
+    "email_on_ai_refresh": true,
+    "email_on_trending_found": true,
+    "email_on_gap_detected": true,
+    "email_on_low_performance": true,
+    "slack_webhook": "",
+    "notification_email": "alerts@techflowsolutions.example.com"
   }
 }

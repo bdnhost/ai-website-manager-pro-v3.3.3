@@ -2,8 +2,8 @@
 /**
  * Plugin Name: AI Website Manager Pro
  * Plugin URI: https://bdnhost.net/ai-website-manager-pro
- * Description: מערכת ניהול תוכן מתקדמת עם בינה מלאכותית - כולל דשבורד מקצועי עם טיזרים, ייבוא/ייצוא מותגים JSON, 25+ פרומפטים מתקדמים, תבניות SEO אוטומטיות (5 סוגים!) ותמיכה ב-DeepSeek LLM. גרסה 3.3.3 כוללת דשבורד משודרג עם טיזרים לתבניות SEO, תפריטי פעולה מהירים ו-What's New.
- * Version: 3.3.3
+ * Description: מערכת ניהול תוכן מתקדמת עם בינה מלאכותית - גרסה 3.3.4 כוללת דשבורד חדשני מודרני, Smart Brand Content Engine עם Topic Pool, AI Topic Generator, RSS Trending Detector, Performance Analytics ו-Content Gap Analyzer. כולל ייבוא/ייצוא מותגים JSON, 25+ פרומפטים מתקדמים ותמיכה מלאה ב-DeepSeek LLM.
+ * Version: 3.3.4
  * Author: יעקב בידני - BDNHOST
  * Author URI: https://bdnhost.net
  * License: GPL v2 or later
@@ -27,7 +27,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('AI_MANAGER_PRO_VERSION', '3.3.3');
+define('AI_MANAGER_PRO_VERSION', '3.3.4');
 define('AI_MANAGER_PRO_PLUGIN_FILE', __FILE__);
 define('AI_MANAGER_PRO_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('AI_MANAGER_PRO_PLUGIN_URL', plugin_dir_url(__FILE__));
@@ -54,7 +54,7 @@ class AI_Manager_Pro_Safe
         error_log('AI Manager Pro - Plugin constructor called at ' . current_time('mysql'));
         error_log('AI Manager Pro - WordPress version: ' . get_bloginfo('version'));
         error_log('AI Manager Pro - PHP version: ' . PHP_VERSION);
-        error_log('AI Manager Pro - Plugin version: 3.3.3');
+        error_log('AI Manager Pro - Plugin version: 3.3.4');
 
         // Create logs table if it doesn't exist
         $this->create_logs_table();
@@ -297,8 +297,28 @@ class AI_Manager_Pro_Safe
             );
         }
 
+        // Enqueue Enhanced Dashboard CSS (Phase 3)
+        $enhanced_css_file = AI_MANAGER_PRO_PLUGIN_DIR . 'assets/css/enhanced-dashboard.css';
+        if (file_exists($enhanced_css_file)) {
+            wp_enqueue_style(
+                'ai-manager-pro-enhanced-dashboard',
+                AI_MANAGER_PRO_PLUGIN_URL . 'assets/css/enhanced-dashboard.css',
+                [],
+                AI_MANAGER_PRO_VERSION
+            );
+        }
+
         // Always enqueue jQuery for inline scripts
         wp_enqueue_script('jquery');
+
+        // Enqueue Chart.js for performance charts
+        wp_enqueue_script(
+            'chartjs',
+            'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
+            [],
+            '4.4.0',
+            true
+        );
 
         // Enqueue JS if exists
         $js_file = AI_MANAGER_PRO_PLUGIN_DIR . 'assets/js/admin.js';
@@ -313,6 +333,24 @@ class AI_Manager_Pro_Safe
 
             // Localize script for AJAX
             wp_localize_script('ai-manager-pro-admin', 'aiManagerPro', [
+                'ajaxurl' => admin_url('admin-ajax.php'),
+                'nonce' => wp_create_nonce('ai_manager_pro_nonce')
+            ]);
+        }
+
+        // Enqueue Enhanced Dashboard JS (Phase 3)
+        $enhanced_js_file = AI_MANAGER_PRO_PLUGIN_DIR . 'assets/js/enhanced-dashboard.js';
+        if (file_exists($enhanced_js_file)) {
+            wp_enqueue_script(
+                'ai-manager-pro-enhanced-dashboard',
+                AI_MANAGER_PRO_PLUGIN_URL . 'assets/js/enhanced-dashboard.js',
+                ['jquery', 'chartjs'],
+                AI_MANAGER_PRO_VERSION,
+                true
+            );
+
+            // Localize enhanced dashboard script
+            wp_localize_script('ai-manager-pro-enhanced-dashboard', 'ampEnhancedDashboard', [
                 'ajaxurl' => admin_url('admin-ajax.php'),
                 'nonce' => wp_create_nonce('ai_manager_pro_nonce')
             ]);
@@ -406,13 +444,20 @@ class AI_Manager_Pro_Safe
 
     public function render_dashboard_page()
     {
-        // Load the new main dashboard
-        $dashboard_file = AI_MANAGER_PRO_PLUGIN_DIR . 'includes/admin/views/dashboard-main.php';
+        // Load the enhanced dashboard (Phase 3)
+        $enhanced_dashboard_file = AI_MANAGER_PRO_PLUGIN_DIR . 'includes/admin/views/enhanced-dashboard.php';
 
-        if (file_exists($dashboard_file)) {
-            include $dashboard_file;
+        if (file_exists($enhanced_dashboard_file)) {
+            include $enhanced_dashboard_file;
         } else {
-            echo '<div class="wrap"><h1>Dashboard Error</h1><p>Dashboard file not found.</p></div>';
+            // Fallback to standard dashboard
+            $dashboard_file = AI_MANAGER_PRO_PLUGIN_DIR . 'includes/admin/views/dashboard-main.php';
+
+            if (file_exists($dashboard_file)) {
+                include $dashboard_file;
+            } else {
+                echo '<div class="wrap"><h1>Dashboard Error</h1><p>Dashboard file not found.</p></div>';
+            }
         }
     }
 
