@@ -1,0 +1,420 @@
+{
+  "name": "TechFlow Solutions",
+  "description": "A cutting-edge technology company specializing in cloud solutions, AI-powered tools, and digital transformation services. We help businesses scale and innovate through modern technology.",
+  "industry": "technology",
+  "target_audience": {
+    "demographics": {
+      "age_range": "28-50",
+      "gender": "all",
+      "income_level": "high",
+      "education": "graduate"
+    },
+    "psychographics": {
+      "interests": ["cloud computing", "artificial intelligence", "digital transformation", "automation", "enterprise software"],
+      "values": ["innovation", "efficiency", "reliability", "scalability", "security"],
+      "lifestyle": "Tech-savvy business leaders and decision-makers who value cutting-edge solutions"
+    }
+  },
+  "brand_voice": {
+    "tone": "professional",
+    "personality_traits": ["knowledgeable", "innovative", "trustworthy", "forward-thinking", "solution-oriented"],
+    "communication_style": "Clear, authoritative, and data-driven with a focus on business outcomes",
+    "language_preferences": {
+      "formality": "mixed",
+      "technical_level": "advanced",
+      "avoid_words": ["cheap", "simple", "basic", "easy"],
+      "preferred_words": ["enterprise-grade", "scalable", "robust", "innovative", "cutting-edge", "intelligent"]
+    }
+  },
+  "key_messages": [
+    "Empowering businesses through intelligent cloud solutions",
+    "Transforming operations with AI-driven automation",
+    "Enterprise-grade security and scalability built-in",
+    "Proven track record of successful digital transformations"
+  ],
+  "unique_selling_points": [
+    "24/7 AI-powered monitoring and support",
+    "Seamless integration with existing enterprise systems",
+    "99.99% uptime SLA guarantee",
+    "Industry-leading security compliance (SOC 2, ISO 27001, HIPAA)",
+    "Dedicated customer success team"
+  ],
+  "competitors": ["AWS", "Microsoft Azure", "Google Cloud", "Salesforce", "SAP"],
+  "content_guidelines": {
+    "topics_to_cover": [
+      "Cloud migration strategies",
+      "AI and machine learning applications",
+      "Digital transformation case studies",
+      "Cybersecurity best practices",
+      "DevOps and automation",
+      "Data analytics and business intelligence"
+    ],
+    "topics_to_avoid": [
+      "Political opinions",
+      "Controversial social issues",
+      "Competitor bashing",
+      "Unproven claims"
+    ],
+    "content_types": ["blog-posts", "case-studies", "tutorials", "reviews", "interviews"],
+    "content_length": {
+      "short": "300-500 words",
+      "medium": "800-1200 words",
+      "long": "1800-2500 words"
+    }
+  },
+  "seo_keywords": [
+    "cloud solutions",
+    "AI automation",
+    "digital transformation",
+    "enterprise software",
+    "cloud migration",
+    "machine learning",
+    "DevOps automation",
+    "business intelligence",
+    "cybersecurity"
+  ],
+  "social_media": {
+    "platforms": ["linkedin", "twitter", "youtube"],
+    "hashtags": ["#CloudComputing", "#AI", "#DigitalTransformation", "#TechInnovation", "#EnterpriseIT"]
+  },
+  "contact_info": {
+    "website": "https://techflowsolutions.example.com",
+    "email": "contact@techflowsolutions.example.com",
+    "phone": "+1-555-TECH-FLOW",
+    "address": "123 Innovation Drive, San Francisco, CA 94105"
+  },
+  "topic_pool": {
+    "enabled": true,
+    "auto_refresh": false,
+    "categories": [
+      {
+        "name": "Core Expertise",
+        "weight": 40,
+        "topics": [
+          {
+            "title": "Complete Guide to Cloud Migration: Strategy, Planning, and Execution",
+            "keywords": ["cloud migration", "strategy", "planning", "best practices"],
+            "target_length": "long",
+            "content_type": "guide",
+            "difficulty": "intermediate",
+            "priority": "high",
+            "frequency": "yearly",
+            "last_used": null,
+            "usage_count": 0,
+            "performance_score": null
+          },
+          {
+            "title": "Understanding Kubernetes: Container Orchestration Essentials",
+            "keywords": ["kubernetes", "containers", "orchestration", "devops"],
+            "target_length": "medium",
+            "content_type": "article",
+            "difficulty": "advanced",
+            "priority": "high",
+            "frequency": "quarterly",
+            "last_used": null,
+            "usage_count": 0,
+            "performance_score": null
+          },
+          {
+            "title": "AI-Powered Business Intelligence: Turning Data into Actionable Insights",
+            "keywords": ["AI", "business intelligence", "data analytics", "machine learning"],
+            "target_length": "long",
+            "content_type": "article",
+            "difficulty": "intermediate",
+            "priority": "high",
+            "frequency": "quarterly",
+            "last_used": null,
+            "usage_count": 0,
+            "performance_score": null
+          },
+          {
+            "title": "Microservices Architecture: Design Patterns and Best Practices",
+            "keywords": ["microservices", "architecture", "design patterns", "scalability"],
+            "target_length": "long",
+            "content_type": "guide",
+            "difficulty": "advanced",
+            "priority": "medium",
+            "frequency": "yearly",
+            "last_used": null,
+            "usage_count": 0,
+            "performance_score": null
+          },
+          {
+            "title": "Serverless Computing: When and How to Use It Effectively",
+            "keywords": ["serverless", "cloud functions", "AWS Lambda", "cost optimization"],
+            "target_length": "medium",
+            "content_type": "article",
+            "difficulty": "intermediate",
+            "priority": "medium",
+            "frequency": "yearly",
+            "last_used": null,
+            "usage_count": 0,
+            "performance_score": null
+          }
+        ]
+      },
+      {
+        "name": "Industry News & Trends",
+        "weight": 30,
+        "topics": [
+          {
+            "title": "Weekly Tech Roundup: Latest in Cloud and AI",
+            "keywords": ["tech news", "cloud computing", "AI trends", "industry updates"],
+            "target_length": "short",
+            "content_type": "blog_post",
+            "difficulty": "beginner",
+            "priority": "medium",
+            "frequency": "weekly",
+            "last_used": null,
+            "usage_count": 0,
+            "performance_score": null
+          },
+          {
+            "title": "2025 Cloud Computing Trends: What to Expect",
+            "keywords": ["cloud trends", "2025", "predictions", "future of cloud"],
+            "target_length": "medium",
+            "content_type": "article",
+            "difficulty": "beginner",
+            "priority": "high",
+            "frequency": "yearly",
+            "last_used": null,
+            "usage_count": 0,
+            "performance_score": null
+          },
+          {
+            "title": "The Rise of Edge Computing: Opportunities and Challenges",
+            "keywords": ["edge computing", "IoT", "5G", "distributed systems"],
+            "target_length": "medium",
+            "content_type": "article",
+            "difficulty": "intermediate",
+            "priority": "medium",
+            "frequency": "yearly",
+            "last_used": null,
+            "usage_count": 0,
+            "performance_score": null
+          },
+          {
+            "title": "Generative AI in Enterprise: Real-World Applications",
+            "keywords": ["generative AI", "ChatGPT", "enterprise AI", "automation"],
+            "target_length": "long",
+            "content_type": "article",
+            "difficulty": "intermediate",
+            "priority": "high",
+            "frequency": "quarterly",
+            "last_used": null,
+            "usage_count": 0,
+            "performance_score": null
+          }
+        ]
+      },
+      {
+        "name": "Customer Success Stories",
+        "weight": 20,
+        "topics": [
+          {
+            "title": "How Fortune 500 Company Reduced Costs by 60% with Cloud Migration",
+            "keywords": ["case study", "cost savings", "cloud migration", "success story"],
+            "target_length": "medium",
+            "content_type": "review",
+            "difficulty": "beginner",
+            "priority": "high",
+            "frequency": "once",
+            "last_used": null,
+            "usage_count": 0,
+            "performance_score": null
+          },
+          {
+            "title": "Healthcare Provider Achieves HIPAA Compliance with Our Cloud Solution",
+            "keywords": ["healthcare", "HIPAA", "compliance", "security", "case study"],
+            "target_length": "medium",
+            "content_type": "review",
+            "difficulty": "intermediate",
+            "priority": "high",
+            "frequency": "once",
+            "last_used": null,
+            "usage_count": 0,
+            "performance_score": null
+          },
+          {
+            "title": "E-commerce Giant Scales to 10M Users with Zero Downtime",
+            "keywords": ["scalability", "e-commerce", "high availability", "performance"],
+            "target_length": "medium",
+            "content_type": "review",
+            "difficulty": "beginner",
+            "priority": "medium",
+            "frequency": "once",
+            "last_used": null,
+            "usage_count": 0,
+            "performance_score": null
+          }
+        ]
+      },
+      {
+        "name": "Thought Leadership",
+        "weight": 10,
+        "topics": [
+          {
+            "title": "The Future of Work: How AI Will Transform Enterprise Operations",
+            "keywords": ["future of work", "AI transformation", "automation", "enterprise"],
+            "target_length": "long",
+            "content_type": "article",
+            "difficulty": "advanced",
+            "priority": "high",
+            "frequency": "yearly",
+            "last_used": null,
+            "usage_count": 0,
+            "performance_score": null
+          },
+          {
+            "title": "Building Sustainable Tech: Green Cloud Computing Practices",
+            "keywords": ["sustainability", "green tech", "carbon neutral", "cloud efficiency"],
+            "target_length": "long",
+            "content_type": "article",
+            "difficulty": "intermediate",
+            "priority": "medium",
+            "frequency": "yearly",
+            "last_used": null,
+            "usage_count": 0,
+            "performance_score": null
+          },
+          {
+            "title": "The Ethics of AI in Business: A Framework for Responsible Innovation",
+            "keywords": ["AI ethics", "responsible AI", "business ethics", "governance"],
+            "target_length": "long",
+            "content_type": "article",
+            "difficulty": "advanced",
+            "priority": "medium",
+            "frequency": "yearly",
+            "last_used": null,
+            "usage_count": 0,
+            "performance_score": null
+          }
+        ]
+      }
+    ],
+    "topic_selection_rules": {
+      "avoid_repetition_days": 30,
+      "prefer_unused": true,
+      "rotate_categories": true,
+      "respect_weights": true,
+      "consider_performance": false
+    }
+  },
+  "content_calendar": {
+    "enabled": true,
+    "strategy": "mixed",
+    "seasonal_content": {
+      "january": {
+        "themes": ["New Year Planning", "Goal Setting", "Budget Planning"],
+        "topics": [
+          {
+            "title": "2025 IT Budget Planning: Cloud Cost Optimization Strategies",
+            "priority": "high",
+            "type": "guide"
+          },
+          {
+            "title": "Setting Technology Goals for the New Year",
+            "priority": "medium",
+            "type": "blog_post"
+          }
+        ]
+      },
+      "february": {
+        "themes": ["Security", "Data Privacy", "Compliance"],
+        "topics": [
+          {
+            "title": "Data Privacy Day: Best Practices for Enterprise Security",
+            "priority": "high",
+            "type": "article"
+          }
+        ]
+      },
+      "march": {
+        "themes": ["Spring Cleaning", "System Updates", "Optimization"],
+        "topics": [
+          {
+            "title": "Spring Cleaning Your Cloud Infrastructure",
+            "priority": "medium",
+            "type": "guide"
+          }
+        ]
+      },
+      "november": {
+        "themes": ["Black Friday", "Cyber Monday", "Year-End Planning"],
+        "topics": [
+          {
+            "title": "Preparing Your E-commerce Infrastructure for Black Friday",
+            "priority": "high",
+            "type": "guide"
+          }
+        ]
+      },
+      "december": {
+        "themes": ["Year in Review", "2026 Planning", "Holiday Wishes"],
+        "topics": [
+          {
+            "title": "Tech Trends 2025: Year in Review",
+            "priority": "high",
+            "type": "article"
+          },
+          {
+            "title": "What to Expect in Cloud Computing in 2026",
+            "priority": "high",
+            "type": "article"
+          }
+        ]
+      }
+    },
+    "evergreen_topics": [
+      {
+        "category": "Getting Started Guides",
+        "topics": [
+          {
+            "title": "Getting Started with Cloud Computing: A Beginner's Guide",
+            "priority": "high",
+            "frequency": "once",
+            "type": "guide"
+          },
+          {
+            "title": "Introduction to DevOps: Concepts and Tools",
+            "priority": "high",
+            "frequency": "once",
+            "type": "guide"
+          }
+        ]
+      },
+      {
+        "category": "Best Practices",
+        "topics": [
+          {
+            "title": "Security Best Practices for Cloud Applications",
+            "priority": "high",
+            "frequency": "yearly",
+            "type": "guide"
+          },
+          {
+            "title": "Database Optimization: Performance Tuning Tips",
+            "priority": "medium",
+            "frequency": "yearly",
+            "type": "article"
+          }
+        ]
+      }
+    ],
+    "trending_sources": {
+      "enabled": false,
+      "rss_feeds": [
+        "https://techcrunch.com/feed/",
+        "https://www.theverge.com/rss/index.xml",
+        "https://aws.amazon.com/blogs/aws/feed/"
+      ],
+      "keywords_to_track": [
+        "artificial intelligence",
+        "cloud computing",
+        "cybersecurity",
+        "digital transformation",
+        "machine learning"
+      ]
+    }
+  }
+}

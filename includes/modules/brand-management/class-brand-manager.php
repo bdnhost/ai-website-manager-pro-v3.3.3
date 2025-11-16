@@ -321,6 +321,51 @@ class Brand_Manager {
                             'description' => 'Business address'
                         ]
                     ]
+                ],
+                'topic_pool' => [
+                    'type' => 'object',
+                    'description' => 'Dynamic topic pool for automated content generation',
+                    'properties' => [
+                        'enabled' => [
+                            'type' => 'boolean',
+                            'default' => true,
+                            'description' => 'Enable topic pool functionality'
+                        ],
+                        'categories' => [
+                            'type' => 'array',
+                            'description' => 'Topic categories with weighted distribution',
+                            'items' => ['type' => 'object']
+                        ],
+                        'topic_selection_rules' => [
+                            'type' => 'object',
+                            'description' => 'Rules for selecting topics from pool'
+                        ]
+                    ]
+                ],
+                'content_calendar' => [
+                    'type' => 'object',
+                    'description' => 'Content calendar for strategic planning',
+                    'properties' => [
+                        'enabled' => [
+                            'type' => 'boolean',
+                            'default' => true,
+                            'description' => 'Enable content calendar functionality'
+                        ],
+                        'strategy' => [
+                            'type' => 'string',
+                            'enum' => ['seasonal', 'evergreen', 'mixed', 'trending'],
+                            'default' => 'mixed',
+                            'description' => 'Content calendar strategy'
+                        ],
+                        'seasonal_content' => [
+                            'type' => 'object',
+                            'description' => 'Monthly seasonal content themes'
+                        ],
+                        'evergreen_topics' => [
+                            'type' => 'array',
+                            'description' => 'Evergreen topics that are always relevant'
+                        ]
+                    ]
                 ]
             ]
         ];
@@ -893,11 +938,121 @@ class Brand_Manager {
         
         $template = $this->get_brand_template();
         $json_template = json_encode($template, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-        
+
         wp_send_json_success([
             'template' => $json_template,
             'schema' => $this->brand_schema
         ]);
+    }
+
+    /**
+     * Select topics from brand's topic pool
+     *
+     * @param int $brand_id Brand ID
+     * @param array $options Selection options
+     * @return array Selected topics
+     */
+    public function select_topics_from_pool($brand_id, $options = []) {
+        // Load Smart Topic Selector
+        require_once AI_MANAGER_PRO_PLUGIN_DIR . 'includes/brands/class-smart-topic-selector.php';
+        $selector = new \AI_Manager_Pro\Brands\Smart_Topic_Selector();
+
+        // Get brand data
+        $brand = $this->get_brand($brand_id);
+        if (!$brand) {
+            return [];
+        }
+
+        $brand_data = json_decode($brand->brand_data, true);
+        if (!$brand_data) {
+            return [];
+        }
+
+        // Select topics
+        $selected_topics = $selector->select_topics($brand_data, $options);
+
+        // Mark topics as used if requested
+        if (!empty($selected_topics) && !empty($options['mark_as_used'])) {
+            $brand_data = $selector->mark_topics_as_used($brand_data, $selected_topics);
+            $this->update_brand($brand_id, ['brand_data' => json_encode($brand_data)]);
+        }
+
+        return $selected_topics;
+    }
+
+    /**
+     * Get topic statistics for a brand
+     *
+     * @param int $brand_id Brand ID
+     * @return array Topic statistics
+     */
+    public function get_topic_statistics($brand_id) {
+        // Load Smart Topic Selector
+        require_once AI_MANAGER_PRO_PLUGIN_DIR . 'includes/brands/class-smart-topic-selector.php';
+        $selector = new \AI_Manager_Pro\Brands\Smart_Topic_Selector();
+
+        // Get brand data
+        $brand = $this->get_brand($brand_id);
+        if (!$brand) {
+            return [
+                'total_topics' => 0,
+                'total_categories' => 0,
+                'unused_topics' => 0
+            ];
+        }
+
+        $brand_data = json_decode($brand->brand_data, true);
+        if (!$brand_data) {
+            return [
+                'total_topics' => 0,
+                'total_categories' => 0,
+                'unused_topics' => 0
+            ];
+        }
+
+        return $selector->get_topic_statistics($brand_data);
+    }
+
+    /**
+     * Get topics for automation
+     * This is the main method automation will call
+     *
+     * @param int|null $brand_id Brand ID (null = active brand)
+     * @param int $count Number of topics needed
+     * @param array $filters Additional filters
+     * @return array Topics with titles
+     */
+    public function get_topics_for_automation($brand_id = null, $count = 1, $filters = []) {
+        // If no brand_id provided, get active brand
+        if ($brand_id === null) {
+            $brand = $this->get_active_brand();
+            if ($brand) {
+                $brand_id = $brand->id;
+            }
+        }
+
+        if (!$brand_id) {
+            return [];
+        }
+
+        // Selection options
+        $options = array_merge([
+            'count' => $count,
+            'mark_as_used' => true,  // Mark topics as used
+            'exclude_recent' => true,  // Avoid recent topics
+            'selection_method' => 'weighted_random'  // Default method
+        ], $filters);
+
+        // Get topics
+        $topics = $this->select_topics_from_pool($brand_id, $options);
+
+        // Convert to simple array of titles for automation
+        $topic_titles = [];
+        foreach ($topics as $topic) {
+            $topic_titles[] = $topic['title'] ?? 'Untitled Topic';
+        }
+
+        return $topic_titles;
     }
 }
 

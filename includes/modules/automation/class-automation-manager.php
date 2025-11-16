@@ -349,13 +349,29 @@ class Automation_Manager {
     private function execute_content_generation($content_rules) {
         $results = [];
         $topics = $content_rules['topics'] ?? [];
-        
+
+        // If no topics provided but brand_id exists, pull topics from brand profile
+        if (empty($topics) && !empty($content_rules['brand_id'])) {
+            $topics = $this->get_topics_from_brand_profile(
+                $content_rules['brand_id'],
+                $content_rules['topic_count'] ?? 1,
+                $content_rules
+            );
+
+            if (empty($topics)) {
+                return [[
+                    'success' => false,
+                    'error' => 'No topics available in brand profile'
+                ]];
+            }
+        }
+
         foreach ($topics as $topic) {
             $options = array_merge($content_rules, ['topic' => $topic]);
             unset($options['topics']); // Remove topics array to avoid confusion
-            
+
             $result = $this->content_generator->generate_content($options);
-            
+
             if ($result) {
                 $results[] = [
                     'topic' => $topic,
@@ -371,8 +387,77 @@ class Automation_Manager {
                 ];
             }
         }
-        
+
         return $results;
+    }
+
+    /**
+     * Get topics from brand profile topic pool
+     *
+     * @param int $brand_id Brand ID
+     * @param int $count Number of topics needed
+     * @param array $content_rules Additional content rules for filtering
+     * @return array Array of topic titles
+     */
+    private function get_topics_from_brand_profile($brand_id, $count = 1, $content_rules = []) {
+        // Try to get Brand Manager instance
+        global $wpdb;
+
+        // Simple approach: get brand data directly from database
+        $table_name = $wpdb->prefix . 'ai_manager_pro_brands';
+        $brand = $wpdb->get_row($wpdb->prepare(
+            "SELECT * FROM {$table_name} WHERE id = %d",
+            $brand_id
+        ));
+
+        if (!$brand) {
+            return [];
+        }
+
+        $brand_data = json_decode($brand->brand_data, true);
+        if (!$brand_data || empty($brand_data['topic_pool'])) {
+            return [];
+        }
+
+        // Load Smart Topic Selector
+        require_once AI_MANAGER_PRO_PLUGIN_DIR . 'includes/brands/class-smart-topic-selector.php';
+        $selector = new \AI_Manager_Pro\Brands\Smart_Topic_Selector();
+
+        // Prepare selection options
+        $options = [
+            'count' => $count,
+            'mark_as_used' => false,  // We'll mark separately
+            'exclude_recent' => true,
+            'selection_method' => 'weighted_random'
+        ];
+
+        // Add content type filter if specified
+        if (!empty($content_rules['content_type'])) {
+            $options['content_type'] = $content_rules['content_type'];
+        }
+
+        // Select topics
+        $selected_topics = $selector->select_topics($brand_data, $options);
+
+        // Mark topics as used
+        if (!empty($selected_topics)) {
+            $brand_data = $selector->mark_topics_as_used($brand_data, $selected_topics);
+
+            // Update brand data in database
+            $wpdb->update(
+                $table_name,
+                ['brand_data' => json_encode($brand_data, JSON_UNESCAPED_UNICODE)],
+                ['id' => $brand_id]
+            );
+        }
+
+        // Convert to array of titles
+        $topic_titles = [];
+        foreach ($selected_topics as $topic) {
+            $topic_titles[] = $topic['title'] ?? 'Untitled Topic';
+        }
+
+        return $topic_titles;
     }
     
     /**
