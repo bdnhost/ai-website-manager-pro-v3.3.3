@@ -73,6 +73,8 @@ class AI_Manager_Pro_Safe
         // AJAX handlers
         error_log('AI Manager Pro - Registering AJAX handlers');
         add_action('wp_ajax_ai_manager_pro_save_brand', [$this, 'handle_save_brand']);
+        add_action('wp_ajax_ai_manager_pro_get_brand_details', [$this, 'handle_get_brand_details']);
+        add_action('wp_ajax_ai_manager_pro_get_brand_suggestions', [$this, 'handle_get_brand_suggestions']);
         add_action('wp_ajax_ai_manager_pro_delete_brand', [$this, 'handle_delete_brand']);
         add_action('wp_ajax_ai_manager_pro_test_api_connection', [$this, 'handle_test_api_connection']);
         add_action('wp_ajax_ai_manager_pro_generate_content', [$this, 'handle_generate_content']);
@@ -84,6 +86,7 @@ class AI_Manager_Pro_Safe
         add_action('wp_ajax_ai_manager_pro_test_deepseek', [$this, 'handle_test_deepseek']);
         error_log('AI Manager Pro - Registered test_deepseek handler');
         add_action('wp_ajax_ai_manager_pro_save_automation', [$this, 'handle_save_automation']);
+        add_action('wp_ajax_ai_manager_pro_get_automation_task', [$this, 'handle_get_automation_task']);
         add_action('wp_ajax_ai_manager_pro_toggle_automation', [$this, 'handle_toggle_automation']);
         add_action('wp_ajax_ai_manager_pro_clear_logs', [$this, 'handle_clear_logs']);
         add_action('wp_ajax_ai_manager_pro_create_post', [$this, 'handle_create_post']);
@@ -1939,6 +1942,171 @@ class AI_Manager_Pro_Safe
         }
     }
 
+    public function handle_get_brand_details()
+    {
+        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'ai_manager_pro_nonce')) {
+            wp_send_json_error('Security check failed');
+        }
+
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('Insufficient permissions');
+        }
+
+        $brand_id = sanitize_text_field($_POST['brand_id'] ?? '');
+        if (empty($brand_id)) {
+            wp_send_json_error('Brand ID is required');
+        }
+
+        // Try to load from advanced brand manager table first
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'ai_website_manager_brands';
+        $brand = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$table_name} WHERE id = %d", $brand_id), ARRAY_A);
+
+        if ($brand) {
+            // Parse JSON fields
+            $json_fields = ['keywords', 'values', 'brand_colors', 'social_media_links', 'content_pillars'];
+            foreach ($json_fields as $field) {
+                if (!empty($brand[$field])) {
+                    $brand[$field] = json_decode($brand[$field], true);
+                }
+            }
+            wp_send_json_success($brand);
+            return;
+        }
+
+        // Fallback to options-based storage
+        $brands = get_option('ai_manager_pro_brands_data', []);
+        if (isset($brands[$brand_id])) {
+            wp_send_json_success($brands[$brand_id]);
+        } else {
+            wp_send_json_error('Brand not found');
+        }
+    }
+
+    public function handle_get_brand_suggestions()
+    {
+        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'ai_manager_pro_nonce')) {
+            wp_send_json_error('Security check failed');
+        }
+
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('Insufficient permissions');
+        }
+
+        $brand_id = sanitize_text_field($_POST['brand_id'] ?? '');
+
+        // Get brand details
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'ai_website_manager_brands';
+        $brand = null;
+
+        if (!empty($brand_id)) {
+            $brand = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$table_name} WHERE id = %d", $brand_id), ARRAY_A);
+        } else {
+            // Get active brand
+            $brand = $wpdb->get_row("SELECT * FROM {$table_name} WHERE is_active = 1 LIMIT 1", ARRAY_A);
+        }
+
+        if (!$brand) {
+            // Fallback to options
+            $brands = get_option('ai_manager_pro_brands_data', []);
+            $active_brand_id = get_option('ai_manager_pro_active_brand');
+            if ($active_brand_id && isset($brands[$active_brand_id])) {
+                $brand = $brands[$active_brand_id];
+            }
+        }
+
+        if (!$brand) {
+            wp_send_json_error('No active brand found');
+            return;
+        }
+
+        // Generate post suggestions based on brand profile
+        $suggestions = [];
+
+        // Parse keywords
+        $keywords = [];
+        if (!empty($brand['keywords'])) {
+            $keywords = is_string($brand['keywords']) ? json_decode($brand['keywords'], true) : $brand['keywords'];
+            if (!is_array($keywords)) {
+                $keywords = explode(',', $brand['keywords']);
+            }
+        }
+
+        // Parse content pillars
+        $content_pillars = [];
+        if (!empty($brand['content_pillars'])) {
+            $content_pillars = is_string($brand['content_pillars']) ? json_decode($brand['content_pillars'], true) : $brand['content_pillars'];
+        }
+
+        // Generate suggestions based on keywords
+        if (!empty($keywords)) {
+            foreach (array_slice($keywords, 0, 5) as $keyword) {
+                $keyword = trim($keyword);
+                $suggestions[] = [
+                    'type' => 'blog_post',
+                    'title' => sprintf(__('Complete Guide to %s', 'ai-website-manager-pro'), $keyword),
+                    'topic' => $keyword,
+                    'reason' => __('Based on brand keyword', 'ai-website-manager-pro')
+                ];
+                $suggestions[] = [
+                    'type' => 'article',
+                    'title' => sprintf(__('How %s Can Transform Your Business', 'ai-website-manager-pro'), $keyword),
+                    'topic' => $keyword,
+                    'reason' => __('Based on brand keyword', 'ai-website-manager-pro')
+                ];
+            }
+        }
+
+        // Generate suggestions based on industry
+        if (!empty($brand['industry'])) {
+            $industry = $brand['industry'];
+            $suggestions[] = [
+                'type' => 'article',
+                'title' => sprintf(__('Top Trends in %s for 2025', 'ai-website-manager-pro'), $industry),
+                'topic' => $industry . ' trends',
+                'reason' => __('Based on brand industry', 'ai-website-manager-pro')
+            ];
+            $suggestions[] = [
+                'type' => 'guide',
+                'title' => sprintf(__('Getting Started with %s', 'ai-website-manager-pro'), $industry),
+                'topic' => $industry . ' guide',
+                'reason' => __('Based on brand industry', 'ai-website-manager-pro')
+            ];
+        }
+
+        // Add suggestions based on target audience
+        if (!empty($brand['target_audience'])) {
+            $audience = substr($brand['target_audience'], 0, 50);
+            $suggestions[] = [
+                'type' => 'blog_post',
+                'title' => __('Understanding Your Target Audience Better', 'ai-website-manager-pro'),
+                'topic' => 'target audience insights',
+                'reason' => __('Based on brand target audience', 'ai-website-manager-pro')
+            ];
+        }
+
+        // Add suggestions based on USP
+        if (!empty($brand['unique_selling_proposition'])) {
+            $suggestions[] = [
+                'type' => 'article',
+                'title' => __('What Makes Us Different', 'ai-website-manager-pro'),
+                'topic' => 'unique value proposition',
+                'reason' => __('Based on brand USP', 'ai-website-manager-pro')
+            ];
+        }
+
+        wp_send_json_success([
+            'brand' => [
+                'name' => $brand['name'],
+                'voice' => $brand['brand_voice'] ?? '',
+                'tone' => $brand['tone_of_voice'] ?? '',
+                'keywords' => $keywords,
+            ],
+            'suggestions' => array_slice($suggestions, 0, 10) // Limit to 10 suggestions
+        ]);
+    }
+
     public function handle_test_api_connection()
     {
         if (!wp_verify_nonce($_POST['nonce'] ?? '', 'ai_manager_pro_nonce')) {
@@ -2809,40 +2977,80 @@ class AI_Manager_Pro_Safe
 
         try {
             $task_data = $_POST['task_data'] ?? [];
+            $task_id = sanitize_text_field($_POST['task_id'] ?? '');
+
             if (empty($task_data['name'])) {
                 wp_send_json_error('Task name is required');
             }
 
-            // Sanitize task data
-            $sanitized_task = [
-                'name' => sanitize_text_field($task_data['name']),
-                'type' => sanitize_text_field($task_data['type']),
-                'frequency' => sanitize_text_field($task_data['frequency']),
-                'status' => sanitize_text_field($task_data['status']),
-                'content_topic' => sanitize_text_field($task_data['content_topic'] ?? ''),
-                'content_type' => sanitize_text_field($task_data['content_type'] ?? ''),
-                'created' => current_time('mysql'),
-                'last_run' => null,
-                'next_run' => $this->calculate_next_run($task_data['frequency'])
-            ];
-
             // Get existing tasks
             $tasks = get_option('ai_manager_pro_automation_tasks', []);
 
-            // Generate unique ID
-            $task_id = uniqid('task_');
-            $tasks[$task_id] = $sanitized_task;
+            // Check if editing existing task
+            $is_edit = !empty($task_id) && isset($tasks[$task_id]);
 
-            // Save tasks
+            // Sanitize task data - support both old and new format
+            $sanitized_task = [
+                'name' => sanitize_text_field($task_data['name']),
+                'description' => sanitize_textarea_field($task_data['description'] ?? ''),
+                'schedule' => sanitize_text_field($task_data['schedule'] ?? $task_data['frequency'] ?? 'daily'),
+                'enabled' => isset($task_data['enabled']) ? (bool) $task_data['enabled'] : true,
+                // Legacy fields for backward compatibility
+                'type' => sanitize_text_field($task_data['type'] ?? 'content_generation'),
+                'frequency' => sanitize_text_field($task_data['frequency'] ?? $task_data['schedule'] ?? 'daily'),
+                'status' => sanitize_text_field($task_data['status'] ?? 'active'),
+                'content_topic' => sanitize_text_field($task_data['content_topic'] ?? ''),
+                'content_type' => sanitize_text_field($task_data['content_type'] ?? ''),
+            ];
+
+            if ($is_edit) {
+                // Preserve existing metadata
+                $sanitized_task['created'] = $tasks[$task_id]['created'] ?? current_time('mysql');
+                $sanitized_task['last_run'] = $tasks[$task_id]['last_run'] ?? null;
+            } else {
+                // New task
+                $sanitized_task['created'] = current_time('mysql');
+                $sanitized_task['last_run'] = null;
+                $task_id = uniqid('task_');
+            }
+
+            $sanitized_task['next_run'] = $this->calculate_next_run($sanitized_task['schedule']);
+
+            // Save task
+            $tasks[$task_id] = $sanitized_task;
             update_option('ai_manager_pro_automation_tasks', $tasks);
 
             // Log activity
-            $this->log_activity('info', "Automation task created: {$sanitized_task['name']}", 'automation');
+            $action = $is_edit ? 'updated' : 'created';
+            $this->log_activity('info', "Automation task {$action}: {$sanitized_task['name']}", 'automation');
 
             wp_send_json_success('Automation task saved successfully');
 
         } catch (Exception $e) {
             wp_send_json_error('Failed to save automation task: ' . $e->getMessage());
+        }
+    }
+
+    public function handle_get_automation_task()
+    {
+        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'ai_manager_pro_nonce')) {
+            wp_send_json_error('Security check failed');
+        }
+
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('Insufficient permissions');
+        }
+
+        $task_id = sanitize_text_field($_POST['task_id'] ?? '');
+        if (empty($task_id)) {
+            wp_send_json_error('Task ID is required');
+        }
+
+        $tasks = get_option('ai_manager_pro_automation_tasks', []);
+        if (isset($tasks[$task_id])) {
+            wp_send_json_success($tasks[$task_id]);
+        } else {
+            wp_send_json_error('Task not found');
         }
     }
 
