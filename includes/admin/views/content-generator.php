@@ -64,21 +64,32 @@ if (!defined('ABSPATH')) {
             <div class="form-row">
                             <div class="form-group">
                                 <label for="brand-select">
-                                    <?php _e('Brand Voice', 'ai-website-manager-pro'); ?>
+                                    🏢 <?php _e('Brand Voice', 'ai-website-manager-pro'); ?>
+                                    <button type="button" id="refresh-brand-suggestions" class="button button-small" style="margin-left: 10px;">
+                                        <span class="dashicons dashicons-update"></span>
+                                        <?php _e('Get Suggestions', 'ai-website-manager-pro'); ?>
+                                    </button>
                                 </label>
                                 <select id="brand-select" class="form-control">
                                     <option value="">
                                         <?php _e('Select Brand...', 'ai-website-manager-pro'); ?>
                                     </option>
-                                    <option value="tech-startup">
-                                        <?php _e('Tech Startup', 'ai-website-manager-pro'); ?>
-                                    </option>
-                                    <option value="professional-services">
-                            <?php _e('Professional Services', 'ai-website-manager-pro'); ?>
-                        </option>
-                        <option value="e-commerce"><?php _e('E-commerce', 'ai-website-manager-pro'); ?></option>
-                    </select>
-                </div>
+                                    <?php
+                                    // Load brands from database
+                                    global $wpdb;
+                                    $table_name = $wpdb->prefix . 'ai_website_manager_brands';
+                                    $brands = $wpdb->get_results("SELECT id, name, is_active FROM {$table_name} ORDER BY is_active DESC, name ASC");
+
+                                    foreach ($brands as $brand):
+                                        $is_active = $brand->is_active ? ' 🟢' : '';
+                                    ?>
+                                        <option value="<?php echo esc_attr($brand->id); ?>" <?php selected($brand->is_active, 1); ?>>
+                                            <?php echo esc_html($brand->name) . $is_active; ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <small class="form-help" id="brand-sync-status"></small>
+                    </div>
 
                 <div class="form-group">
                     <label for="ai-model">🤖 מודל AI</label>
@@ -207,6 +218,19 @@ if (!defined('ABSPATH')) {
     </div>
 
     <div class="generator-sidebar">
+        <!-- Brand Suggestions Panel -->
+        <div class="sidebar-section" id="brand-suggestions-panel" style="display: none;">
+            <h3>
+                💡 <?php _e('Content Suggestions from Your Brand', 'ai-website-manager-pro'); ?>
+            </h3>
+            <div id="brand-info" class="brand-info-box" style="margin-bottom: 15px; padding: 10px; background: #f0f8ff; border-radius: 6px; border-left: 4px solid #667eea;">
+                <!-- Brand info loaded via AJAX -->
+            </div>
+            <div id="suggestions-list" class="suggestions-list">
+                <!-- Suggestions loaded via AJAX -->
+            </div>
+        </div>
+
         <div class="sidebar-section">
             <h3>
                 <?php _e('Recent Generations', 'ai-website-manager-pro'); ?>
@@ -596,9 +620,34 @@ if (!defined('ABSPATH')) {
 <script>
     jQuery(document).ready(function ($) {
         let isGenerating = false;
-        
-        // Load brands into select dropdown
-        loadBrands();
+
+        // Check for active brand and load suggestions automatically
+        const selectedBrand = $('#brand-select').val();
+        if (selectedBrand) {
+            loadBrandSuggestions(selectedBrand);
+        }
+
+        // Brand select change event
+        $('#brand-select').on('change', function() {
+            const brandId = $(this).val();
+            if (brandId) {
+                loadBrandSuggestions(brandId);
+                $('#brand-sync-status').html('✅ <?php _e('Synced with brand', 'ai-website-manager-pro'); ?>').css('color', '#00a32a');
+            } else {
+                $('#brand-suggestions-panel').hide();
+                $('#brand-sync-status').html('');
+            }
+        });
+
+        // Refresh suggestions button
+        $('#refresh-brand-suggestions').on('click', function() {
+            const brandId = $('#brand-select').val();
+            if (brandId) {
+                loadBrandSuggestions(brandId);
+            } else {
+                alert('<?php _e('Please select a brand first', 'ai-website-manager-pro'); ?>');
+            }
+        });
 
         // Generate content button
         $('#generate-content-btn').on('click', function () {
@@ -796,26 +845,99 @@ if (!defined('ABSPATH')) {
     }
     
     // Load brands function
-    function loadBrands() {
-        // Get brands from WordPress options
-        const brands = <?php 
-            $brands = get_option('ai_manager_pro_brands_data', []);
-            echo json_encode($brands);
-        ?>;
-        
-        const $brandSelect = $('#brand-select');
-        $brandSelect.empty().append('<option value=""><?php _e('Select Brand...', 'ai-website-manager-pro'); ?></option>');
-        
-        Object.keys(brands).forEach(function(brandId) {
-            const brand = brands[brandId];
-            $brandSelect.append(`<option value="${brandId}">${brand.name || brandId}</option>`);
+    // Load brand suggestions
+    function loadBrandSuggestions(brandId) {
+        jQuery.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'ai_manager_pro_get_brand_suggestions',
+                brand_id: brandId,
+                nonce: '<?php echo wp_create_nonce('ai_manager_pro_nonce'); ?>'
+            },
+            beforeSend: function() {
+                jQuery('#brand-info').html('<div style="text-align: center;"><span class="dashicons dashicons-update spin"></span> <?php _e('Loading...', 'ai-website-manager-pro'); ?></div>');
+                jQuery('#suggestions-list').html('');
+            },
+            success: function(response) {
+                if (response.success && response.data) {
+                    displayBrandSuggestions(response.data);
+                    jQuery('#brand-suggestions-panel').slideDown();
+                } else {
+                    jQuery('#brand-info').html('<p style="color: #dc3232;"><?php _e('Failed to load suggestions', 'ai-website-manager-pro'); ?>: ' + (response.data || 'Unknown error') + '</p>');
+                }
+            },
+            error: function(xhr, status, error) {
+                jQuery('#brand-info').html('<p style="color: #dc3232;"><?php _e('Network error', 'ai-website-manager-pro'); ?>: ' + error + '</p>');
+            }
         });
-        
-        // Set active brand as selected
-        const activeBrand = '<?php echo get_option('ai_manager_pro_active_brand', ''); ?>';
-        if (activeBrand) {
-            $brandSelect.val(activeBrand);
+    }
+
+    // Display brand suggestions
+    function displayBrandSuggestions(data) {
+        const brand = data.brand;
+        const suggestions = data.suggestions;
+
+        // Display brand info
+        let brandHtml = '<strong style="color: #667eea; font-size: 1.1em;">' + brand.name + '</strong><br>';
+        if (brand.voice) brandHtml += '<small><strong><?php _e('Voice:', 'ai-website-manager-pro'); ?></strong> ' + brand.voice + '</small><br>';
+        if (brand.tone) brandHtml += '<small><strong><?php _e('Tone:', 'ai-website-manager-pro'); ?></strong> ' + brand.tone + '</small>';
+        if (brand.keywords && brand.keywords.length > 0) {
+            brandHtml += '<div style="margin-top: 8px;">';
+            brand.keywords.slice(0, 5).forEach(keyword => {
+                brandHtml += '<span style="background: #667eea; color: white; padding: 3px 8px; border-radius: 12px; font-size: 0.85em; margin: 2px; display: inline-block;">' + keyword.trim() + '</span>';
+            });
+            brandHtml += '</div>';
         }
+        jQuery('#brand-info').html(brandHtml);
+
+        // Display suggestions
+        if (suggestions && suggestions.length > 0) {
+            let suggestionsHtml = '';
+            suggestions.forEach((suggestion, index) => {
+                const typeIcon = getContentTypeIcon(suggestion.type);
+                suggestionsHtml += '<div class="suggestion-item" style="background: white; padding: 12px; margin-bottom: 10px; border-radius: 6px; border: 1px solid #e9ecef; cursor: pointer; transition: all 0.2s;" data-topic="' + suggestion.topic + '" data-type="' + suggestion.type + '">';
+                suggestionsHtml += '<div style="display: flex; align-items: start; gap: 8px;">';
+                suggestionsHtml += '<span style="font-size: 1.2em;">' + typeIcon + '</span>';
+                suggestionsHtml += '<div style="flex: 1;">';
+                suggestionsHtml += '<strong style="color: #333; font-size: 0.95em;">' + suggestion.title + '</strong><br>';
+                suggestionsHtml += '<small style="color: #666;">' + suggestion.reason + '</small>';
+                suggestionsHtml += '</div>';
+                suggestionsHtml += '</div>';
+                suggestionsHtml += '</div>';
+            });
+            jQuery('#suggestions-list').html(suggestionsHtml);
+
+            // Add click handlers to suggestions
+            jQuery('.suggestion-item').on('click', function() {
+                const topic = jQuery(this).data('topic');
+                const type = jQuery(this).data('type');
+                jQuery('#content-topic').val(topic);
+                jQuery('#content-type').val(type);
+                jQuery(this).css('border-color', '#667eea').css('background', '#f8f9ff');
+                showNotification('<?php _e('Suggestion applied!', 'ai-website-manager-pro'); ?>', 'success');
+            }).on('mouseenter', function() {
+                jQuery(this).css('box-shadow', '0 2px 8px rgba(0,0,0,0.1)').css('transform', 'translateY(-2px)');
+            }).on('mouseleave', function() {
+                jQuery(this).css('box-shadow', 'none').css('transform', 'none');
+            });
+        } else {
+            jQuery('#suggestions-list').html('<p style="text-align: center; color: #666; padding: 20px;"><?php _e('No suggestions available', 'ai-website-manager-pro'); ?></p>');
+        }
+    }
+
+    // Get content type icon
+    function getContentTypeIcon(type) {
+        const icons = {
+            'blog_post': '📰',
+            'article': '📄',
+            'guide': '📖',
+            'review': '⭐',
+            'product': '🛍️',
+            'social_media': '📱',
+            'newsletter': '📧'
+        };
+        return icons[type] || '📝';
     }
 
     // Show notification

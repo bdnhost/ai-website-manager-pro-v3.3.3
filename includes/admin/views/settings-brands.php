@@ -64,6 +64,11 @@ if (!defined('ABSPATH')) {
                                             <?php endif; ?>
                                         </td>
                                         <td>
+                                            <button type="button" class="button button-small view-brand-btn"
+                                                data-brand-id="<?php echo esc_attr($brand->id); ?>">
+                                                <span class="dashicons dashicons-visibility"></span>
+                                                <?php _e('View', 'ai-website-manager-pro'); ?>
+                                            </button>
                                             <button type="button" class="button button-small edit-brand-btn"
                                                 data-brand-id="<?php echo esc_attr($brand->id); ?>">
                                                 <?php _e('Edit', 'ai-website-manager-pro'); ?>
@@ -197,6 +202,12 @@ N Editor Modal -->
 
 <script>
     jQuery(document).ready(function ($) {
+        // View brand button
+        $('.view-brand-btn').on('click', function() {
+            const brandId = $(this).data('brand-id');
+            viewBrandDetails(brandId);
+        });
+
         // Test JSON Editor button
         $('#json-editor-test-btn').on('click', function () {
             $('#json-editor-modal').show();
@@ -238,9 +249,230 @@ N Editor Modal -->
             }
         });
     });
+
+    // View brand details
+    function viewBrandDetails(brandId) {
+        jQuery('#brand-view-modal').show();
+        jQuery('#brand-view-content').html('<div class="loading-spinner"><span class="dashicons dashicons-update spin"></span> Loading brand details...</div>');
+
+        jQuery.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'ai_manager_pro_get_brand_details',
+                brand_id: brandId,
+                nonce: '<?php echo wp_create_nonce('ai_manager_pro_nonce'); ?>'
+            },
+            success: function(response) {
+                if (response.success && response.data) {
+                    displayBrandDetails(response.data);
+                    jQuery('#edit-from-view-btn').data('brand-id', brandId);
+                } else {
+                    jQuery('#brand-view-content').html('<div class="error"><p>Failed to load brand details: ' + (response.data || 'Unknown error') + '</p></div>');
+                }
+            },
+            error: function(xhr, status, error) {
+                jQuery('#brand-view-content').html('<div class="error"><p>Network error: ' + error + '</p></div>');
+            }
+        });
+    }
+
+    // Display brand details
+    function displayBrandDetails(brand) {
+        let html = '';
+
+        // Basic Information
+        html += '<div class="brand-section">';
+        html += '<h3>📋 ' + '<?php _e('Basic Information', 'ai-website-manager-pro'); ?>' + '</h3>';
+        html += '<div class="brand-info-grid">';
+        if (brand.name) html += '<div class="brand-info-item"><div class="brand-info-label"><?php _e('Brand Name', 'ai-website-manager-pro'); ?></div><div class="brand-info-value">' + brand.name + '</div></div>';
+        if (brand.industry) html += '<div class="brand-info-item"><div class="brand-info-label"><?php _e('Industry', 'ai-website-manager-pro'); ?></div><div class="brand-info-value">' + brand.industry + '</div></div>';
+        if (brand.brand_voice) html += '<div class="brand-info-item"><div class="brand-info-label"><?php _e('Brand Voice', 'ai-website-manager-pro'); ?></div><div class="brand-info-value">' + brand.brand_voice + '</div></div>';
+        if (brand.tone_of_voice) html += '<div class="brand-info-item"><div class="brand-info-label"><?php _e('Tone of Voice', 'ai-website-manager-pro'); ?></div><div class="brand-info-value">' + brand.tone_of_voice + '</div></div>';
+        html += '</div>';
+        if (brand.description) html += '<div class="brand-text-content" style="margin-top: 15px;"><strong><?php _e('Description:', 'ai-website-manager-pro'); ?></strong><br>' + brand.description + '</div>';
+        html += '</div>';
+
+        // Keywords & Values
+        if (brand.keywords || brand.values) {
+            html += '<div class="brand-section">';
+            html += '<h3>🔑 ' + '<?php _e('Keywords & Values', 'ai-website-manager-pro'); ?>' + '</h3>';
+            if (brand.keywords) {
+                html += '<div><strong><?php _e('Keywords:', 'ai-website-manager-pro'); ?></strong><div class="brand-keywords-list">';
+                const keywords = Array.isArray(brand.keywords) ? brand.keywords : brand.keywords.split(',');
+                keywords.forEach(keyword => {
+                    html += '<span class="brand-keyword-tag">' + keyword.trim() + '</span>';
+                });
+                html += '</div></div>';
+            }
+            if (brand.values) {
+                html += '<div style="margin-top: 15px;"><strong><?php _e('Values:', 'ai-website-manager-pro'); ?></strong><div class="brand-keywords-list">';
+                const values = Array.isArray(brand.values) ? brand.values : brand.values.split(',');
+                values.forEach(value => {
+                    html += '<span class="brand-keyword-tag" style="background: #28a745;">' + value.trim() + '</span>';
+                });
+                html += '</div></div>';
+            }
+            html += '</div>';
+        }
+
+        // Target Audience
+        if (brand.target_audience) {
+            html += '<div class="brand-section">';
+            html += '<h3>🎯 ' + '<?php _e('Target Audience', 'ai-website-manager-pro'); ?>' + '</h3>';
+            html += '<div class="brand-text-content">' + brand.target_audience + '</div>';
+            html += '</div>';
+        }
+
+        // Mission, Vision, USP
+        if (brand.mission || brand.vision || brand.unique_selling_proposition) {
+            html += '<div class="brand-section">';
+            html += '<h3>🚀 ' + '<?php _e('Mission & Vision', 'ai-website-manager-pro'); ?>' + '</h3>';
+            if (brand.mission) html += '<div class="brand-text-content" style="margin-bottom: 10px;"><strong><?php _e('Mission:', 'ai-website-manager-pro'); ?></strong><br>' + brand.mission + '</div>';
+            if (brand.vision) html += '<div class="brand-text-content" style="margin-bottom: 10px;"><strong><?php _e('Vision:', 'ai-website-manager-pro'); ?></strong><br>' + brand.vision + '</div>';
+            if (brand.unique_selling_proposition) html += '<div class="brand-text-content"><strong><?php _e('Unique Selling Proposition:', 'ai-website-manager-pro'); ?></strong><br>' + brand.unique_selling_proposition + '</div>';
+            html += '</div>';
+        }
+
+        // Website & Contact
+        if (brand.website_url || brand.logo_url) {
+            html += '<div class="brand-section">';
+            html += '<h3>🌐 ' + '<?php _e('Online Presence', 'ai-website-manager-pro'); ?>' + '</h3>';
+            html += '<div class="brand-info-grid">';
+            if (brand.website_url) html += '<div class="brand-info-item"><div class="brand-info-label"><?php _e('Website', 'ai-website-manager-pro'); ?></div><div class="brand-info-value"><a href="' + brand.website_url + '" target="_blank">' + brand.website_url + '</a></div></div>';
+            if (brand.logo_url) html += '<div class="brand-info-item"><div class="brand-info-label"><?php _e('Logo URL', 'ai-website-manager-pro'); ?></div><div class="brand-info-value"><a href="' + brand.logo_url + '" target="_blank"><?php _e('View Logo', 'ai-website-manager-pro'); ?></a></div></div>';
+            html += '</div>';
+            html += '</div>';
+        }
+
+        jQuery('#brand-view-content').html(html);
+    }
+
+    // Close brand view modal
+    function closeBrandViewModal() {
+        jQuery('#brand-view-modal').hide();
+    }
 </script>
 
+<!-- Brand View Modal -->
+<div id="brand-view-modal" class="ai-modal" style="display: none;">
+    <div class="ai-modal-content brand-view-content">
+        <div class="ai-modal-header">
+            <h2 id="brand-view-title">🏢 <?php _e('Brand Details', 'ai-website-manager-pro'); ?></h2>
+            <button type="button" class="ai-modal-close" onclick="closeBrandViewModal()">&times;</button>
+        </div>
+        <div class="ai-modal-body brand-view-body" id="brand-view-content">
+            <!-- Content loaded via AJAX -->
+            <div class="loading-spinner">
+                <span class="dashicons dashicons-update spin"></span>
+                <?php _e('Loading brand details...', 'ai-website-manager-pro'); ?>
+            </div>
+        </div>
+        <div class="ai-modal-footer">
+            <button type="button" class="button button-secondary" onclick="closeBrandViewModal()">
+                <?php _e('Close', 'ai-website-manager-pro'); ?>
+            </button>
+            <button type="button" class="button button-primary" id="edit-from-view-btn">
+                <span class="dashicons dashicons-edit"></span>
+                <?php _e('Edit Brand', 'ai-website-manager-pro'); ?>
+            </button>
+        </div>
+    </div>
+</div>
+
 <style>
+    .brand-view-content {
+        max-width: 900px !important;
+        width: 90%;
+    }
+
+    .brand-view-body {
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+
+    .brand-section {
+        margin-bottom: 25px;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border-left: 4px solid #667eea;
+    }
+
+    .brand-section h3 {
+        margin: 0 0 15px 0;
+        color: #333;
+        font-size: 1.1em;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .brand-info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 15px;
+    }
+
+    .brand-info-item {
+        background: white;
+        padding: 12px;
+        border-radius: 6px;
+        border: 1px solid #e9ecef;
+    }
+
+    .brand-info-label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 5px;
+        font-size: 0.9em;
+    }
+
+    .brand-info-value {
+        color: #6c757d;
+        font-size: 0.95em;
+    }
+
+    .brand-keywords-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 10px;
+    }
+
+    .brand-keyword-tag {
+        background: #667eea;
+        color: white;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.85em;
+        font-weight: 500;
+    }
+
+    .brand-text-content {
+        background: white;
+        padding: 15px;
+        border-radius: 6px;
+        border: 1px solid #e9ecef;
+        line-height: 1.6;
+        color: #495057;
+    }
+
+    .loading-spinner {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+    }
+
+    .spin {
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
     /* Modal Styles */
     .ai-modal {
         position: fixed;
