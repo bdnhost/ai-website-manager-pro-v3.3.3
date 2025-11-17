@@ -84,6 +84,7 @@ class AI_Manager_Pro_Safe
         add_action('wp_ajax_ai_manager_pro_test_deepseek', [$this, 'handle_test_deepseek']);
         error_log('AI Manager Pro - Registered test_deepseek handler');
         add_action('wp_ajax_ai_manager_pro_save_automation', [$this, 'handle_save_automation']);
+        add_action('wp_ajax_ai_manager_pro_get_automation_task', [$this, 'handle_get_automation_task']);
         add_action('wp_ajax_ai_manager_pro_toggle_automation', [$this, 'handle_toggle_automation']);
         add_action('wp_ajax_ai_manager_pro_clear_logs', [$this, 'handle_clear_logs']);
         add_action('wp_ajax_ai_manager_pro_create_post', [$this, 'handle_create_post']);
@@ -2809,40 +2810,80 @@ class AI_Manager_Pro_Safe
 
         try {
             $task_data = $_POST['task_data'] ?? [];
+            $task_id = sanitize_text_field($_POST['task_id'] ?? '');
+
             if (empty($task_data['name'])) {
                 wp_send_json_error('Task name is required');
             }
 
-            // Sanitize task data
-            $sanitized_task = [
-                'name' => sanitize_text_field($task_data['name']),
-                'type' => sanitize_text_field($task_data['type']),
-                'frequency' => sanitize_text_field($task_data['frequency']),
-                'status' => sanitize_text_field($task_data['status']),
-                'content_topic' => sanitize_text_field($task_data['content_topic'] ?? ''),
-                'content_type' => sanitize_text_field($task_data['content_type'] ?? ''),
-                'created' => current_time('mysql'),
-                'last_run' => null,
-                'next_run' => $this->calculate_next_run($task_data['frequency'])
-            ];
-
             // Get existing tasks
             $tasks = get_option('ai_manager_pro_automation_tasks', []);
 
-            // Generate unique ID
-            $task_id = uniqid('task_');
-            $tasks[$task_id] = $sanitized_task;
+            // Check if editing existing task
+            $is_edit = !empty($task_id) && isset($tasks[$task_id]);
 
-            // Save tasks
+            // Sanitize task data - support both old and new format
+            $sanitized_task = [
+                'name' => sanitize_text_field($task_data['name']),
+                'description' => sanitize_textarea_field($task_data['description'] ?? ''),
+                'schedule' => sanitize_text_field($task_data['schedule'] ?? $task_data['frequency'] ?? 'daily'),
+                'enabled' => isset($task_data['enabled']) ? (bool) $task_data['enabled'] : true,
+                // Legacy fields for backward compatibility
+                'type' => sanitize_text_field($task_data['type'] ?? 'content_generation'),
+                'frequency' => sanitize_text_field($task_data['frequency'] ?? $task_data['schedule'] ?? 'daily'),
+                'status' => sanitize_text_field($task_data['status'] ?? 'active'),
+                'content_topic' => sanitize_text_field($task_data['content_topic'] ?? ''),
+                'content_type' => sanitize_text_field($task_data['content_type'] ?? ''),
+            ];
+
+            if ($is_edit) {
+                // Preserve existing metadata
+                $sanitized_task['created'] = $tasks[$task_id]['created'] ?? current_time('mysql');
+                $sanitized_task['last_run'] = $tasks[$task_id]['last_run'] ?? null;
+            } else {
+                // New task
+                $sanitized_task['created'] = current_time('mysql');
+                $sanitized_task['last_run'] = null;
+                $task_id = uniqid('task_');
+            }
+
+            $sanitized_task['next_run'] = $this->calculate_next_run($sanitized_task['schedule']);
+
+            // Save task
+            $tasks[$task_id] = $sanitized_task;
             update_option('ai_manager_pro_automation_tasks', $tasks);
 
             // Log activity
-            $this->log_activity('info', "Automation task created: {$sanitized_task['name']}", 'automation');
+            $action = $is_edit ? 'updated' : 'created';
+            $this->log_activity('info', "Automation task {$action}: {$sanitized_task['name']}", 'automation');
 
             wp_send_json_success('Automation task saved successfully');
 
         } catch (Exception $e) {
             wp_send_json_error('Failed to save automation task: ' . $e->getMessage());
+        }
+    }
+
+    public function handle_get_automation_task()
+    {
+        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'ai_manager_pro_nonce')) {
+            wp_send_json_error('Security check failed');
+        }
+
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('Insufficient permissions');
+        }
+
+        $task_id = sanitize_text_field($_POST['task_id'] ?? '');
+        if (empty($task_id)) {
+            wp_send_json_error('Task ID is required');
+        }
+
+        $tasks = get_option('ai_manager_pro_automation_tasks', []);
+        if (isset($tasks[$task_id])) {
+            wp_send_json_success($tasks[$task_id]);
+        } else {
+            wp_send_json_error('Task not found');
         }
     }
 
