@@ -2,8 +2,8 @@
 /**
  * Plugin Name: AI Website Manager Pro
  * Plugin URI: https://bdnhost.net/ai-website-manager-pro
- * Description: מערכת ניהול תוכן מתקדמת עם בינה מלאכותית - גרסה 3.3.4 כוללת דשבורד חדשני מודרני, Smart Brand Content Engine עם Topic Pool, AI Topic Generator, RSS Trending Detector, Performance Analytics ו-Content Gap Analyzer. כולל ייבוא/ייצוא מותגים JSON, 25+ פרומפטים מתקדמים ותמיכה מלאה ב-DeepSeek LLM.
- * Version: 3.3.4
+ * Description: מערכת ניהול תוכן מתקדמת עם בינה מלאכותית - גרסה 3.3.5 כוללת דשבורד חדשני מודרני, Smart Brand Content Engine עם Topic Pool, AI Topic Generator, RSS Trending Detector, Performance Analytics ו-Content Gap Analyzer. תצוגה מלאה של מותגים, סנכרון חכם עם יצירת תוכן והצעות פוסטים אוטומטיות מבוססות AI. כולל ייבוא/ייצוא מותגים JSON, 25+ פרומפטים מתקדמים ותמיכה מלאה ב-DeepSeek LLM.
+ * Version: 3.3.5
  * Author: יעקב בידני - BDNHOST
  * Author URI: https://bdnhost.net
  * License: GPL v2 or later
@@ -27,7 +27,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('AI_MANAGER_PRO_VERSION', '3.3.4');
+define('AI_MANAGER_PRO_VERSION', '3.3.5');
 define('AI_MANAGER_PRO_PLUGIN_FILE', __FILE__);
 define('AI_MANAGER_PRO_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('AI_MANAGER_PRO_PLUGIN_URL', plugin_dir_url(__FILE__));
@@ -54,7 +54,7 @@ class AI_Manager_Pro_Safe
         error_log('AI Manager Pro - Plugin constructor called at ' . current_time('mysql'));
         error_log('AI Manager Pro - WordPress version: ' . get_bloginfo('version'));
         error_log('AI Manager Pro - PHP version: ' . PHP_VERSION);
-        error_log('AI Manager Pro - Plugin version: 3.3.4');
+        error_log('AI Manager Pro - Plugin version: 3.3.5');
 
         // Create logs table if it doesn't exist
         $this->create_logs_table();
